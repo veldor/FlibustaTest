@@ -1,0 +1,70 @@
+package net.veldor.flibusta_test.model.adapter
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import net.veldor.flibusta_test.BR
+import net.veldor.flibusta_test.databinding.DownloadScheduleItemLayoutBinding
+import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
+import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
+import net.veldor.flibusta_test.model.helper.UrlHelper
+
+class DownloadScheduleAdapter(
+    arrayList: List<BooksDownloadSchedule>?,
+    val delegate: SomeButtonPressedDelegate,
+    val context: Context
+) :
+    RecyclerView.Adapter<DownloadScheduleAdapter.ViewHolder>() {
+
+    private var values: List<BooksDownloadSchedule> = arrayListOf()
+
+
+    private var mLayoutInflater: LayoutInflater =
+        LayoutInflater.from(context)
+
+
+    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
+        val binding = DownloadScheduleItemLayoutBinding.inflate(
+            mLayoutInflater, viewGroup, false
+        )
+        return ViewHolder(binding)
+    }
+
+
+    override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
+        viewHolder.bind(values[i])
+    }
+
+    override fun getItemCount(): Int {
+        return values.size
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setList(it: List<BooksDownloadSchedule>?) {
+        values = it ?: listOf()
+        notifyDataSetChanged()
+    }
+
+    inner class ViewHolder(private val binding: DownloadScheduleItemLayoutBinding) :
+        RecyclerView.ViewHolder(
+            binding.root
+        ) {
+        fun bind(item: BooksDownloadSchedule) {
+            binding.setVariable(BR.item, item)
+            binding.executePendingBindings()
+            binding.pathToFile.text = UrlHelper.getDownloadedBookPath(item)
+            binding.actionBtn.setOnClickListener {
+                delegate.buttonPressed(item)
+            }
+        }
+    }
+
+
+    init {
+        if (arrayList != null && arrayList.isNotEmpty()) {
+            values = arrayList
+        }
+    }
+}

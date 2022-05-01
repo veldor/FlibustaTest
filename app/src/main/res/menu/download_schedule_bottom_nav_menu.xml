@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_schedule_list"
+        android:icon="@drawable/ic_baseline_view_list_24"
+        android:title="@string/navigation_schedule_list_title" />
+    <item
+        android:id="@+id/navigation_schedule_errors_list"
+        android:icon="@drawable/ic_baseline_error_24"
+        android:title="@string/navigation_schedule_errors_list_title" />
+    <item
+        android:id="@+id/navigation_schedule_statement"
+        android:icon="@drawable/ic_baseline_info_24"
+        android:title="@string/navigation_schedule_statement_title"/>
+</menu>

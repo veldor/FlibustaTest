@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory android:title="@string/download_path_settings">
+        <Preference
+            app:key="download dir location"
+            app:title="@string/title_change_download_folder" />
+
+        <PreferenceCategory android:title="@string/opds_preferences_category">
+            <PreferenceCategory android:title="@string/dir_structure_category">
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:summaryOff="@string/author_dirs_create_enabled"
+                    android:summaryOn="@string/author_dirs_create_disabled"
+                    android:title="@string/author_dirs_pref"
+                    app:key="create author dir" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:summaryOff="@string/sequence_dirs_create_disabled"
+                    android:summaryOn="@string/sequence_dirs_create_enabled"
+                    android:title="@string/sequence_dirs_pref"
+                    app:key="create sequence dir" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="false"
+                    android:summaryOff="@string/different_dirs_create_disabled"
+                    android:summaryOn="@string/different_dirs_create_enabled"
+                    android:title="@string/different_dirs_pref"
+                    app:key="different dirs" />
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:summaryOff="@string/sequences_in_author_dir_disabled"
+                    android:summaryOn="@string/sequences_in_author_dirs_enabled"
+                    android:title="@string/sequences_in_author_dir_pref"
+                    app:key="load sequences to author dir" />
+            </PreferenceCategory>
+
+            <PreferenceCategory android:title="@string/file_name_title">
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:summaryOff="@string/author_name_disabled_title"
+                    android:summaryOn="@string/author_name_enabled_title"
+                    android:title="@string/author_name_title"
+                    app:key="author in book name" />
+
+
+                <SwitchPreferenceCompat
+                    android:defaultValue="true"
+                    android:summaryOff="@string/sequence_in_book_name_disabled_title"
+                    android:summaryOn="@string/sequence_in_book_name_enabled_title"
+                    android:title="@string/sequence_title"
+                    app:key="sequence in book name" />
+
+            </PreferenceCategory>
+
+        </PreferenceCategory>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/global_view_preferences_title">
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:summaryOff="@string/books_autoload_disabled_title"
+            android:summaryOn="@string/books_autoload_enabled_title"
+            android:title="@string/books_autoload_pref"
+            app:key="download auto start" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summaryOff="@string/book_load_notification_hidden"
+            android:summaryOn="@string/book_load_notification_displayed_title"
+            android:title="@string/show_book_load_progress_pref"
+            app:key="show download progress" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:summaryOff="@string/re_download_disabled_title"
+            android:summaryOn="@string/re_download_enabled_title"
+            android:title="@string/re_download_title"
+            app:key="re download"/>
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summaryOff="@string/remember_favorite_format_disabled_title"
+            android:summaryOn="@string/remember_favorite_format_enabled_title"
+            android:title="@string/remember_favorite_title"
+            app:key="remember favorite format"/>
+
+        <DropDownPreference
+            android:entries="@array/favorite_mime_names"
+            android:entryValues="@array/favorite_mime_types"
+            android:summary="@string/books_download_in_favorite_mime_title"
+            android:title="@string/title_favorite_format_preference"
+            app:key="favorite format"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summaryOff="При недоступности книги в выбранном формате- она будет загружена в доступном"
+            android:summaryOn="Книги загружаются строго в выбранном формате"
+            android:title="@string/only_favorite_mime_title"
+            app:key="strict download format" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summaryOff="@string/no_unzip_title"
+            android:summaryOn="@string/unzip_title"
+            android:title="@string/unzip_loaded_title"
+            app:key="unzip loaded" />
+    </PreferenceCategory>
+</PreferenceScreen>

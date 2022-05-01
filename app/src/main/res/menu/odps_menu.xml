@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:yourapp="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:title="@android:string/search_go"
+        yourapp:showAsAction="always" />
+    <item
+        android:id="@+id/action_show_download_state"
+        android:icon="@drawable/ic_baseline_arrow_downward_24"
+        android:title="@string/show_download_state_title"
+        yourapp:showAsAction="ifRoom" />
+</menu>

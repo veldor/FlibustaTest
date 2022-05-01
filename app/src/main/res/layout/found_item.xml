@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.BrowserActivity"
+    >
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="item"
+            type="net.veldor.flibusta_test.model.selections.opds.FoundEntity" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/rootView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@color/colorPrimary">
+
+        <ImageView
+            android:id="@+id/previewImage"
+            android:layout_width="100dp"
+            android:layout_height="143dp"
+            android:background="@color/book_name_color"
+            android:contentDescription="@string/book_cover_hint"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingStart="30dp"
+            android:paddingLeft="30dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="10dp"
+            android:paddingRight="10dp"
+            android:text="@{item.name}"
+            android:textAlignment="center"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/menuButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/menuButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/book_menu"
+            android:src="@drawable/ic_more_vert_black_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/firstBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="name,menuButton" />
+
+        <TextView
+            android:id="@+id/firstInfoBlockLeftParam"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="center"
+            android:textColor="@drawable/author_text_color"
+            android:textSize="12sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/secondBarrier"
+            app:layout_constraintEnd_toStartOf="@+id/firstInfoBlockRightParam"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageBarrier"
+            app:layout_constraintTop_toBottomOf="@+id/firstBarrier" />
+
+        <TextView
+            android:id="@+id/firstInfoBlockRightParam"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="center"
+            android:textColor="@color/author_text_color"
+            android:textSize="12sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/secondBarrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/firstInfoBlockLeftParam"
+            app:layout_constraintTop_toBottomOf="@+id/firstBarrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/secondBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="firstInfoBlockRightParam,firstInfoBlockLeftParam" />
+
+        <TextView
+            android:id="@+id/secondInfoBlockLeftParam"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="48dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="center"
+            android:textColor="@color/sequences_text_color"
+            android:textSize="13sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/thirdBarrier"
+            app:layout_constraintEnd_toStartOf="@+id/firstInfoBlockRightParam"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/imageBarrier"
+            app:layout_constraintTop_toBottomOf="@+id/secondBarrier" />
+
+        <TextView
+            android:id="@+id/secondInfoBlockRightParam"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="center"
+            android:textColor="@color/genre_text_color"
+            android:textSize="12sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@id/thirdBarrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/firstInfoBlockLeftParam"
+            app:layout_constraintTop_toBottomOf="@+id/secondBarrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/thirdBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="previewImage, secondInfoBlockLeftParam,secondInfoBlockRightParam" />
+
+
+        <TextView
+            android:id="@+id/thirdBlockLeftElement"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/textColor"
+            android:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@+id/thirdBlockCenterElement"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/thirdBarrier" />
+
+        <TextView
+            android:id="@+id/thirdBlockCenterElement"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/textColor"
+            android:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@+id/thirdBlocRightElement"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/thirdBlockLeftElement"
+            app:layout_constraintTop_toBottomOf="@id/thirdBarrier" />
+
+        <TextView
+            android:id="@+id/thirdBlocRightElement"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/textColor"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/thirdBlockCenterElement"
+            app:layout_constraintTop_toBottomOf="@id/thirdBarrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/fourthBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="thirdBlockLeftElement,thirdBlockCenterElement,thirdBlocRightElement" />
+
+        <TextView
+            android:id="@+id/availableLinkFormats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/textColor"
+            android:textStyle="bold"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintTop_toBottomOf="@id/fourthBarrier" />
+
+
+        <ImageButton
+            android:id="@+id/leftActionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_readed_24dp"
+            android:contentDescription="@string/book_read_message"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="15dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toStartOf="@+id/centerActionBtn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/availableLinkFormats" />
+
+        <Button
+            android:id="@+id/centerActionBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/download_message"
+            android:textColor="@color/book_name_color"
+            app:layout_constraintEnd_toStartOf="@+id/rightActionBtn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/leftActionBtn"
+            app:layout_constraintTop_toBottomOf="@+id/availableLinkFormats" />
+
+        <ImageButton
+            android:id="@+id/rightActionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_downloaded_24dp"
+            android:contentDescription="@string/book_downloaded_message"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="15dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/centerActionBtn"
+            app:layout_constraintTop_toBottomOf="@+id/availableLinkFormats" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/imageBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="previewImage" />
+
+        <ProgressBar
+            android:id="@+id/loadingMoreBar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/centerActionBtn" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

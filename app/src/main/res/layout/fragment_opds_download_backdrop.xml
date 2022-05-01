@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.BrowserActivity"
+    android:background="@drawable/rounded_corner">
+
+    <ImageView
+        android:id="@+id/pullUpView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/shift_image"
+        android:src="@drawable/backdrop_lift"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/startDownloadButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/textColor"
+        android:text="@string/start_download_title"
+        app:layout_constraintTop_toBottomOf="@id/pullUpView" />
+
+    <Button
+        android:id="@+id/all_btn"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textColor"
+        android:text="@string/all_title"
+        app:layout_constraintEnd_toStartOf="@+id/none_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
+
+    <Button
+        android:id="@+id/none_btn"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:textColor="@color/textColor"
+        android:layout_height="wrap_content"
+        android:text="@string/none_title"
+        app:layout_constraintEnd_toStartOf="@+id/invert_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/all_btn"
+        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
+
+    <Button
+        android:id="@+id/invert_btn"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textColor"
+        android:text="@string/invert_title"
+        app:layout_constraintEnd_toStartOf="@+id/unloaded_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/none_btn"
+        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
+
+    <Button
+        android:id="@+id/unloaded_btn"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/textColor"
+        android:text="@string/unloaded_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/invert_btn"
+        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/strictFormatCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="20dp"
+        android:text="@string/strict_title"
+        app:layout_constraintBottom_toBottomOf="@+id/formatSpinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/formatSpinner" />
+
+    <net.veldor.flibusta_test.model.components.DownloadFormatSpinner
+        android:id="@+id/formatSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/strictFormatCheckbox"
+        app:layout_constraintTop_toBottomOf="@+id/unloaded_btn" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/saveAsFolderCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="9dp"
+        android:text="@string/save_as_sequence_title"
+        app:layout_constraintBottom_toBottomOf="@+id/customDirName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/customDirName" />
+
+    <EditText
+        android:id="@+id/customDirName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:hint="@string/enter_sequence_name_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/saveAsFolderCheckbox"
+        app:layout_constraintTop_toBottomOf="@+id/formatSpinner" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/resultsList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/customDirName"
+        tools:layout_editor_absoluteX="4dp" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

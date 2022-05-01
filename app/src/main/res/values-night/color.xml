@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <color name="colorPrimary">#000000</color>
+        <color name="colorPrimaryDark">#000000</color>
+        <color name="textColor">#C0C0C0</color>
+        <color name="background_color">#000000</color>
+        <color name="dropdownBackgroundColor">#434343</color>
+        <color name="sequences_background">#94000000</color>
+        <color name="sequences_text_color">#FFA5FC</color>
+        <color name="genre_text_color">#93FF9B</color>
+        <color name="author_text_color">#B2BBFF</color>
+        <color name="book_name_color">#f59214</color>
+        <color name="translator_text_color">#BFD3FF</color>
+        <color name="icon_text_color">#C0C0C0</color>
+        <color name="app_bar_icons_color">#AFAEAE</color>
+        <color name="bottomNavigationColor">#000000</color>
+
+    <color name="fb2_color">#F38F88</color>
+    <color name="mobi_color">#F1AFC5</color>
+    <color name="epub_color">#AF8EB5</color>
+    <color name="pdf_color">#A491C5</color>
+    <color name="djvu_color">#9298B8</color>
+    <color name="html_color">#A3CEF1</color>
+    <color name="doc_color">#9FDBF6</color>
+    <color name="docx_color">#70A19D</color>
+    <color name="txt_color">#ACC193</color>
+    <color name="rtf_color">#CDDC39</color>
+    <color name="zip_color">#EACA9C</color>
+    <color name="chm_color">#F8C6B7</color>
+
+
+    <color name="lightTextColor">#A1A1A1</color>
+    <color name="fabColor">#373737</color>
+    </resources>

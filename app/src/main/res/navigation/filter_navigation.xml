@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/filter_navigation"
+    app:startDestination="@+id/navigation_filter_preferences">
+
+    <fragment
+        android:id="@+id/navigation_filter_preferences"
+        android:name="net.veldor.flibusta_test.ui.filter_fragments.FilterPrefsFragment"
+        android:label="@string/navigation_go_filter_prefs" />
+
+    <fragment
+        android:id="@+id/navigation_filter_rules"
+        android:name="net.veldor.flibusta_test.ui.filter_fragments.FilterRulesFragment"
+        android:label="@string/navigation_go_filter_rules"/>
+</navigation>
