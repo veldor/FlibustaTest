@@ -13,54 +13,117 @@
             type="net.veldor.flibusta_test.model.selections.opds.FoundEntity" />
     </data>
 
-    <androidx.cardview.widget.CardView
+    <com.facebook.shimmer.ShimmerFrameLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="3dp"
-        android:padding="3dp">
+        android:layout_margin="3dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="3dp">
 
-            <CheckBox
-                android:id="@+id/checkBox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/selectedFormat"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="30dp"
-                android:layout_marginRight="30dp"
-                android:textSize="25sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <CheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/bookName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{item.name}"
-                android:textColor="@color/book_name_color"
-                app:layout_constraintEnd_toStartOf="@+id/selectedFormat"
-                app:layout_constraintStart_toEndOf="@+id/checkBox"
-                app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/selectedFormat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginRight="30dp"
+                    android:textSize="25sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/bookSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/checkBox"
-                app:layout_constraintTop_toBottomOf="@id/bookName" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/bookName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{item.name}"
+                    android:textColor="@color/book_name_color"
+                    app:layout_constraintEnd_toStartOf="@+id/selectedFormat"
+                    app:layout_constraintStart_toEndOf="@+id/checkBox"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/authorName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{item.author}"
+                    android:textColor="@color/author_text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toStartOf="@id/translatorName"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@id/checkBox"
+                    app:layout_constraintTop_toBottomOf="@id/bookName" />
+
+                <TextView
+                    android:id="@+id/translatorName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{item.translate}"
+                    android:textColor="@color/translator_text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toStartOf="@id/selectedFormat"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@id/authorName"
+                    app:layout_constraintTop_toBottomOf="@id/bookName" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/firstBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="authorName, translatorName" />
+
+                <TextView
+                    android:id="@+id/sequenceName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:text="@{item.sequencesComplex}"
+                    android:textColor="@color/sequences_text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toStartOf="@id/genreName"
+                    app:layout_constraintStart_toEndOf="@id/checkBox"
+                    app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
+
+                <TextView
+                    android:id="@+id/genreName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:text="@{item.genreComplex}"
+                    android:textColor="@color/genre_text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toStartOf="@id/selectedFormat"
+                    app:layout_constraintStart_toEndOf="@id/sequenceName"
+                    app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
+
+                <TextView
+                    android:id="@+id/bookSize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/checkBox"
+                    app:layout_constraintTop_toBottomOf="@id/bookName" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
 </layout>

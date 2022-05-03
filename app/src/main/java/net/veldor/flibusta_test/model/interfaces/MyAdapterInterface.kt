@@ -13,7 +13,7 @@ interface MyAdapterInterface {
     fun sort()
     fun getClickedItemId(): Long
     fun notEmpty(): Boolean
-    fun getList(): List<FoundEntity>
+    fun getList(): ArrayList<FoundEntity>
     fun containsBooks(): Boolean
     fun containsAuthors(): Boolean
     fun containsGenres(): Boolean

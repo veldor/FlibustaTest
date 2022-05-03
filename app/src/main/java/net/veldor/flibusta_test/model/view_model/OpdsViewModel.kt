@@ -8,20 +8,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.db.entity.ReadedBooks
+import net.veldor.flibusta_test.model.delegate.BookInfoAddedDelegate
 import net.veldor.flibusta_test.model.delegate.FormatAvailabilityCheckDelegate
 import net.veldor.flibusta_test.model.delegate.PictureLoadedDelegate
 import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
 import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.helper.StringHelper
+import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.parser.OpdsParser
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.HistoryItem
 import net.veldor.flibusta_test.model.selections.RequestItem
@@ -31,8 +30,10 @@ import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
 class OpdsViewModel : ViewModel() {
+    private var checkBooksWork: Job? = null
     private var lastScrolled: Int = -1
     var searchResultsDelegate: SearchResultActionDelegate? = null
+    private var bookInfoDelegate: BookInfoAddedDelegate? = null
     private var currentWork: Job? = null
     private val _liveRequestState: MutableLiveData<String> = MutableLiveData(STATUS_WAIT)
     val liveRequestState: LiveData<String> = _liveRequestState
@@ -227,6 +228,65 @@ class OpdsViewModel : ViewModel() {
 
     fun getAutocomplete(type: String): ArrayList<String> {
         return FilesHandler.getSearchAutocomplete(type)
+    }
+
+    fun checkItemsFilled(booksList: List<FoundEntity>?) {
+        checkBooksWork?.cancel()
+        checkBooksWork = viewModelScope.launch(Dispatchers.IO) {
+            bookInfoDelegate?.checkProgress(0,1, booksList?.size)
+            var counter = 1
+            var linksCounter = 1
+
+            var info: DownloadLink?
+            booksList?.forEach { book ->
+                if (book.name == null) {
+                    book.downloadLinks.forEach { link ->
+                        if (!this.isActive || checkBooksWork?.isCancelled == true) {
+                            Log.d("surprise", "OpdsViewModel.kt 246: cancelled")
+                            return@launch
+                        }
+                        if (link.url != null) {
+                            info = DownloadLinkHandler.createDownloadLinkFromHref(UrlHelper.getBaseUrl() + link.url!!)
+                            if (info != null) {
+                                link.author = info!!.author
+                                link.name = info!!.name
+                                link.authorDirName = info!!.authorDirName
+                                link.sequenceDirName = info!!.sequenceDirName
+                                link.size = info!!.size
+                                link.mime = info!!.mime
+                                link.id = info!!.id
+
+                                if (book.name == null) {
+                                    book.name = link.name
+                                    book.author = link.author
+                                    book.sequencesComplex = link.sequenceDirName!!
+                                }
+                            }
+                        }
+                        linksCounter++
+                        bookInfoDelegate?.checkProgress(linksCounter,counter, booksList.size)
+                    }
+                    bookInfoDelegate?.infoAdded(book)
+                }
+                counter++
+                bookInfoDelegate?.checkProgress(linksCounter,counter, booksList.size)
+            }
+            counter++
+            bookInfoDelegate?.checkProgress(linksCounter,counter, booksList?.size)
+        }
+    }
+
+    fun setBookInfoAddedDelegate(delegate: BookInfoAddedDelegate) {
+        bookInfoDelegate = delegate
+    }
+
+    fun removeBookInfoAddedDelegate() {
+        bookInfoDelegate = null
+        checkBooksWork?.cancel()
+    }
+
+    fun cancelBookInfoLoad() {
+        checkBooksWork?.cancel()
     }
 
     companion object {

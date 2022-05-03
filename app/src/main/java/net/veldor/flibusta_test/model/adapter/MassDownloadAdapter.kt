@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
@@ -16,14 +17,14 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 
 class MassDownloadAdapter(
-    arrayList: List<FoundEntity>?,
+    arrayList: ArrayList<FoundEntity>?,
     val delegate: CheckboxDelegate,
     val context: Context
 ) :
     RecyclerView.Adapter<MassDownloadAdapter.ViewHolder>() {
 
     private var selectedFormat: String? = null
-    private var values: List<FoundEntity> = arrayListOf()
+    private var values: ArrayList<FoundEntity> = arrayListOf()
 
 
     private var mLayoutInflater: LayoutInflater =
@@ -46,8 +47,8 @@ class MassDownloadAdapter(
         return values.size
     }
 
-    fun setList(it: List<FoundEntity>?, selectedFormat: String) {
-        values = it ?: listOf()
+    fun setList(it: ArrayList<FoundEntity>?, selectedFormat: String) {
+        values = it ?: arrayListOf()
         changeDownloadFormat(selectedFormat)
     }
 
@@ -59,9 +60,25 @@ class MassDownloadAdapter(
         fun bind(item: FoundEntity) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
+            if (item.name == null) {
+                binding.root.showShimmer(true)
+            } else {
+                binding.root.stopShimmer()
+                binding.root.hideShimmer()
+            }
             binding.checkBox.setOnCheckedChangeListener { _, state ->
                 delegate.checked(state)
                 if (state) {
+                    if (item.downloadLinks.isEmpty()) {
+                        binding.checkBox.isChecked = false
+                        binding.selectedFormat.text = "--"
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.no_download_links_title),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@setOnCheckedChangeListener
+                    }
                     if (selectedFormat != null) {
                         item.downloadLinks.forEach { link ->
                             if (FormatHandler.isSame(link.mime, selectedFormat)) {
@@ -82,7 +99,12 @@ class MassDownloadAdapter(
                 if (item.selectedLink != null) {
                     binding.selectedFormat.text =
                         FormatHandler.getShortFromFullMimeWithoutZip(item.selectedLink!!.mime)
-                    binding.selectedFormat.setTextColor(FormatHandler.getTextColor(item.selectedLink!!.mime, context))
+                    binding.selectedFormat.setTextColor(
+                        FormatHandler.getTextColor(
+                            item.selectedLink!!.mime,
+                            context
+                        )
+                    )
                 } else {
                     binding.selectedFormat.text = context.getString(R.string.skip_title)
                     binding.selectedFormat.setTextColor(
@@ -97,10 +119,12 @@ class MassDownloadAdapter(
             if (item.selectedLink != null) {
                 binding.selectedFormat.text =
                     FormatHandler.getShortFromFullMimeWithoutZip(item.selectedLink!!.mime)
-                binding.selectedFormat.setTextColor(FormatHandler.getTextColor(
-                    item.selectedLink!!.mime,
-                    context
-                ))
+                binding.selectedFormat.setTextColor(
+                    FormatHandler.getTextColor(
+                        item.selectedLink!!.mime,
+                        context
+                    )
+                )
                 binding.checkBox.isChecked = true
             } else {
                 // no link for download
@@ -125,7 +149,7 @@ class MassDownloadAdapter(
                     return@outer
                 }
             }
-            if (it.selectedLink == null) {
+            if (it.selectedLink == null && it.downloadLinks.isNotEmpty()) {
                 it.selectedLink = it.downloadLinks[0]
             }
         }
@@ -141,18 +165,17 @@ class MassDownloadAdapter(
 
     fun reverseCheckAll() {
         values.forEach {
-           if(it.selectedLink == null){
-               it.downloadLinks.forEach outer@{ link ->
-                   if (FormatHandler.isSame(link.mime, selectedFormat)) {
-                       it.selectedLink = link
-                       return@outer
-                   }
-               }
-               if (it.selectedLink == null) {
-                   it.selectedLink = it.downloadLinks[0]
-               }
-            }
-            else{
+            if (it.selectedLink == null) {
+                it.downloadLinks.forEach outer@{ link ->
+                    if (FormatHandler.isSame(link.mime, selectedFormat)) {
+                        it.selectedLink = link
+                        return@outer
+                    }
+                }
+                if (it.selectedLink == null && it.downloadLinks.isNotEmpty()) {
+                    it.selectedLink = it.downloadLinks[0]
+                }
+            } else {
                 it.selectedLink = null
             }
         }
@@ -161,17 +184,16 @@ class MassDownloadAdapter(
 
     fun checkUnloaded() {
         values.forEach {
-            if(it.downloaded){
+            if (it.downloaded) {
                 it.selectedLink = null
-            }
-            else{
+            } else {
                 it.downloadLinks.forEach outer@{ link ->
                     if (FormatHandler.isSame(link.mime, selectedFormat)) {
                         it.selectedLink = link
                         return@outer
                     }
                 }
-                if (it.selectedLink == null) {
+                if (it.selectedLink == null && it.downloadLinks.isNotEmpty()) {
                     it.selectedLink = it.downloadLinks[0]
                 }
             }
@@ -193,7 +215,7 @@ class MassDownloadAdapter(
         Log.d("surprise", "changeDownloadFormat: selected $selectedFormat")
         this.selectedFormat = selectedFormat
         values.forEach {
-            if(it.type == TYPE_BOOK){
+            if (it.type == TYPE_BOOK) {
                 it.selectedLink = null
                 it.downloadLinks.forEach outer@{ link ->
                     if (FormatHandler.isSame(link.mime, selectedFormat)) {
@@ -202,9 +224,9 @@ class MassDownloadAdapter(
                     }
                 }
                 if (it.selectedLink == null) {
-                    if (PreferencesHandler.instance.strictDownloadFormat) {
+                    if (PreferencesHandler.instance.strictDownloadFormat || it.downloadLinks.isEmpty() || it.downloadLinks[0].mime == null) {
                         it.selectedLink = null
-                    } else {
+                    } else if (it.downloadLinks.isNotEmpty()) {
                         it.selectedLink = it.downloadLinks[0]
                     }
                 }
@@ -221,6 +243,68 @@ class MassDownloadAdapter(
 
     fun getList(): List<FoundEntity> {
         return values
+    }
+
+    fun updateBookInfo(book: FoundEntity) {
+        Log.d("surprise", "MassDownloadAdapter.kt 249: update book info ${book.id}")
+        var positon = -1
+        // check position of book
+        values.forEach { listItem ->
+            if (listItem.id == book.id) {
+                positon = values.indexOf(listItem)
+                Log.d("surprise", "MassDownloadAdapter.kt 256: have book in position $positon")
+                return@forEach
+            }
+        }
+        if (positon >= 0) {
+            values[positon] = book
+            // set checked
+            book.selectedLink = null
+            if(book.downloadLinks.isNotEmpty()){
+                book.downloadLinks.forEach outer@{ link ->
+                    if (FormatHandler.isSame(link.mime, selectedFormat)) {
+                        book.selectedLink = link
+                        delegate.checked(true)
+                        return@outer
+                    }
+                }
+                if (book.selectedLink == null) {
+                    if (PreferencesHandler.instance.strictDownloadFormat || book.downloadLinks.isEmpty()) {
+                        book.selectedLink = null
+                        if(book.name == null){
+                            book.downloadLinks.forEach outer@{ link ->
+                                if(link.name != null){
+                                    book.name = link.name!!
+                                    notifyItemChanged(positon)
+                                    return
+                                }
+                            }
+                            book.name = "no links"
+                        }
+                        delegate.checked(false)
+                    } else if (book.downloadLinks.isNotEmpty()) {
+                        book.downloadLinks.forEach outer@{ link ->
+                            if(link.mime != null){
+                                book.selectedLink = link
+                                delegate.checked(true)
+                                notifyItemChanged(positon)
+                                return
+                            }
+                        }
+                        book.name = "no links"
+                    }
+                    else{
+                        Log.d("surprise", "MassDownloadAdapter.kt 277: notify book has no links")
+                        book.name = "no links"
+                    }
+                }
+            }
+            else{
+                Log.d("surprise", "MassDownloadAdapter.kt 277: notify book has no links")
+                book.name = "no links"
+            }
+            notifyItemChanged(positon)
+        }
     }
 
 

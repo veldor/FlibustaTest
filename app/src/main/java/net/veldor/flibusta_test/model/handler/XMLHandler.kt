@@ -1,10 +1,16 @@
 package net.veldor.flibusta_test.model.handler
 
 import android.util.Log
+import net.veldor.flibusta_test.model.helper.UrlHelper
+import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
+import net.veldor.flibusta_test.model.selections.DownloadLink
+import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import org.jsoup.Jsoup
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import org.xml.sax.SAXException
 import java.io.IOException
+import java.io.InputStream
 import java.io.StringReader
 import java.io.StringWriter
 import javax.xml.parsers.DocumentBuilder
@@ -105,12 +111,58 @@ object XMLHandler {
                     if (node.textContent == value) {
                         dom.documentElement.insertBefore(node, dom.documentElement.firstChild)
                         FilesHandler.saveSearchAutocomplete(getStringFromDocument(dom), type)
-                        Log.d("surprise", "putSearchValue: moved up autocomplete value $value on $type")
+                        Log.d(
+                            "surprise",
+                            "putSearchValue: moved up autocomplete value $value on $type"
+                        )
                         return true
                     }
                 }
             }
         }
         return false
+    }
+
+    suspend fun searchDownloadLinks(textStream: InputStream): ArrayList<FoundEntity> {
+        val result: ArrayList<FoundEntity> = arrayListOf()
+        val booksList = HashMap<String, FoundEntity>()
+        val dom: org.jsoup.nodes.Document
+        val url = "http://flibusta.is"
+        dom = Jsoup.parse(textStream, "UTF-8", url)
+        val links = dom.select("a")
+        var href: String?
+        var bookId: String?
+        var downloadLink: DownloadLink
+        val downloadLinkPattern = Regex("/b/\\d+/.+")
+        links.forEach { link ->
+            href = link.attr("href")
+            if (href != null && href!!.matches(downloadLinkPattern) && !href!!.endsWith("read")) {
+                // found link
+                bookId = href!!.replace("fb2", "").filter { it.isDigit() }
+                if (bookId != null) {
+                    // create book entity if not exists
+                    if (!booksList.containsKey(bookId)) {
+                        booksList[bookId!!] = FoundEntity()
+                        booksList[bookId]?.id = bookId
+                        booksList[bookId]?.type = TYPE_BOOK
+                    }
+                }
+                downloadLink = DownloadLink()
+                downloadLink.url = href
+                booksList[bookId]?.downloadLinks?.add(downloadLink)
+                /*// add download link
+                val linkItem =
+                    DownloadLinkHandler.createDownloadLinkFromHref(UrlHelper.getBaseUrl() + href)
+                if (linkItem != null) {
+                    if (booksList[bookId]!!.downloadLinks.isEmpty()) {
+                        booksList[bookId]!!.author = linkItem.author
+                    }
+                    booksList[bookId]!!.downloadLinks.add(linkItem)
+                }*/
+            }
+        }
+        Log.d("surprise", "XMLHandler.kt 159: books in result ${booksList.size}")
+        result.addAll(booksList.values)
+        return result
     }
 }

@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import net.veldor.flibusta_test.model.delegate.DownloadLinksDelegate
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.web.WebViewClient
 import net.veldor.flibusta_test.ui.BrowserActivity
@@ -15,10 +16,10 @@ class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attr
     private var init = false
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun setup() {
+    fun setup(delegate: DownloadLinksDelegate) {
         if (!this.isInEditMode) {
             Log.d("surprise", "MyWebView.kt 19: setup webview")
-            this.webViewClient = WebViewClient(context)
+            this.webViewClient = WebViewClient(context, delegate)
             val webSettings = this.settings
             webSettings.javaScriptEnabled = true
             webSettings.allowFileAccess = true

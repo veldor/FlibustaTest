@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.BrowserActivity"
-    android:background="@drawable/rounded_corner">
+    android:background="@drawable/rounded_corner"
+    tools:context=".ui.BrowserActivity">
 
     <ImageView
         android:id="@+id/pullUpView"
@@ -19,23 +19,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <ProgressBar
+        android:id="@+id/linksCheckProgress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pullUpView" />
+
+    <TextView
+        android:id="@+id/linkCheckProgressText"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linksCheckProgress" />
+
     <Button
         android:id="@+id/startDownloadButton"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:textColor="@color/textColor"
         android:text="@string/start_download_title"
-        app:layout_constraintTop_toBottomOf="@id/pullUpView" />
+        android:textColor="@color/textColor"
+        app:layout_constraintTop_toBottomOf="@id/linkCheckProgressText" />
 
     <Button
         android:id="@+id/all_btn"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/textColor"
         android:text="@string/all_title"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toStartOf="@+id/none_btn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,9 +67,9 @@
         android:id="@+id/none_btn"
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
-        android:textColor="@color/textColor"
         android:layout_height="wrap_content"
         android:text="@string/none_title"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toStartOf="@+id/invert_btn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/all_btn"
@@ -58,8 +80,8 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/textColor"
         android:text="@string/invert_title"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toStartOf="@+id/unloaded_btn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/none_btn"
@@ -70,8 +92,8 @@
         style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/textColor"
         android:text="@string/unloaded_title"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/invert_btn"

@@ -14,6 +14,7 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityBrowserBinding
 import net.veldor.flibusta_test.model.view_model.WebViewViewModel
 import net.veldor.flibusta_test.ui.browser_fragments.OpdsFragment
+import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
 
 class BrowserActivity : BaseActivity() {
 
@@ -54,6 +55,7 @@ class BrowserActivity : BaseActivity() {
         val item = menuNav.findItem(R.id.goBrowse)
         item.isEnabled = false
         item.isChecked = true
+        anchorView = binding.bottomNavView
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -66,6 +68,9 @@ class BrowserActivity : BaseActivity() {
         val fragment = getCurrentFragment()
         if (fragment is OpdsFragment) {
             return fragment.keyPressed(keyCode)
+        }
+        else if(fragment is WebViewFragment){
+            return fragment.keyPressed(keyCode, event)
         }
         return super.onKeyDown(keyCode, event)
     }

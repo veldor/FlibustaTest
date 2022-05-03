@@ -108,6 +108,9 @@ class OpdsParser(private val text: String) {
                                     attributeIndex = attributes.getIndex("href")
                                     downloadLink = DownloadLink()
                                     downloadLink.url = attributes.getValue(attributeIndex)
+                                    if(foundedEntity != null && foundedEntity?.id == null){
+                                        foundedEntity?.id = downloadLink.url!!.replace("fb2", "").filter { it.isDigit() }
+                                    }
                                     attributeIndex = attributes.getIndex("type")
                                     downloadLink.mime = attributes.getValue(attributeIndex)
                                     foundedEntity!!.downloadLinks.add(downloadLink)
@@ -267,7 +270,6 @@ class OpdsParser(private val text: String) {
                             }
                         }
                         foundedEntity!!.type = contentType!!
-                        foundedEntity!!.id = textValue!!
                     }
                     if (nameFound) {
                         if (ch != null) {

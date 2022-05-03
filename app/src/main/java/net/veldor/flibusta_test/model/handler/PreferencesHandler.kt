@@ -14,7 +14,7 @@ import java.io.File
 class PreferencesHandler private constructor() {
 
     var browserViewMode: Int
-        get() = preferences.getInt(PREF_BROWSER_VIEW_MODE, WebViewFragment.VIEW_MODE_LIGHT)
+        get() = preferences.getInt(PREF_BROWSER_VIEW_MODE, WebViewFragment.VIEW_MODE_FAST)
         set(state) {
             preferences.edit().putInt(PREF_BROWSER_VIEW_MODE, state).apply()
         }
@@ -141,6 +141,19 @@ class PreferencesHandler private constructor() {
             preferences.edit().putBoolean(PREF_DISPLAY_PAGER_BUTTON, state).apply()
         }
 
+    var isShowLoadMoreBtn: Boolean
+        get() = preferences.getBoolean(PREF_SHOW_LOAD_MORE_BTN, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SHOW_LOAD_MORE_BTN, state).apply()
+        }
+
+
+    var isFilterByLongClick: Boolean
+        get() = preferences.getBoolean(PREF_ADD_FILTER_BY_LONG_CLICK, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_ADD_FILTER_BY_LONG_CLICK, state).apply()
+        }
+
     var isHideDigests: Boolean
         get() = preferences.getBoolean(HIDE_DIGESTS_PREF, false)
         set(state) {
@@ -251,7 +264,7 @@ class PreferencesHandler private constructor() {
         return false
     }
 
-    private fun getCompatDownloadDir(): File? {
+    fun getCompatDownloadDir(): File? {
         var dd: File? = null
         val downloadLocation = preferences.getString(PREF_DOWNLOAD_LOCATION, null)
         if (downloadLocation != null) {
@@ -383,6 +396,8 @@ class PreferencesHandler private constructor() {
         private const val PREF_GENRE_STRICT_FILTER = "strict genre filter"
         private const val PREF_AUTHOR_STRICT_FILTER = "strict author filter"
         private const val PREF_HIDE_READ = "hide read"
+        private const val PREF_ADD_FILTER_BY_LONG_CLICK = "add filter by long click"
+        private const val PREF_SHOW_LOAD_MORE_BTN = "show load more button"
         private const val PREF_LIGHT_OPDS_ADAPTER = "opds light adapter"
         private const val PREF_DISPLAY_PAGER_BUTTON = "display pager button"
         private const val PREF_HIDE_OPDS_SEARCH_RESULTS_BUTTONS = "no item buttons"

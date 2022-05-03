@@ -281,7 +281,7 @@ class OpdsFragment : Fragment(),
             hamburgerDrawable
         )
         showAutofillBtn.setOnClickListener {
-            if(showHints){
+            if (showHints) {
                 // animate it
                 val animator = ValueAnimator.ofFloat(1.0f, 0.0f)
                 animator.interpolator = AccelerateDecelerateInterpolator()
@@ -294,8 +294,7 @@ class OpdsFragment : Fragment(),
                 }
                 animator.start()
                 autocompleteComponent?.setAdapter(null)
-            }
-            else{
+            } else {
                 // animate it
                 val animator = ValueAnimator.ofFloat(0.0f, 1.0f)
                 animator.interpolator = AccelerateDecelerateInterpolator()
@@ -358,7 +357,7 @@ class OpdsFragment : Fragment(),
         if (mLastQuery != null) {
             binding.bookSearchView.setQuery(mLastQuery, false)
         }
-        binding.bookSearchView.queryHint = "Enter request"
+        binding.bookSearchView.queryHint = getString(R.string.enter_request_title)
         binding.bookSearchView.setOnQueryTextFocusChangeListener { view, b ->
             Log.d("surprise", "setupUI: focus changed")
             if (b) {
@@ -373,6 +372,7 @@ class OpdsFragment : Fragment(),
                 binding.searchOptionsContainer.visibility = View.GONE
             }
         }
+
         binding.bookSearchView.setOnQueryTextListener(object :
             android.widget.SearchView.OnQueryTextListener,
             SearchView.OnQueryTextListener {
@@ -492,7 +492,7 @@ class OpdsFragment : Fragment(),
 
         // handle search type value change
         binding.searchType.setOnCheckedChangeListener { _, i ->
-            if(showHints){
+            if (showHints) {
                 val searchAdapter =
                     setAutocompleteAdapter()
                 autocompleteComponent?.setAdapter(searchAdapter)
@@ -760,7 +760,9 @@ class OpdsFragment : Fragment(),
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(STATE_SEARCH_VALUE, binding.bookSearchView.query.toString())
+        if (this::binding.isInitialized) {
+            outState.putString(STATE_SEARCH_VALUE, binding.bookSearchView.query.toString())
+        }
     }
 
     override fun buttonPressed(item: FoundEntity) {
@@ -1127,6 +1129,10 @@ class OpdsFragment : Fragment(),
             }
             if (bottomSheetBehavior != null && bottomSheetBehavior?.state != BottomSheetBehavior.STATE_HIDDEN) {
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
+                return true
+            }
+            if (bottomSheetCoverBehavior != null && bottomSheetCoverBehavior?.state != BottomSheetBehavior.STATE_HIDDEN) {
+                bottomSheetCoverBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 return true
             }
             // если открыта нижняя вкладка с загрузка

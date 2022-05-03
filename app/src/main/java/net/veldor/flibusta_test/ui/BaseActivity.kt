@@ -31,6 +31,7 @@ open class BaseActivity : AppCompatActivity() {
 
     private var bookAddedSnackbar: Snackbar? = null
     var rootView: View? = null
+    var anchorView: View? = null
     protected lateinit var mNavigationView: NavigationView
     private lateinit var mDownloadsListTextView: TextView
     private lateinit var mSubscriptionsListTextView: TextView
@@ -116,6 +117,9 @@ open class BaseActivity : AppCompatActivity() {
                     val intent = Intent(this, DownloadScheduleActivity::class.java)
                     startActivity(intent)
                 }
+            }
+            if(anchorView != null){
+                bookAddedSnackbar?.anchorView = anchorView!!
             }
             if (bookAddedSnackbar?.isShown != true) {
                 bookAddedSnackbar?.show()

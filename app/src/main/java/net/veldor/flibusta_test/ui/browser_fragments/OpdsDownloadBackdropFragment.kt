@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.ui.browser_fragments
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,20 +15,20 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentOpdsDownloadBackdropBinding
 import net.veldor.flibusta_test.model.adapter.DownloadFormatAdapter
 import net.veldor.flibusta_test.model.adapter.MassDownloadAdapter
+import net.veldor.flibusta_test.model.delegate.BookInfoAddedDelegate
 import net.veldor.flibusta_test.model.delegate.CheckboxDelegate
 import net.veldor.flibusta_test.model.handler.FormatHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.view_model.OpdsViewModel
 import java.util.*
 
 
-class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate {
+class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate, BookInfoAddedDelegate {
 
     private lateinit var viewModel: OpdsViewModel
     private lateinit var binding: FragmentOpdsDownloadBackdropBinding
-    private var booksList: List<FoundEntity>? = null
+    private var booksList: ArrayList<FoundEntity>? = null
     private var selectedFormat: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +45,13 @@ class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate {
         binding = FragmentOpdsDownloadBackdropBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this).get(OpdsViewModel::class.java)
         setupUI()
+        viewModel.setBookInfoAddedDelegate(this)
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.removeBookInfoAddedDelegate()
     }
 
     private fun setupUI() {
@@ -139,16 +146,16 @@ class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate {
         }
     }
 
-    fun loadBooksList(list: List<FoundEntity>) {
-        // clear list from no-books
-
-        booksList = list.filter {
-            return@filter it.type == TYPE_BOOK
-        }
+    fun loadBooksList(books: ArrayList<FoundEntity>) {
+        booksList = books
         (binding.resultsList.adapter as MassDownloadAdapter?)?.setList(
-            list,
+            booksList,
             binding.formatSpinner.selectedItem as String
         )
+
+        // check books for filling
+        viewModel.checkItemsFilled(booksList)
+
         binding.startDownloadButton.text = String.format(
             Locale.ENGLISH,
             getString(R.string.download_x_title),
@@ -162,5 +169,45 @@ class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate {
             getString(R.string.download_x_title),
             (binding.resultsList.adapter as MassDownloadAdapter?)?.countSelected()
         )
+    }
+
+    override fun infoAdded(book: FoundEntity) {
+        requireActivity().runOnUiThread {
+            (binding.resultsList.adapter as MassDownloadAdapter?)?.updateBookInfo(book)
+        }
+    }
+
+    override fun checkProgress(linksChecked: Int, currentProgress: Int, size: Int?) {
+        requireActivity().runOnUiThread{
+            if (size != null && size > 0) {
+                if (currentProgress <= size) {
+                    binding.linksCheckProgress.visibility = View.VISIBLE
+                    binding.linksCheckProgress.max = size
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        binding.linksCheckProgress.setProgress(currentProgress, true)
+                    } else {
+                        binding.linksCheckProgress.progress = currentProgress
+                    }
+                    binding.linkCheckProgressText.visibility = View.VISIBLE
+                    binding.linkCheckProgressText.text = String.format(
+                        Locale.ENGLISH,
+                        getString(R.string.books_availability_pattern),
+                        currentProgress,
+                        size,
+                        linksChecked
+                    )
+                } else {
+                    binding.linksCheckProgress.visibility = View.GONE
+                    binding.linkCheckProgressText.visibility = View.GONE
+                }
+            } else {
+                binding.linksCheckProgress.visibility = View.GONE
+                binding.linkCheckProgressText.visibility = View.GONE
+            }
+        }
+    }
+
+    fun cancelBookInfoLoad() {
+        viewModel.cancelBookInfoLoad()
     }
 }

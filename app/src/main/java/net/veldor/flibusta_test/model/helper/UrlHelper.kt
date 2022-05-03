@@ -79,7 +79,6 @@ object UrlHelper {
     }
 
     fun getDownloadedBookPath(link: DownloadLink, handleName: Boolean): String {
-        Log.d("surprise", "getDownloadedBookPath: mime is ${link.mime}")
         val sb = StringBuffer()
         val rootDir = PreferencesHandler.instance.getDownloadDirLocation()
         val bookName = if (handleName) getBookName(link) else link.name
@@ -139,11 +138,11 @@ object UrlHelper {
                         }
                     }
                     if (link.authorDirName != null) {
-                        sb.append("${link.authorDirName!!.trim()}/")
+                        sb.append(link.authorDirName!!.trim())
                     }
                     val subDirs = link.sequenceDirName!!.split("$|$")
                     subDirs.forEach {
-                        sb.append("${it.trim()}/")
+                        sb.append("/${it.trim()}/")
                         // create dir if not exists and save file to it
                         sb.append(bookName)
                         return sb.toString()
@@ -200,7 +199,7 @@ object UrlHelper {
         if (bookName.length / 2 > 220) {
             bookName = bookName.substring(0, 110) + "..."
         }
-        bookName = "$bookName.$bookMime"
+        bookName = "$bookName ${link.id}.$bookMime"
         return bookName
     }
 
@@ -213,5 +212,9 @@ object UrlHelper {
         tempLink.mime = link.format
         tempLink.sequenceDirName = link.sequenceDirName
         return getDownloadedBookPath(tempLink, false)
+    }
+
+    fun isBookDownloadLink(requestString: String): Boolean {
+        return  requestString.matches(Regex(".+/b/\\d+/.+"))
     }
 }

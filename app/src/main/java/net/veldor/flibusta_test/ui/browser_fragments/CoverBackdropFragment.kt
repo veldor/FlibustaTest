@@ -38,7 +38,7 @@ class CoverBackdropFragment : Fragment(), PictureLoadedDelegate {
     fun setTarget(item: FoundEntity) {
         target = item
         // load picture
-        binding.coverLoader.startShimmer()
+        binding.coverLoader.showShimmer(true)
         binding.bookName.text = item.name
         viewModel.downloadPic(item, this)
         binding.coverContainer.setImageDrawable(
@@ -54,6 +54,7 @@ class CoverBackdropFragment : Fragment(), PictureLoadedDelegate {
         requireActivity().runOnUiThread {
             try {
                 binding.coverLoader.stopShimmer()
+                binding.coverLoader.hideShimmer()
                 binding.coverContainer.setImageBitmap(BitmapFactory.decodeFile(target.cover!!.path))
             } catch (_: Throwable) {
 

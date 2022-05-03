@@ -383,7 +383,11 @@
     <string name="unzip_loaded_title">Распаковывать загруженное</string>
     <string name="no_unzip_title">Загруженные архивы не распаковываются</string>
     <string name="unzip_title">Приложение распаковывает загруженные архивы. Внимание! Возможны проблемы при наличии более одного файла в архиве!</string>
-    <string name="hints_showed_title">Автозаполнение отображается</string>
+    <string name="enter_request_title">Введите запрос</string>
+    <string name="no_download_links_title">Для книги не найдены ссылки на скачивание</string>
+    <string name="view_menu">Просмотр</string>
     <string name="select_authors_choose_message">Выберите автора</string>
-    <string name="view_menu">Вид</string>
+    <string name="hints_showed_title">Автозаполнение включено</string>
+    <string name="books_availability_pattern">Проверка доступности книг: %d из %d (Ссылок проверено: %d)</string>
+    <string name="book_added_to_queue_pattern">%s : добавлено в очередь загрузки</string>
 </resources>

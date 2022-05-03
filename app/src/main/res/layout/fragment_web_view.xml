@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.BrowserActivity">
 
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/bookSearchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:iconifiedByDefault="false"
+        android:imeOptions="flagNoExtractUi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/pageLoadedProgressBar"
         style="?android:attr/progressBarStyleHorizontal"
@@ -20,7 +32,11 @@
         android:id="@+id/viewSwitcherContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -34,7 +50,6 @@
                 android:layout_marginStart="30dp"
                 android:layout_marginLeft="30dp"
                 android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
-                app:="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,6 +99,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pageLoadedProgressBar" />
+        app:layout_constraintTop_toBottomOf="@+id/bookSearchView" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/massLoadFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="@color/lightTextColor"
+        app:iconTint="@color/lightTextColor"
+        android:text="@string/mass_load_title"
+        android:backgroundTint="@color/fabColor"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:fab_hideAnimation="@anim/fab_slide_down_animation"
+        app:fab_showAnimation="@anim/fab_slide_up_animation"
+        app:icon="@drawable/ic_baseline_arrow_downward_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

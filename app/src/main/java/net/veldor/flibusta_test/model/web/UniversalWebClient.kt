@@ -8,16 +8,18 @@ import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.selections.web.WebResponse
 
 class UniversalWebClient {
-    fun rawRequest(request: String): WebResponse {
+    fun rawRequest(request: String, fast: Boolean = false): WebResponse {
         return rawRequest(UrlHelper.getBaseUrl(), request)
     }
+    fun noMirrorRawRequest(request: String, fast: Boolean = false): WebResponse {
+        return rawRequest("", request, fast)
+    }
 
-    fun rawRequest(mirror: String, request: String): WebResponse {
+    fun rawRequest(mirror: String, request: String, fast: Boolean = false): WebResponse {
         try {
             val requestString = mirror + request
-            Log.d("surprise", "UniversalWebClient.kt 19: request $requestString")
             if (!PreferencesHandler.instance.useTor) {
-                val response = ExternalWebClient.rawRequest(requestString)
+                val response = ExternalWebClient.rawRequest(requestString, fast)
                 return if (response != null) {
                     val headers = response.headerFields
                     val resultHeaders = HashMap<String, String>()
@@ -30,6 +32,9 @@ class UniversalWebClient {
                             }
                             resultHeaders[it.key] = value
                         }
+                    }
+                    if(fast){
+                        response.disconnect()
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         WebResponse(
@@ -86,6 +91,9 @@ class UniversalWebClient {
                         }
                         resultHeaders[it.key] = value
                     }
+                }
+                if(fast){
+                    response.disconnect()
                 }
                 WebResponse(
                     response.responseCode,

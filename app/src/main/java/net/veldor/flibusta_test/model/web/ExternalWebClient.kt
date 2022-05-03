@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.model.web
 
+import android.util.Log
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import java.net.HttpURLConnection
 import java.net.URL
@@ -13,7 +14,7 @@ const val TOR_BROWSER_USER_AGENT =
 
 object ExternalWebClient {
     @JvmStatic
-    fun rawRequest(url: String?): HttpURLConnection? {
+    fun rawRequest(url: String?, fast: Boolean = false): HttpURLConnection? {
         val host = URL(url)
         val connection = host.openConnection() as HttpURLConnection
         val authCookie = PreferencesHandler.instance.authCookie

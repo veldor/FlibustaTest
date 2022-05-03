@@ -389,4 +389,8 @@ If you have problems with connection, maybe you must use VPN mode</string>
     <string name="hints_showed_title">Hints showed</string>
     <string name="select_authors_choose_message">Select author</string>
     <string name="view_menu">View</string>
+    <string name="no_download_links_title">Book has no download links</string>
+    <string name="enter_request_title">Enter request</string>
+    <string name="books_availability_pattern">Check books availability %d of %d, links checked: %d</string>
+    <string name="book_added_to_queue_pattern">%s added to queue</string>
 </resources>
