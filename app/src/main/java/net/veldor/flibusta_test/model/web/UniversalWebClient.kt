@@ -1,25 +1,24 @@
 package net.veldor.flibusta_test.model.web
 
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.selections.web.WebResponse
 
 class UniversalWebClient {
-    fun rawRequest(request: String, fast: Boolean = false): WebResponse {
-        return rawRequest(UrlHelper.getBaseUrl(), request)
+    fun rawRequest(request: String, dropConnectionAfterResponse: Boolean): WebResponse {
+        return rawRequest(UrlHelper.getBaseUrl(), request, dropConnectionAfterResponse)
     }
-    fun noMirrorRawRequest(request: String, fast: Boolean = false): WebResponse {
-        return rawRequest("", request, fast)
+    fun noMirrorRawRequest(request: String, dropConnectionAfterResponse: Boolean): WebResponse {
+        return rawRequest("", request, dropConnectionAfterResponse)
     }
 
-    fun rawRequest(mirror: String, request: String, fast: Boolean = false): WebResponse {
+    fun rawRequest(mirror: String, request: String, dropConnectionAfterResponse: Boolean): WebResponse {
         try {
             val requestString = mirror + request
             if (!PreferencesHandler.instance.useTor) {
-                val response = ExternalWebClient.rawRequest(requestString, fast)
+                val response = ExternalWebClient.rawRequest(requestString)
                 return if (response != null) {
                     val headers = response.headerFields
                     val resultHeaders = HashMap<String, String>()
@@ -33,7 +32,7 @@ class UniversalWebClient {
                             resultHeaders[it.key] = value
                         }
                     }
-                    if(fast){
+                    if(dropConnectionAfterResponse){
                         response.disconnect()
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -92,7 +91,7 @@ class UniversalWebClient {
                         resultHeaders[it.key] = value
                     }
                 }
-                if(fast){
+                if(dropConnectionAfterResponse){
                     response.disconnect()
                 }
                 WebResponse(

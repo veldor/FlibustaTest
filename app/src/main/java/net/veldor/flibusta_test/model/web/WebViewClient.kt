@@ -29,6 +29,27 @@ class WebViewClient internal constructor(
         return handleRequest(view, url)!!
     }
 
+    override fun onPageFinished(view: WebView?, url: String?) {
+        super.onPageFinished(view, url)
+        // load bootstrap css
+        view?.loadUrl("javascript:(function(){ document.body.style.paddingTop = '50px'})();")
+        view?.loadUrl("javascript:(function(){ document.body.style.paddingBottom = '50px'})();")
+
+    }
+
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val url = request?.url?.toString()
+            if (url != null) {
+                if (UrlHelper.isBookDownloadLink(url) && !url.endsWith("read")) {
+                    delegate.linkClicked(url)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     override fun shouldInterceptRequest(
         view: WebView,
@@ -38,7 +59,7 @@ class WebViewClient internal constructor(
         // find for download link
         if (UrlHelper.isBookDownloadLink(requestString) && !requestString.endsWith("read")) {
             delegate.linkClicked(requestString)
-
+            return null
         }
         return handleRequest(view, requestString)
     }
@@ -66,14 +87,6 @@ class WebViewClient internal constructor(
 
     private fun injectMyCss(originalCss: String?): String? {
         Log.d("surprise", "WebViewClient.kt 77: append css")
-        /*try{
-            val testJs = App.instance.assets.open(MY_COMPAT_CSS_STYLE)
-            Log.d("surprise", "WebViewClient.kt 55: asset connected")
-        }
-        catch (t: Throwable){
-            Log.d("surprise", "WebViewClient.kt 56: no asset")
-            t.printStackTrace()
-        }*/
         // старые версии Android не понимают переменные цветов и новые объявления JS, подключусь в режиме совместимости
         var inputStream: InputStream
         var output = originalCss
@@ -83,16 +96,18 @@ class WebViewClient internal constructor(
                     WebViewFragment.VIEW_MODE_FAT, WebViewFragment.VIEW_MODE_FAST_FAT -> App.instance.assets.open(
                         MY_COMPAT_FAT_CSS_STYLE
                     )
-                    WebViewFragment.VIEW_MODE_LIGHT ->  App.instance.assets.open(MY_COMPAT_CSS_STYLE)
+                    WebViewFragment.VIEW_MODE_LIGHT -> App.instance.assets.open(MY_COMPAT_CSS_STYLE)
                     else -> App.instance.assets.open(MY_COMPAT_CSS_STYLE)
                 }
                 val cssText = inputStreamToString(inputStream)
                 output += cssText
             }
             if (mNightMode) {
-                inputStream =  App.instance.assets.open(MY_CSS_NIGHT_STYLE)
+                inputStream = App.instance.assets.open(MY_CSS_NIGHT_STYLE)
                 output += inputStreamToString(inputStream)
             }
+            inputStream = App.instance.assets.open(BOOTSTRAP_CSS_STYLE)
+            output += inputStreamToString(inputStream)
             return output
         } catch (e: IOException) {
             e.printStackTrace()
@@ -130,14 +145,17 @@ class WebViewClient internal constructor(
                 }
             }
             val httpResponse =
-                UniversalWebClient().rawRequest(incomingUrl.replace(UrlHelper.getBaseUrl(), ""))
+                UniversalWebClient().rawRequest(
+                    incomingUrl.replace(UrlHelper.getBaseUrl(), ""),
+                    false
+                )
             if (httpResponse.statusCode >= 400) {
+                delegate.notifyRequestError()
                 return connectionError
             }
             var encoding = ENCODING_UTF_8
             var mime = httpResponse.contentType!!
-            Log.d("surprise", "WebViewClient.kt 140: request is $incomingUrl")
-            Log.d("surprise", "WebViewClient.kt 140: mime is $mime")
+            Log.d("surprise", "WebViewClient.kt 158: mime is $mime")
             // если загружена страница- добавлю её как последнюю загруженную
             if (mime.startsWith(HTML_TYPE)) {
                 if (!incomingUrl.startsWith(UrlHelper.getBaseUrl() + "/makebooklist?")) {
@@ -244,6 +262,7 @@ class WebViewClient internal constructor(
         private const val GIF_TYPE = "gif"
         private const val PNG_TYPE = "png"
         private const val MY_COMPAT_CSS_STYLE = "myCompatStyle.css"
+        private const val BOOTSTRAP_CSS_STYLE = "bootstrap.css"
         private const val MY_CSS_NIGHT_STYLE = "myNightMode.css"
         private const val MY_COMPAT_FAT_CSS_STYLE = "myCompatFatStyle.css"
         private const val MY_JS = "myJs.js"

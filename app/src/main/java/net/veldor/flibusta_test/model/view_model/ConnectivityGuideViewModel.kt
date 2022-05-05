@@ -87,12 +87,12 @@ class ConnectivityGuideViewModel : ViewModel() {
                     )
                     if (GrammarHandler.isValidUrl(customMirrorUrl)) {
                         // test with this mirror
-                        UniversalWebClient().rawRequest(customMirrorUrl, "/opds")
+                        UniversalWebClient().rawRequest(customMirrorUrl, "/opds", false)
                     } else {
-                        UniversalWebClient().rawRequest("/opds")
+                        UniversalWebClient().rawRequest("/opds", false)
                     }
                 } else {
-                    UniversalWebClient().rawRequest("/opds")
+                    UniversalWebClient().rawRequest("/opds", false)
                 }
                 val answer = StringHelper.streamToString(response.inputStream)
                 if (answer.isNullOrEmpty() || !answer.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>")) {

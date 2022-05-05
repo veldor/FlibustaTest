@@ -53,7 +53,7 @@ class DownloadHandler private constructor() {
         try {
             currentProgress.bookLoadedSize = 0
             liveBookDownloadProgress.postValue(currentProgress)
-            val response = UniversalWebClient().rawRequest(book.link)
+            val response = UniversalWebClient().rawRequest(book.link, false)
             if (response.statusCode in 200..310 && response.inputStream != null) {
                 currentProgress.bookFullSize = response.longContentLength
                 currentProgress.currentlyLoadedBookStartTime = System.currentTimeMillis()

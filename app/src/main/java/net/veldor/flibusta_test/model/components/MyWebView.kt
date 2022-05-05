@@ -2,15 +2,18 @@ package net.veldor.flibusta_test.model.components
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
+import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import net.veldor.flibusta_test.model.delegate.DownloadLinksDelegate
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.web.WebViewClient
 import net.veldor.flibusta_test.ui.BrowserActivity
 import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
+import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment.Companion.VIEW_MODE_NORMAL
 
 class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attrs) {
     private var init = false
@@ -18,7 +21,6 @@ class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attr
     @SuppressLint("SetJavaScriptEnabled")
     fun setup(delegate: DownloadLinksDelegate) {
         if (!this.isInEditMode) {
-            Log.d("surprise", "MyWebView.kt 19: setup webview")
             this.webViewClient = WebViewClient(context, delegate)
             val webSettings = this.settings
             webSettings.javaScriptEnabled = true
@@ -26,12 +28,22 @@ class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attr
             webSettings.builtInZoomControls = true
             webSettings.displayZoomControls = false
         }
+        if (PreferencesHandler.instance.browserViewMode == VIEW_MODE_NORMAL) {
+            settings.useWideViewPort =
+                false //make sure this method is false so setInitialScale() can work correctly
+            settings.loadWithOverviewMode = true
+            setInitialScale(150)
+        }
+
     }
 
 
     override fun loadUrl(url: String) {
-        super.loadUrl(UrlHelper.getBaseUrl() + url)
-        Log.d("surprise", "MyWebView.kt 30 loadUrl webView load $url")
+        if (url.startsWith("javascript:")) {
+            super.loadUrl(url)
+        } else {
+            super.loadUrl(UrlHelper.getBaseUrl() + url)
+        }
         initProgressBar()
     }
 
@@ -42,19 +54,23 @@ class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attr
         init = true
         val fragment = (context as BrowserActivity).getCurrentFragment()
         if (fragment is WebViewFragment) {
-            fragment.binding.pageLoadedProgressBar.visibility = GONE
             this.webChromeClient = object : WebChromeClient() {
                 override fun onProgressChanged(view: WebView, progress: Int) {
-                    if (progress > 90) {
-                        if (fragment.binding.pageLoadedProgressBar.visibility == VISIBLE) {
-                            fragment.binding.pageLoadedProgressBar.visibility = GONE
-                        }
+                    fragment.binding.pageLoadedProgressBar.visibility = View.VISIBLE
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        fragment.binding.pageLoadedProgressBar.setProgress(progress, true)
                     } else {
-                        if (fragment.binding.pageLoadedProgressBar.visibility == GONE) {
-                            fragment.binding.pageLoadedProgressBar.visibility = VISIBLE
-                        }
                         fragment.binding.pageLoadedProgressBar.progress = progress
                     }
+                    if (progress == 100) {
+                        fragment.activity?.runOnUiThread {
+                            android.os.Handler().postDelayed({
+                                fragment.binding.pageLoadedProgressBar.progress = 0
+                                fragment.binding.pageLoadedProgressBar.visibility = View.GONE
+                            }, 300)
+                        }
+                    }
+
                 }
             }
         }

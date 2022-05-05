@@ -5,4 +5,5 @@ import java.io.InputStream
 interface DownloadLinksDelegate {
     fun linkClicked(link: String)
     fun textReceived(textStream: InputStream)
+    fun notifyRequestError()
 }

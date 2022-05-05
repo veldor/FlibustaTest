@@ -107,7 +107,7 @@ class OpdsViewModel : ViewModel() {
     ): SearchResult? {
         _liveRequestState.postValue(STATUS_REQUESTING)
         // make a request
-        val response = UniversalWebClient().rawRequest(request)
+        val response = UniversalWebClient().rawRequest(request, false)
         val statusCode = response.statusCode
         if (statusCode == 200 && response.inputStream != null) {
             val answerString = StringHelper.streamToString(response.inputStream)
@@ -171,7 +171,7 @@ class OpdsViewModel : ViewModel() {
     fun checkFormatAvailability(item: DownloadLink) {
         viewModelScope.launch(Dispatchers.IO) {
             // get information about link
-            val result = UniversalWebClient().rawRequest(item.url!!)
+            val result = UniversalWebClient().rawRequest(item.url!!, false)
             if (result.statusCode == 200) {
                 formatDelegate?.formatAvailable(
                     Formatter.formatFileSize(

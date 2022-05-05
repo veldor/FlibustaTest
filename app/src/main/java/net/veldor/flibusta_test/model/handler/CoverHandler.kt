@@ -65,7 +65,7 @@ class CoverHandler {
         }
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val response = UniversalWebClient().rawRequest(foundedEntity.coverUrl!!)
+                val response = UniversalWebClient().rawRequest(foundedEntity.coverUrl!!, false)
                 val status = response.statusCode
                 if (status < 400) {
                     var tempFile: File? = null
@@ -123,7 +123,7 @@ class CoverHandler {
     }
 
     fun downloadFullPic(item: FoundEntity) {
-        val response = UniversalWebClient().rawRequest(item.coverUrl!!)
+        val response = UniversalWebClient().rawRequest(item.coverUrl!!, false)
         val status = response.statusCode
         if (status < 400) {
             var tempFile: File? = null

@@ -982,7 +982,9 @@ class OpdsFragment : Fragment(),
     }
 
     override fun nameClicked(item: FoundEntity) {
-        Log.d("surprise", "OpdsFragment.kt 706: name clicked")
+        // load info about book in backdrop
+        PreferencesHandler.instance.lastWebViewLink = "/b/${item.id}"
+        (requireActivity() as BrowserActivity).launchWebViewFromOpds()
     }
 
     override fun itemSelectedForDownload() {

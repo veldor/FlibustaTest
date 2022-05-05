@@ -393,4 +393,5 @@ If you have problems with connection, maybe you must use VPN mode</string>
     <string name="enter_request_title">Enter request</string>
     <string name="books_availability_pattern">Check books availability %d of %d, links checked: %d</string>
     <string name="book_added_to_queue_pattern">%s added to queue</string>
+    <string name="fullscreen_menu">Fullscreen</string>
 </resources>

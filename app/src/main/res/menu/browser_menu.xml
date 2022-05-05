@@ -11,6 +11,11 @@
         android:icon="@drawable/ic_baseline_eye_24"
         android:title="@string/view_menu"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_fullscreen"
+        android:icon="@drawable/ic_baseline_open_in_full_24"
+        android:title="@string/fullscreen_menu"
+        yourapp:showAsAction="ifRoom" />
 
 
 </menu>

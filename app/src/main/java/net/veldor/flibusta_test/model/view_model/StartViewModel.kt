@@ -79,7 +79,7 @@ class StartViewModel : ViewModel() {
         _liveStage.postValue(STAGE_THIRD)
         if (checkAccessWork == null || !checkAccessWork!!.isActive) {
             checkAccessWork = viewModelScope.launch(Dispatchers.IO) {
-                val response = UniversalWebClient().rawRequest("/opds")
+                val response = UniversalWebClient().rawRequest("/opds", false)
                 val answer = StringHelper.streamToString(response.inputStream)
                 if (answer != null && answer.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>")) {
                     _flibustaCheckState.postValue(RESULT_SUCCESS)

@@ -1,7 +1,7 @@
 async function handle(){
 var navigationButtonsDiv = document.createElement('div');
     navigationButtonsDiv.id = 'navigationButtonsDiv';
-    navigationButtonsDiv.innerHTML = "<button id='moveUpBtn'>Вверх</button><button id='moveDownBtn'>Вниз</button>";
+    navigationButtonsDiv.innerHTML = "<div class='btn-group-vertical' role='group'><button class='btn btn-info' id='moveUpBtn'>↑</button><button class='btn btn-info' id='moveDownBtn'>↓</button></div>";
     document.body.appendChild(navigationButtonsDiv);
 
     var upBtn = document.getElementById('moveUpBtn');
@@ -15,7 +15,7 @@ var navigationButtonsDiv = document.createElement('div');
     }
 
     var href = location.href;
-    if (href === 'http://flibustahezeous3.onion/') {
+    if (href === 'http://flibusta.is/') {
         var menu = document.getElementsByClassName('pager');
         menu[0].style.display = 'none';
     }

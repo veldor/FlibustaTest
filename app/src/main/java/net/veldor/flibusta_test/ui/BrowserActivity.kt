@@ -18,6 +18,7 @@ import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
 
 class BrowserActivity : BaseActivity() {
 
+    var goFromOpds: Boolean = false
     lateinit var viewModel: WebViewViewModel
     lateinit var binding: ActivityBrowserBinding
 
@@ -70,7 +71,7 @@ class BrowserActivity : BaseActivity() {
             return fragment.keyPressed(keyCode)
         }
         else if(fragment is WebViewFragment){
-            return fragment.keyPressed(keyCode, event)
+            return fragment.keyPressed(keyCode)
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -79,5 +80,16 @@ class BrowserActivity : BaseActivity() {
     fun getCurrentFragment(): Fragment? {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
         return navHostFragment?.childFragmentManager?.findFragmentById(R.id.nav_host_fragment)
+    }
+
+    fun launchWebViewFromOpds() {
+        goFromOpds = true
+        binding.bottomNavView.selectedItemId =
+            R.id.navigation_web_view
+    }
+    fun returnToOpds() {
+        goFromOpds = false
+        binding.bottomNavView.selectedItemId =
+            R.id.navigation_opds
     }
 }

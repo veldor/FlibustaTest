@@ -1,6 +1,5 @@
 package net.veldor.flibusta_test.model.web
 
-import android.util.Log
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import java.net.HttpURLConnection
 import java.net.URL
@@ -10,11 +9,11 @@ const val READ_TIMEOUT_SEC = 15
 const val CONNECT_TIMEOUT_SEC = 50
 const val USER_AGENT_PROPERTY = "User-Agent"
 const val TOR_BROWSER_USER_AGENT =
-    "Mozilla/5.0 (Windows NT 6.1; rv:60.0) Gecko/20100101 Firefox/60.0"
+    "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36"
 
 object ExternalWebClient {
     @JvmStatic
-    fun rawRequest(url: String?, fast: Boolean = false): HttpURLConnection? {
+    fun rawRequest(url: String?): HttpURLConnection? {
         val host = URL(url)
         val connection = host.openConnection() as HttpURLConnection
         val authCookie = PreferencesHandler.instance.authCookie
@@ -25,7 +24,6 @@ object ExternalWebClient {
             requestMethod = REQUEST_METHOD_GET
             connectTimeout = CONNECT_TIMEOUT_SEC * 1000
             readTimeout = READ_TIMEOUT_SEC * 1000
-            setRequestProperty(USER_AGENT_PROPERTY, TOR_BROWSER_USER_AGENT)
             connect()
         }
         val code = connection.responseCode
