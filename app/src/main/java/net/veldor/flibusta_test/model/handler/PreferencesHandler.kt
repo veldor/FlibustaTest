@@ -13,10 +13,39 @@ import java.io.File
 
 class PreferencesHandler private constructor() {
 
+    var disableHistoryMessageViewed: Boolean
+        get() = preferences.getBoolean("disable catalog history message", false)
+        set(state) {
+            preferences.edit().putBoolean("disable catalog history message", state).apply()
+        }
+
+    var coversMessageViewed: Boolean
+        get() = preferences.getBoolean("covers message viewed", false)
+        set(state) {
+            preferences.edit().putBoolean("covers message viewed", state).apply()
+        }
+
     var browserViewMode: Int
         get() = preferences.getInt(PREF_BROWSER_VIEW_MODE, WebViewFragment.VIEW_MODE_FAST)
         set(state) {
             preferences.edit().putInt(PREF_BROWSER_VIEW_MODE, state).apply()
+        }
+
+    var showFilterStatistics: Boolean
+        get() = preferences.getBoolean(PREF_SHOW_FILTER_STATISTICS, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SHOW_FILTER_STATISTICS, state).apply()
+        }
+    var saveOpdsHistory: Boolean
+        get() = preferences.getBoolean(PREF_OPDS_HISTORY, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_OPDS_HISTORY, state).apply()
+        }
+
+    var addFilterByLongClick: Boolean
+        get() = preferences.getBoolean(PREF_LONG_CLICK_TO_FILTER, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_LONG_CLICK_TO_FILTER, state).apply()
         }
 
     var lastWebViewLink: String
@@ -141,19 +170,6 @@ class PreferencesHandler private constructor() {
             preferences.edit().putBoolean(PREF_DISPLAY_PAGER_BUTTON, state).apply()
         }
 
-    var isShowLoadMoreBtn: Boolean
-        get() = preferences.getBoolean(PREF_SHOW_LOAD_MORE_BTN, false)
-        set(state) {
-            preferences.edit().putBoolean(PREF_SHOW_LOAD_MORE_BTN, state).apply()
-        }
-
-
-    var isFilterByLongClick: Boolean
-        get() = preferences.getBoolean(PREF_ADD_FILTER_BY_LONG_CLICK, false)
-        set(state) {
-            preferences.edit().putBoolean(PREF_ADD_FILTER_BY_LONG_CLICK, state).apply()
-        }
-
     var isHideDigests: Boolean
         get() = preferences.getBoolean(HIDE_DIGESTS_PREF, false)
         set(state) {
@@ -178,34 +194,6 @@ class PreferencesHandler private constructor() {
             preferences.edit().putBoolean(PREF_ONLY_RUSSIAN, state).apply()
         }
 
-    fun bookNameStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_BOOK_NAME_STRICT_FILTER, false)
-    }
-
-    fun bookAuthorStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_BOOK_AUTHOR_STRICT_FILTER, false)
-    }
-
-    fun bookGenreStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_BOOK_GENRE_STRICT_FILTER, false)
-    }
-
-    fun bookSequenceStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_BOOK_SEQUENCE_STRICT_FILTER, false)
-    }
-
-    fun sequenceStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_SEQUENCE_STRICT_FILTER, false)
-    }
-
-    fun authorStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_AUTHOR_STRICT_FILTER, false)
-    }
-
-    fun genreStrictFilter(): Boolean {
-        return preferences.getBoolean(PREF_GENRE_STRICT_FILTER, false)
-    }
-
     var isOpdsUseFilter: Boolean
         get() = preferences.getBoolean(PREF_OPDS_USE_FILTER, false)
         set(state) {
@@ -218,6 +206,13 @@ class PreferencesHandler private constructor() {
         }
         set(state) {
             preferences.edit().putBoolean(PREF_SHOW_COVERS, state).apply()
+        }
+    var showCoversByRequest: Boolean
+        get() {
+            return preferences.getBoolean(PREF_SHOW_COVERS_BY_REQUEST, false)
+        }
+        set(state) {
+            preferences.edit().putBoolean(PREF_SHOW_COVERS_BY_REQUEST, state).apply()
         }
 
     var opdsPagingType: Boolean
@@ -388,13 +383,6 @@ class PreferencesHandler private constructor() {
         private const val HIDE_DOWNLOADED_PREF = "hide downloaded"
         private const val PREF_OPDS_USE_FILTER = "use filter"
         private const val PREF_ONLY_RUSSIAN = "only russian"
-        private const val PREF_BOOK_NAME_STRICT_FILTER = "strict name in books"
-        private const val PREF_BOOK_AUTHOR_STRICT_FILTER = "strict author in books"
-        private const val PREF_BOOK_GENRE_STRICT_FILTER = "strict genre in books"
-        private const val PREF_BOOK_SEQUENCE_STRICT_FILTER = "strict sequence in books"
-        private const val PREF_SEQUENCE_STRICT_FILTER = "strict sequence filter"
-        private const val PREF_GENRE_STRICT_FILTER = "strict genre filter"
-        private const val PREF_AUTHOR_STRICT_FILTER = "strict author filter"
         private const val PREF_HIDE_READ = "hide read"
         private const val PREF_ADD_FILTER_BY_LONG_CLICK = "add filter by long click"
         private const val PREF_SHOW_LOAD_MORE_BTN = "show load more button"
@@ -415,6 +403,10 @@ class PreferencesHandler private constructor() {
         private const val PREF_UNZIP_LOADED = "unzip loaded"
         private const val PREF_LAST_WEBVIEW_LINK = "last webview link"
         private const val PREF_BROWSER_VIEW_MODE = "browser view mode"
+        private const val PREF_LONG_CLICK_TO_FILTER = "add to filter on long click"
+        private const val PREF_SHOW_FILTER_STATISTICS = "show filter statistics"
+        private const val PREF_OPDS_HISTORY = "enable opds history"
+        private const val PREF_SHOW_COVERS_BY_REQUEST = "show covers by request"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

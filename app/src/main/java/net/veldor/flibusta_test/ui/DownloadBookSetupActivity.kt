@@ -6,6 +6,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
@@ -29,7 +30,7 @@ import java.util.*
 
 class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceChangeListener,
     PictureLoadedDelegate, FormatAvailabilityCheckDelegate {
-    private lateinit var selectedLink: DownloadLink
+    private var selectedLink: DownloadLink? = null
     private lateinit var sortShowSpinner: FormatSpinner
     private var book: FoundEntity? = null
     private lateinit var binding: ActivityDownloadBookSetupBinding
@@ -104,15 +105,20 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
                         return@forEach
                     }
                 }
-                viewModel.checkFormatAvailability(selectedLink)
-                getDownloadedFileName()
-                if (sortShowSpinner.notFirstSelection) {
-                    (parent.adapter as FormatAdapter).setSelection(binding.sortShowSpinner.getItemAtPosition(pos) as String)
-                    if (PreferencesHandler.instance.rememberFavoriteFormat) {
-                        Log.d("surprise", "onItemSelected: save here")
-                        PreferencesHandler.instance.favoriteFormat =
-                            FormatHandler.getShortFromFullMimeWithoutZip(selectedLink.mime)
-                        Log.d("surprise", "onItemSelected: saved ${PreferencesHandler.instance.favoriteFormat}")
+
+                if(selectedLink == null){
+                    selectedLink = book?.downloadLinks?.get(0)
+                }
+                if(selectedLink != null){
+                    viewModel.checkFormatAvailability(selectedLink!!)
+                    getDownloadedFileName()
+                    if (sortShowSpinner.notFirstSelection) {
+                        (parent.adapter as FormatAdapter).setSelection(binding.sortShowSpinner.getItemAtPosition(pos) as String)
+                        if (PreferencesHandler.instance.rememberFavoriteFormat) {
+                            PreferencesHandler.instance.favoriteFormat =
+                                FormatHandler.getShortFromFullMimeWithoutZip(selectedLink!!.mime)
+                            Log.d("surprise", "onItemSelected: saved ${PreferencesHandler.instance.favoriteFormat}")
+                        }
                     }
                 }
                 sortShowSpinner.notifySelection()
@@ -123,18 +129,25 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
             }
         }
         binding.startDownloadButton.setOnClickListener {
-            // download book in current format
-            viewModel.addToDownloadQueue(selectedLink)
-            if (PreferencesHandler.instance.rememberFavoriteFormat) {
-                Log.d("surprise", "setupUI: save here")
-                PreferencesHandler.instance.favoriteFormat = FormatHandler.getShortFromFullMimeWithoutZip(selectedLink.mime!!)
+            if(selectedLink != null && selectedLink?.id != null){
+                // download book in current format
+                viewModel.addToDownloadQueue(selectedLink)
+                if (PreferencesHandler.instance.rememberFavoriteFormat) {
+                    Log.d("surprise", "setupUI: save here")
+                    PreferencesHandler.instance.favoriteFormat = FormatHandler.getShortFromFullMimeWithoutZip(selectedLink!!.mime!!)
+                }
+                finish()
             }
-            finish()
+            else{
+                Toast.makeText(this, getString(R.string.no_download_links_title), Toast.LENGTH_LONG).show()
+            }
         }
     }
 
     private fun getDownloadedFileName() {
-        binding.pathToFile.text = UrlHelper.getDownloadedBookPath(selectedLink, true)
+        if(selectedLink != null){
+            binding.pathToFile.text = UrlHelper.getDownloadedBookPath(selectedLink!!, true)
+        }
     }
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
@@ -161,7 +174,7 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
             binding.formatAvailability.setTextColor(
                 ResourcesCompat.getColor(
                     App.instance.resources,
-                    R.color.genre_text_color,
+                    R.color.sequences_text_color,
                     null
                 )
             )

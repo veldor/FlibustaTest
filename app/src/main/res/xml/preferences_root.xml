@@ -17,6 +17,10 @@
 <PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Preference
+        app:title="@string/opds_preferences"
+        app:icon="@drawable/ic_baseline_view_list_24"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$OpdsPreferencesFragment"/>
+    <Preference
         app:title="@string/view_preferences"
         app:icon="@drawable/ic_baseline_eye_24"
         app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$ViewPreferencesFragment"/>
@@ -24,5 +28,9 @@
         app:title="@string/download_preferences"
         app:icon="@drawable/ic_cloud_download_black_24dp"
         app:fragment="net.veldor.flibusta_test.ui.browser_fragments.DownloadPreferencesFragment"/>
+    <Preference
+        app:title="@string/filter_preferences"
+        app:icon="@drawable/ic_baseline_filter_alt_24"
+        app:fragment="net.veldor.flibusta_test.ui.filter_fragments.FilterPrefsFragment"/>
 
 </PreferenceScreen>

@@ -4,7 +4,7 @@ class FilteringResult(val result: Boolean,val value: String?, val rule: String?,
     override fun toString(): String {
         val sb = StringBuffer()
         when(type){
-            "hideDigests" -> sb.append("Скрываю сборник, авторы: $value")
+            "hideDigests" -> sb.append("Скрываю сборник")
             "hideDownloaded" -> sb.append("Скачано ранее")
             "hideRead" -> sb.append("Прочитано")
             "hideNonRussian" -> sb.append("На иностранном языке")

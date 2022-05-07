@@ -216,4 +216,8 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
         }
     }
 
+    override fun actionDone(item: Any, target: Any) {
+        TODO("Not yet implemented")
+    }
+
 }

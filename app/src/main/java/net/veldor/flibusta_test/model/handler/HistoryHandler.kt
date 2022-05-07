@@ -7,6 +7,11 @@ class HistoryHandler private constructor() {
     private val mHistory = Stack<HistoryItem>()
 
     fun addToHistory(item: HistoryItem) {
+        if (!PreferencesHandler.instance.saveOpdsHistory) {
+            item.searchResults.forEach {
+                it.results = arrayListOf()
+            }
+        }
         mHistory.push(item)
     }
 

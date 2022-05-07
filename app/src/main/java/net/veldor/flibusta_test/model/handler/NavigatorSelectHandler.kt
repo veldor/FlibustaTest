@@ -11,10 +11,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.dialog.DonationDialog
-import net.veldor.flibusta_test.ui.BrowserActivity
-import net.veldor.flibusta_test.ui.DownloadDirContentActivity
-import net.veldor.flibusta_test.ui.DownloadScheduleActivity
-import net.veldor.flibusta_test.ui.PreferencesActivity
+import net.veldor.flibusta_test.ui.*
 
 class NavigatorSelectHandler(private val mContext: Activity) :
     NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +30,11 @@ class NavigatorSelectHandler(private val mContext: Activity) :
             }
             R.id.goToFileList -> {
                 val intent = Intent(mContext, DownloadDirContentActivity::class.java)
+                mContext.startActivity(intent)
+                tryCloseDrawer()
+            }
+            R.id.goToBlacklist -> {
+                val intent = Intent(mContext, FilterActivity::class.java)
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }

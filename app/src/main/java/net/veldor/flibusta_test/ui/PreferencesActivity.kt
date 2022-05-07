@@ -89,4 +89,10 @@ class PreferencesActivity : BaseActivity() {
             }
         }
     }
+
+    class OpdsPreferencesFragment : PreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.preferences_opds, rootKey)
+        }
+    }
 }

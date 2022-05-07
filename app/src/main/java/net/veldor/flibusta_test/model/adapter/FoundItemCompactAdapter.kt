@@ -162,20 +162,29 @@ class FoundItemCompactAdapter(
                     )
             }
 
-            if(item.type == TYPE_BOOK){
-                binding.name.setTextColor(ResourcesCompat.getColor(context.resources, R.color.book_name_color, context.theme))
+            if (item.type == TYPE_BOOK) {
+                binding.name.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.book_name_color,
+                        context.theme
+                    )
+                )
                 binding.centerActionBtn.text = context.getString(R.string.download_message)
-                binding.centerActionBtn.visibility = View.VISIBLE
+                if(item.downloadLinks.isEmpty()){
+                    binding.centerActionBtn.visibility = View.INVISIBLE
+                }
+                else{
+                    binding.centerActionBtn.visibility = View.VISIBLE
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     binding.rootView.foreground = null
                 }
-            }
-            else{
-                if(item.content.isNotEmpty()){
+            } else {
+                if (item.content.isNotEmpty()) {
                     binding.author.visibility = View.VISIBLE
                     binding.author.text = item.content
-                }
-                else{
+                } else {
                     binding.author.visibility = View.GONE
                 }
                 if (PreferencesHandler.instance.hideOpdsResultsButtons) {
@@ -199,15 +208,33 @@ class FoundItemCompactAdapter(
                     binding.centerActionBtn.visibility = View.VISIBLE
                     binding.centerActionBtn.text = App.instance.getString(R.string.show_message)
                 }
-                when(item.type){
+                when (item.type) {
                     TYPE_AUTHORS, TYPE_AUTHOR -> {
-                        binding.name.setTextColor(ResourcesCompat.getColor(context.resources, R.color.author_text_color, context.theme))
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.author_text_color,
+                                context.theme
+                            )
+                        )
                     }
                     TYPE_GENRE -> {
-                        binding.name.setTextColor(ResourcesCompat.getColor(context.resources, R.color.genre_text_color, context.theme))
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.genre_text_color,
+                                context.theme
+                            )
+                        )
                     }
                     TYPE_SEQUENCE -> {
-                        binding.name.setTextColor(ResourcesCompat.getColor(context.resources, R.color.sequences_text_color, context.theme))
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.sequences_text_color,
+                                context.theme
+                            )
+                        )
                     }
                 }
             }
@@ -284,6 +311,13 @@ class FoundItemCompactAdapter(
     override fun markBookRead(item: FoundEntity) {}
     override fun markBookUnread(item: FoundEntity) {}
     override fun markAsDownloaded(item: DownloadedBooks?) {}
+    override fun itemFiltered(item: FoundEntity) {
+        if (values.contains(item)) {
+            val num = values.indexOf(item)
+            values.remove(item)
+            notifyItemRemoved(num)
+        }
+    }
 
     override fun containsBooks(): Boolean {
         if (values.isNotEmpty()) {

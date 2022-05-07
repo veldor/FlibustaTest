@@ -53,18 +53,22 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.set
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 import java.net.URLEncoder
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
     SearchResultActionDelegate {
 
+    private var mDisableHistoryDialog: AlertDialog? = null
     private var autocompleteComponent: SearchAutoComplete? = null
     private var mLastRequest: RequestItem? = null
     private var bottomSheetCoverBehavior: BottomSheetBehavior<View>? = null
+    private var bottomSheetFilterBehavior: BottomSheetBehavior<View>? = null
     private var bottomSheetOpdsBehavior: BottomSheetBehavior<View>? = null
     private var backdropDownloadStateFragment: DownloadScheduleStatementFragment? = null
     private var backdropCoverFragment: CoverBackdropFragment? = null
+    private var backdropFilterFragment: FilterBackdropFragment? = null
     private var bottomSheetBehavior: BottomSheetBehavior<View>? = null
     private var backdropFragment: OpdsDownloadBackdropFragment? = null
     private var lastScrolled: Int = -1
@@ -104,6 +108,9 @@ class OpdsFragment : Fragment(),
                 binding.bookSearchView.isIconified = false
                 binding.bookSearchView.requestFocus()
             }
+            R.id.action_show_filter -> {
+                bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -117,6 +124,7 @@ class OpdsFragment : Fragment(),
 
     override fun onResume() {
         super.onResume()
+        activity?.invalidateOptionsMenu()
         // check adapter change
         if (PreferencesHandler.instance.isLightOpdsAdapter && binding.resultsList.adapter is FoundItemAdapter) {
             val newAdapter = FoundItemCompactAdapter(
@@ -139,6 +147,12 @@ class OpdsFragment : Fragment(),
     override fun onPause() {
         super.onPause()
         binding.bookSearchView.clearFocus()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("surprise", "OpdsFragment.kt 154: destroyed, save options")
+        Log.d("surprise", "OpdsFragment.kt 155: size is ${viewModel.getPreviousResults().size}")
     }
 
     private fun configureBackdrop() {
@@ -178,6 +192,18 @@ class OpdsFragment : Fragment(),
                 bottomSheetCoverBehavior = bsb
             }
         }
+// filter backdrop
+        backdropFilterFragment =
+            requireActivity().supportFragmentManager.findFragmentById(R.id.filterBackdropFragment) as FilterBackdropFragment?
+        backdropFilterFragment?.let {
+            // Get the BottomSheetBehavior from the fragment view
+            BottomSheetBehavior.from(it.requireView()).let { bsb ->
+                // Set the initial state of the BottomSheetBehavior to HIDDEN
+                bsb.state = BottomSheetBehavior.STATE_HIDDEN
+                // Set the reference into class attribute (will be used latter)
+                bottomSheetFilterBehavior = bsb
+            }
+        }
     }
 
     private fun restoreValues(savedInstanceState: Bundle?) {
@@ -189,6 +215,12 @@ class OpdsFragment : Fragment(),
     }
 
     private fun setupObservers() {
+        OpdsResultsHandler.instance.livePossibleMemoryOverflow.observe(viewLifecycleOwner) {
+            if (it) {
+                showDisableHistoryDialog()
+            }
+        }
+
         DatabaseInstance.instance.mDatabase.downloadedBooksDao().lastDownloadedBookLive?.observe(
             viewLifecycleOwner
         ) {
@@ -236,6 +268,22 @@ class OpdsFragment : Fragment(),
                     showErrorSnackbar()
                 }
             }
+        }
+    }
+
+    private fun showDisableHistoryDialog() {
+        if (mDisableHistoryDialog == null) {
+            mDisableHistoryDialog = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+                .setTitle(getString(R.string.disable_catalog_history_title))
+                .setMessage(getString(R.string.disable_catalog_history_message))
+                .setPositiveButton(getString(R.string.disable_message)) { _, _ ->
+                    PreferencesHandler.instance.disableHistoryMessageViewed = true
+                    PreferencesHandler.instance.saveOpdsHistory = false
+                }.setNegativeButton(getString(R.string.keep_message)) { _, _ ->
+                    PreferencesHandler.instance.disableHistoryMessageViewed = true
+                }
+                .create()
+            mDisableHistoryDialog?.show()
         }
     }
 
@@ -593,10 +641,14 @@ class OpdsFragment : Fragment(),
             }
         }
         binding.resultsPagingSwitcher.setOnCheckedChangeListener { _, b ->
+
             if (b) {
                 binding.resultsPagingSwitcher.text = getString(R.string.load_by_pages_title)
                 PreferencesHandler.instance.opdsPagingType = true
             } else {
+                if (!PreferencesHandler.instance.coversMessageViewed) {
+                    showCoversNotificationDialog()
+                }
                 binding.resultsPagingSwitcher.text = getString(R.string.load_all_results_title)
                 PreferencesHandler.instance.opdsPagingType = false
             }
@@ -655,6 +707,23 @@ class OpdsFragment : Fragment(),
 
             }
         })
+    }
+
+    private fun showCoversNotificationDialog() {
+        AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+            .setTitle(getString(R.string.covers_notification_title))
+            .setMessage(getString(R.string.covers_notification_message))
+            .setPositiveButton(getString(R.string.show_covers_title)) { _, _ ->
+                PreferencesHandler.instance.coversMessageViewed = true
+                PreferencesHandler.instance.showCovers = true
+            }.setNegativeButton(getString(R.string.hide_covers_message)) { _, _ ->
+                PreferencesHandler.instance.coversMessageViewed = true
+                PreferencesHandler.instance.showCovers = false
+            }.setNeutralButton(getString(R.string.load_covers_by_request_message)) { _, _ ->
+                PreferencesHandler.instance.coversMessageViewed = true
+                PreferencesHandler.instance.showCoversByRequest = true
+            }
+            .show()
     }
 
     private fun setAutocompleteAdapter(): ArrayAdapter<String> {
@@ -756,6 +825,9 @@ class OpdsFragment : Fragment(),
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.odps_menu, menu)
+        if (!PreferencesHandler.instance.showFilterStatistics) {
+            menu.findItem(R.id.action_show_filter)?.isVisible = false
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -809,8 +881,13 @@ class OpdsFragment : Fragment(),
     }
 
     override fun imageClicked(item: FoundEntity) {
-        backdropCoverFragment?.setTarget(item)
-        bottomSheetCoverBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        if(item.coverUrl != null){
+            backdropCoverFragment?.setTarget(item)
+            bottomSheetCoverBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+        else{
+            Toast.makeText(requireContext(), getString(R.string.no_cover_title), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun itemPressed(item: FoundEntity) {
@@ -849,8 +926,14 @@ class OpdsFragment : Fragment(),
         }
     }
 
-    override fun buttonLongPressed(item: FoundEntity) {
-        TODO("Not yet implemented")
+    override fun buttonLongPressed(item: FoundEntity, target: String) {
+        // add value to filter
+        viewModel.applyFilters(
+            item,
+            target,
+            (binding.resultsList.adapter as MyAdapterInterface?)?.getList(),
+        )
+
     }
 
     override fun itemLongPressed(item: FoundEntity) {
@@ -983,12 +1066,10 @@ class OpdsFragment : Fragment(),
 
     override fun nameClicked(item: FoundEntity) {
         // load info about book in backdrop
-        PreferencesHandler.instance.lastWebViewLink = "/b/${item.id}"
-        (requireActivity() as BrowserActivity).launchWebViewFromOpds()
-    }
-
-    override fun itemSelectedForDownload() {
-        TODO("Not yet implemented")
+        if (item.link != null) {
+            PreferencesHandler.instance.lastWebViewLink = item.link!!
+            (requireActivity() as BrowserActivity).launchWebViewFromOpds()
+        }
     }
 
     private fun scrollToTop() {
@@ -998,9 +1079,8 @@ class OpdsFragment : Fragment(),
     override fun receiveSearchResult(searchResult: SearchResult) {
         requireActivity().runOnUiThread {
             binding.hintContainer.visibility = View.GONE
-            Log.d("surprise", "receiveSearchResult: appending results ${searchResult.appended}")
             if (!searchResult.appended) {
-                Log.d("surprise", "receiveSearchResult: clear previous")
+                backdropFilterFragment?.clearResults()
                 scrollToTop()
                 (binding.resultsList.adapter as MyAdapterInterface).clearList()
             }
@@ -1028,6 +1108,22 @@ class OpdsFragment : Fragment(),
                 }
             }
             setupSortView()
+            if (PreferencesHandler.instance.showFilterStatistics) {
+                backdropFilterFragment?.appendResults(searchResult.filteredList)
+            }
+        }
+    }
+
+    override fun valueFiltered(item: ArrayList<FoundEntity>) {
+        activity?.runOnUiThread {
+            item.forEach {
+                (binding.resultsList.adapter as MyAdapterInterface?)?.itemFiltered(it)
+            }
+            binding.foundResultsQuantity.text = String.format(
+                Locale.ENGLISH,
+                getString(R.string.found_results_quantity_title),
+                (binding.resultsList.adapter as MyAdapterInterface).getResultsSize()
+            )
         }
     }
 
@@ -1125,6 +1221,10 @@ class OpdsFragment : Fragment(),
                 }
                 return true
             }
+            if (bottomSheetFilterBehavior != null && bottomSheetFilterBehavior?.state != BottomSheetBehavior.STATE_HIDDEN) {
+                bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
+                return true
+            }
             if (bottomSheetOpdsBehavior != null && bottomSheetOpdsBehavior?.state != BottomSheetBehavior.STATE_HIDDEN) {
                 bottomSheetOpdsBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 return true
@@ -1141,9 +1241,28 @@ class OpdsFragment : Fragment(),
             // если доступен возврат назад- возвращаюсь, если нет- закрываю приложение
             if (!HistoryHandler.instance.isEmpty) {
                 val lastResults = HistoryHandler.instance.lastPage
-                if (lastResults != null) {
-                    loadFromHistory(lastResults)
-                    return true
+                if (PreferencesHandler.instance.saveOpdsHistory) {
+                    if (lastResults != null) {
+                        loadFromHistory(lastResults)
+                        return true
+                    }
+                } else {
+                    if (lastResults != null) {
+                        val link = lastResults.searchResults.first().requestLink
+                        if (link != null) {
+                            newRequestLaunched()
+                            // load last request
+                            mLastRequest = RequestItem(
+                                link,
+                                append = false,
+                                addToHistory = false,
+                                clickedElementIndex = -1
+                            )
+                            viewModel.request(
+                                mLastRequest
+                            )
+                        }
+                    }
                 }
             }
             if (mConfirmExit != 0L) {
@@ -1175,10 +1294,12 @@ class OpdsFragment : Fragment(),
 
     private fun loadFromHistory(lastResults: HistoryItem) {
         (binding.resultsList.adapter as MyAdapterInterface).clearList()
-        loadPreviousResults(
-            binding.resultsList.adapter as MyAdapterInterface,
-            lastResults.searchResults
-        )
+        if (PreferencesHandler.instance.saveOpdsHistory) {
+            loadPreviousResults(
+                binding.resultsList.adapter as MyAdapterInterface,
+                lastResults.searchResults
+            )
+        }
     }
 
     private fun scrollUp() {

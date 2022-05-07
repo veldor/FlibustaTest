@@ -23,4 +23,5 @@ interface MyAdapterInterface {
     fun markBookRead(item: FoundEntity)
     fun markBookUnread(item: FoundEntity)
     fun markAsDownloaded(item: DownloadedBooks?)
+    fun itemFiltered(item: FoundEntity)
 }

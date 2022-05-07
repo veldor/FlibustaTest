@@ -37,8 +37,12 @@ class OpdsViewModel : ViewModel() {
     private var currentWork: Job? = null
     private val _liveRequestState: MutableLiveData<String> = MutableLiveData(STATUS_WAIT)
     val liveRequestState: LiveData<String> = _liveRequestState
-    private val _requestResult: ArrayList<SearchResult> = arrayListOf()
     private var formatDelegate: FormatAvailabilityCheckDelegate? = null
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("surprise", "OpdsViewModel.kt 45: clearred")
+    }
 
     fun request(
         request: RequestItem?
@@ -46,6 +50,7 @@ class OpdsViewModel : ViewModel() {
         if (request == null) {
             return
         }
+        Log.d("surprise", "OpdsViewModel.kt 49: ${request.request}")
         var appendResult = request.append
         CoverHandler.dropPreviousLoading()
         if (currentWork != null) {
@@ -53,17 +58,17 @@ class OpdsViewModel : ViewModel() {
             _liveRequestState.postValue(STATUS_CANCELLED)
         }
         currentWork = viewModelScope.launch(Dispatchers.IO) {
-            if (request.addToHistory && _requestResult.isNotEmpty()) {
+            if (request.addToHistory && OpdsResultsHandler.instance.resultsSize > 0) {
                 // make a copy of result
                 val requestResult = arrayListOf<SearchResult>()
-                requestResult += _requestResult
+                requestResult += OpdsResultsHandler.instance.getResults()
                 requestResult.forEach {
                     it.clickedElementIndex = request.clickedElementIndex
                 }
                 HistoryHandler.instance.addToHistory(HistoryItem(requestResult))
             }
             if (!request.append) {
-                _requestResult.clear()
+                OpdsResultsHandler.instance.clear()
             }
             // if require load all pages- do it in cycle, otherwise- make a single request
             if (PreferencesHandler.instance.opdsPagingType) {
@@ -71,7 +76,7 @@ class OpdsViewModel : ViewModel() {
                 val roundResult = doRequestRound(request.request, request.append)
                 if (roundResult != null) {
                     if (!currentWork!!.isCancelled) {
-                        _requestResult.add(roundResult)
+                        OpdsResultsHandler.instance.add(roundResult)
                         searchResultsDelegate?.receiveSearchResult(roundResult)
                     } else {
                         _liveRequestState.postValue(STATUS_CANCELLED)
@@ -88,7 +93,7 @@ class OpdsViewModel : ViewModel() {
                         }
                         if (!currentWork!!.isCancelled) {
                             searchResultsDelegate?.receiveSearchResult(roundResult)
-                            _requestResult.add(roundResult)
+                            OpdsResultsHandler.instance.add(roundResult)
                             link = getNextPageLink()
                         } else {
                             _liveRequestState.postValue(STATUS_CANCELLED)
@@ -119,6 +124,7 @@ class OpdsViewModel : ViewModel() {
                 val results = parser.parse()
                 _liveRequestState.postValue(STATUS_PARSED)
                 val searchResult = SearchResult()
+                searchResult.requestLink = request
                 searchResult.appended = append
                 searchResult.size = results.size
                 if (results.isNotEmpty()) {
@@ -142,7 +148,7 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun getPreviousResults(): ArrayList<SearchResult> {
-        return _requestResult
+        return OpdsResultsHandler.instance.getResults()
     }
 
     fun saveScrolledPosition(s: Int) {
@@ -154,7 +160,7 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun getNextPageLink(): String? {
-        return _requestResult.lastOrNull()?.nextPageLink
+        return OpdsResultsHandler.instance.getResults().lastOrNull()?.nextPageLink
     }
 
     fun cancelSearch() {
@@ -169,10 +175,11 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun checkFormatAvailability(item: DownloadLink) {
+        Log.d("surprise", "OpdsViewModel.kt 172: check ${item.url}")
         viewModelScope.launch(Dispatchers.IO) {
             // get information about link
             val result = UniversalWebClient().rawRequest(item.url!!, false)
-            if (result.statusCode == 200) {
+            if (result.statusCode == 200 && result.contentLength > 0) {
                 formatDelegate?.formatAvailable(
                     Formatter.formatFileSize(
                         App.instance,
@@ -203,8 +210,7 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun replacePreviousResults(previousResults: ArrayList<SearchResult>) {
-        _requestResult.clear()
-        _requestResult += previousResults
+        OpdsResultsHandler.instance.set(previousResults)
     }
 
     fun markRead(item: FoundEntity) {
@@ -233,7 +239,7 @@ class OpdsViewModel : ViewModel() {
     fun checkItemsFilled(booksList: List<FoundEntity>?) {
         checkBooksWork?.cancel()
         checkBooksWork = viewModelScope.launch(Dispatchers.IO) {
-            bookInfoDelegate?.checkProgress(0,1, booksList?.size)
+            bookInfoDelegate?.checkProgress(0, 1, booksList?.size)
             var counter = 1
             var linksCounter = 1
 
@@ -246,7 +252,8 @@ class OpdsViewModel : ViewModel() {
                             return@launch
                         }
                         if (link.url != null) {
-                            info = DownloadLinkHandler.createDownloadLinkFromHref(UrlHelper.getBaseUrl() + link.url!!)
+                            info =
+                                DownloadLinkHandler.createDownloadLinkFromHref(UrlHelper.getBaseUrl() + link.url!!)
                             if (info != null) {
                                 link.author = info!!.author
                                 link.name = info!!.name
@@ -264,15 +271,15 @@ class OpdsViewModel : ViewModel() {
                             }
                         }
                         linksCounter++
-                        bookInfoDelegate?.checkProgress(linksCounter,counter, booksList.size)
+                        bookInfoDelegate?.checkProgress(linksCounter, counter, booksList.size)
                     }
                     bookInfoDelegate?.infoAdded(book)
                 }
                 counter++
-                bookInfoDelegate?.checkProgress(linksCounter,counter, booksList.size)
+                bookInfoDelegate?.checkProgress(linksCounter, counter, booksList.size)
             }
             counter++
-            bookInfoDelegate?.checkProgress(linksCounter,counter, booksList?.size)
+            bookInfoDelegate?.checkProgress(linksCounter, counter, booksList?.size)
         }
     }
 
@@ -288,6 +295,23 @@ class OpdsViewModel : ViewModel() {
     fun cancelBookInfoLoad() {
         checkBooksWork?.cancel()
     }
+
+    fun applyFilters(item: FoundEntity, target: String, list: java.util.ArrayList<FoundEntity>?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val rules = FilterHandler.addToBlacklist(item, target)
+            val filtered = arrayListOf<FoundEntity>()
+            list?.forEach { item ->
+                rules.forEach inner@{
+                    if (FilterHandler.filterByRule(item, it)) {
+                        filtered.add(item)
+                        return@inner
+                    }
+                }
+            }
+            searchResultsDelegate?.valueFiltered(filtered)
+        }
+    }
+
 
     companion object {
         const val STATUS_WAIT = "wait"

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootView"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
@@ -78,9 +78,10 @@
             android:layout_marginTop="?android:attr/actionBarSize"
             android:fitsSystemWindows="false"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/side_navigation_menu"/>
+            app:menu="@menu/side_navigation_menu" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
+
     <fragment
         android:id="@+id/opdsBackdropFragment"
         android:name="net.veldor.flibusta_test.ui.browser_fragments.OpdsDownloadBackdropFragment"
@@ -100,12 +101,23 @@
         app:behavior_peekHeight="185dp"
         app:behavior_skipCollapsed="false"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
- <fragment
+
+    <fragment
         android:id="@+id/coverBackdropFragment"
         android:name="net.veldor.flibusta_test.ui.browser_fragments.CoverBackdropFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    <fragment
+        android:id="@+id/filterBackdropFragment"
+        android:name="net.veldor.flibusta_test.ui.browser_fragments.FilterBackdropFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="185dp"
+        app:behavior_skipCollapsed="false"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

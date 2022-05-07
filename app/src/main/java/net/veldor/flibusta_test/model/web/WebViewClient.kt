@@ -155,7 +155,6 @@ class WebViewClient internal constructor(
             }
             var encoding = ENCODING_UTF_8
             var mime = httpResponse.contentType!!
-            Log.d("surprise", "WebViewClient.kt 158: mime is $mime")
             // если загружена страница- добавлю её как последнюю загруженную
             if (mime.startsWith(HTML_TYPE)) {
                 if (!incomingUrl.startsWith(UrlHelper.getBaseUrl() + "/makebooklist?")) {

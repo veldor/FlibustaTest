@@ -46,8 +46,8 @@ abstract class BlacklistType {
             var blacklistItem: BlacklistItem
             while (values.item(counter) != null) {
                 blacklistItem = BlacklistItem(
-                        values.item(counter).firstChild.nodeValue,
-                        blacklistName
+                    values.item(counter).firstChild.nodeValue,
+                    blacklistName
                 )
                 mExistentValues.add(blacklistItem.name)
                 mBlacklistValues.add(blacklistItem)
@@ -57,22 +57,23 @@ abstract class BlacklistType {
     }
 
     fun getBlacklist(): ArrayList<BlacklistItem> {
-        refreshBlacklist()
+        if (mBlacklistValues.isEmpty()) {
+            refreshBlacklist()
+        }
         return mBlacklistValues
     }
 
-    fun addValue(value: String) {
-        Log.d("surprise", "addValue: add ${value.lowercase()}")
+    fun addValue(value: String): BlacklistItem? {
         if (!mExistentValues.contains(value.lowercase())) {
             val elem = mDom!!.createElement(blacklistName)
             val text = mDom!!.createTextNode(value.lowercase())
             elem.appendChild(text)
             mDom!!.documentElement.insertBefore(elem, mDom!!.documentElement.firstChild)
             MyFileReader.saveBlacklist(blacklistFileName, getStringFromDocument(mDom))
-            liveBlacklistAdd.postValue(BlacklistItem(value.lowercase(), blacklistName))
-        } else {
-            Log.d("surprise", "addValue: already in blacklist")
+            refreshBlacklist()
+            return BlacklistItem(blacklistName, value)
         }
+        return null
     }
 
     fun deleteValue(name: String) {
@@ -90,8 +91,43 @@ abstract class BlacklistType {
                 counter++
             }
             MyFileReader.saveBlacklist(blacklistFileName, getStringFromDocument(mDom))
-            liveBlacklistRemove.postValue(BlacklistItem(name, blacklistName))
         }
+        refreshBlacklist()
+    }
+
+    fun changeValue(oldValue: String, newValue: String) {
+        val lowerNewValue = newValue.lowercase()
+        val books = mDom!!.getElementsByTagName(blacklistName)
+        var book: Node
+        var innerBook: Node
+        val length = books.length
+        var counter = 0
+        if (length > 0) {
+            while (counter < length) {
+                book = books.item(counter)
+                if (oldValue == book.textContent) {
+                    // if new value exists- delete old
+                    var innerCounter = 0
+                    while (innerCounter < length) {
+                        innerBook = books.item(innerCounter)
+                        if (lowerNewValue == innerBook.textContent) {
+                            book.parentNode.removeChild(book)
+                            MyFileReader.saveBlacklist(
+                                blacklistFileName,
+                                getStringFromDocument(mDom)
+                            )
+                            return
+                        }
+                        innerCounter++
+                    }
+                    book.textContent = lowerNewValue
+                    break
+                }
+                counter++
+            }
+            MyFileReader.saveBlacklist(blacklistFileName, getStringFromDocument(mDom))
+        }
+        refreshBlacklist()
     }
 
     fun getBlacklist(which: Int): ArrayList<BlacklistItem> {
@@ -101,10 +137,10 @@ abstract class BlacklistType {
                 unsorted.reverse()
             }
             2 -> {
-                unsorted.sortBy{it.name}
+                unsorted.sortBy { it.name }
             }
             3 -> {
-                unsorted.sortBy{it.name}
+                unsorted.sortBy { it.name }
                 unsorted.reverse()
             }
         }
@@ -146,5 +182,27 @@ abstract class BlacklistType {
             }
             return writer.toString()
         }
+
+        fun delete(item: BlacklistItem) {
+            when (item.type) {
+                "book" -> BlacklistBooks.instance.deleteValue(item.name)
+                "author" -> BlacklistAuthors.instance.deleteValue(item.name)
+                "sequence" -> BlacklistSequences.instance.deleteValue(item.name)
+                "genre" -> BlacklistGenre.instance.deleteValue(item.name)
+                "format" -> BlacklistFormat.instance.deleteValue(item.name)
+            }
+        }
+
+        fun change(item: BlacklistItem, newValue: String) {
+            when (item.type) {
+                "book" -> BlacklistBooks.instance.changeValue(item.name, newValue)
+                "author" -> BlacklistAuthors.instance.changeValue(item.name, newValue)
+                "sequence" -> BlacklistSequences.instance.changeValue(item.name, newValue)
+                "genre" -> BlacklistGenre.instance.changeValue(item.name, newValue)
+                "format" -> BlacklistFormat.instance.changeValue(item.name, newValue)
+            }
+            item.name = newValue
+        }
     }
+
 }

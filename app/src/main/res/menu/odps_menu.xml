@@ -12,4 +12,9 @@
         android:icon="@drawable/ic_baseline_arrow_downward_24"
         android:title="@string/show_download_state_title"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_show_filter"
+        android:icon="@drawable/ic_baseline_filter_alt_24"
+        android:title="@string/show_filter_title"
+        yourapp:showAsAction="ifRoom" />
 </menu>

@@ -2,6 +2,7 @@ package net.veldor.flibusta_test
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
+import net.veldor.flibusta_test.model.handler.OpdsResultsHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 
 
@@ -27,6 +28,11 @@ class App : MultiDexApplication() {
                 )
             }
         }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        OpdsResultsHandler.instance.clear()
     }
 
     companion object {

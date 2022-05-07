@@ -44,48 +44,6 @@
         android:summaryOff="@string/use_rules_filters_disabled_title"
         android:title="@string/use_rules_filters_pref" />
     <SwitchPreferenceCompat
-        app:key="strict name in books"
-        android:defaultValue="false"
-        android:summary="@string/strict_book_name_filter"
-        android:summaryOff="@string/pattern_book_name_filter"
-        android:title="@string/filter_by_book_name_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict author in books"
-        android:defaultValue="false"
-        android:summary="@string/strict_book_author_filter"
-        android:summaryOff="@string/pattern_book_author_filter"
-        android:title="@string/filter_book_author_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict genre in books"
-        android:defaultValue="false"
-        android:summary="@string/strict_book_genre_filter"
-        android:summaryOff="@string/pattern_book_genre_filter"
-        android:title="@string/filter_book_genre_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict sequence in books"
-        android:defaultValue="false"
-        android:summary="@string/strict_book_sequence_filter"
-        android:summaryOff="@string/pattern_book_sequence_filter"
-        android:title="@string/filter_book_sequence_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict author filter"
-        android:defaultValue="false"
-        android:summary="Результаты поиска авторов фильтруются строго по шаблону"
-        android:summaryOff="Результаты поиска авторов фильтруются по наличию паттерна"
-        android:title="@string/authors_strict_filter_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict genre filter"
-        android:defaultValue="false"
-        android:summary="Результаты поиска жанров фильтруются строго по шаблону"
-        android:summaryOff="Результаты поиска жанров фильтруются по наличию паттерна"
-        android:title="@string/genres_strict_filter_pref" />
-    <SwitchPreferenceCompat
-        app:key="strict sequence filter"
-        android:defaultValue="false"
-        android:summary="Результаты поиска серий фильтруются строго по шаблону"
-        android:summaryOff="Результаты поиска серий фильтруются по наличию паттерна"
-        android:title="@string/sequences_strict_filter_pref" />
-    <SwitchPreferenceCompat
         app:key="add to filter on long click"
         android:defaultValue="false"
         android:summary="@string/long_click_to_add_filter_enabled_title"

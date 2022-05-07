@@ -59,6 +59,13 @@
             android:summary="@string/book_covers_hidden_title"
             android:summaryOff="@string/book_covers_displayed_title"
             android:title="@string/show_book_covers_title" />
+        <SwitchPreferenceCompat
+            app:key="show covers by request"
+            android:defaultValue="true"
+            android:dependency="show covers"
+            android:summary="@string/book_covers_shown_by_request_title"
+            android:summaryOff="@string/book_covers_shown_automatically_title"
+            android:title="@string/show_covers_by_request_title" />
 
         <SwitchPreferenceCompat
             app:key="no item buttons"

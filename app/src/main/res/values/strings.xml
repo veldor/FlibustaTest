@@ -394,4 +394,28 @@ If you have problems with connection, maybe you must use VPN mode</string>
     <string name="books_availability_pattern">Check books availability %d of %d, links checked: %d</string>
     <string name="book_added_to_queue_pattern">%s added to queue</string>
     <string name="fullscreen_menu">Fullscreen</string>
+    <string name="filter_preferences">Filter preferences</string>
+    <string name="show_filter_title">Show filter</string>
+    <string name="filtered_pattern">Filtered %d</string>
+    <string name="edit_item_title">Edit</string>
+    <string name="change_filter_msg">Change filter</string>
+    <string name="add_filter_msg">Enter value</string>
+    <string name="opds_preferences">Catalog preferences</string>
+    <string name="opds_history_pref">Catalog history</string>
+    <string name="opds_history_enabled_title">History enabled. All loaded results will be store on memory. Warning: may be hard for devices with low RAM</string>
+    <string name="opds_history_disabled_title">Catalog history not saved, saving only history links</string>
+    <string name="disable_message">Disable</string>
+    <string name="keep_message">Keep</string>
+    <string name="disable_catalog_history_title">Disable catalog history</string>
+    <string name="disable_catalog_history_message">Looks like you load big data. Now, loaded data stored in device RAM. It may be hard for device performance. You may take off history, or keep it.
+Later you can change this parameter in Catalog settings</string>
+    <string name="covers_notification_title">Covers warning</string>
+    <string name="covers_notification_message">On mass books search cover loading may use a lot of traffic. You may load covers automatically, or not load or load by click of cover image. Select option below. You can chage this in View mode preferences</string>
+    <string name="show_covers_title">Show always</string>
+    <string name="hide_covers_message">Not load</string>
+    <string name="load_covers_by_request_message">Load by request</string>
+    <string name="show_covers_by_request_title">Show covers by request</string>
+    <string name="book_covers_shown_by_request_title">Show covers by click on cover</string>
+    <string name="book_covers_shown_automatically_title">Book covers shows automatically</string>
+    <string name="no_cover_title">No cover</string>
 </resources>

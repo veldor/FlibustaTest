@@ -1,6 +1,7 @@
 package net.veldor.flibusta_test.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
@@ -83,11 +84,13 @@ class BrowserActivity : BaseActivity() {
     }
 
     fun launchWebViewFromOpds() {
+        Log.d("surprise", "BrowserActivity.kt 86: launching from OPDS")
         goFromOpds = true
         binding.bottomNavView.selectedItemId =
             R.id.navigation_web_view
     }
     fun returnToOpds() {
+        Log.d("surprise", "BrowserActivity.kt 93: return to OPDS")
         goFromOpds = false
         binding.bottomNavView.selectedItemId =
             R.id.navigation_opds

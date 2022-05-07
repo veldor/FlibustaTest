@@ -115,17 +115,16 @@ class OpdsParser(private val text: String) {
                                     downloadLink.mime = attributes.getValue(attributeIndex)
                                     foundedEntity!!.downloadLinks.add(downloadLink)
                                 } else if (attributeValue == "http://opds-spec.org/acquisition/disabled") {
-                                    // link found, append it
-                                    attributeIndex = attributes.getIndex("href")
-                                    downloadLink = DownloadLink()
-                                    downloadLink.url = attributes.getValue(attributeIndex)
-                                    attributeIndex = attributes.getIndex("type")
-                                    downloadLink.mime = attributes.getValue(attributeIndex)
-                                    foundedEntity!!.downloadLinks.add(downloadLink)
+                                    // disabled link found
+                                    Log.d("surprise", "OpdsParser.kt 119: disabled link found")
                                 } else if (attributeValue == "http://opds-spec.org/image") {
                                     // найдена обложка
                                     foundedEntity!!.coverUrl =
                                             attributes.getValue(attributes.getIndex("href"))
+                                }  else if (attributeValue == "alternate") {
+                                    // найдена обложка
+                                    foundedEntity!!.link =
+                                        attributes.getValue(attributes.getIndex("href"))
                                 } else {
                                     attributeIndex = attributes.getIndex("href")
                                     attributeValue = attributes.getValue(attributeIndex)
@@ -220,14 +219,16 @@ class OpdsParser(private val text: String) {
                         if (filterResult.result) {
                             parsed.add(foundedEntity!!)
                             // загружу картинку
-                            if (foundedEntity!!.coverUrl != null && foundedEntity!!.coverUrl!!.isNotEmpty() && PreferencesHandler.instance.showCovers) {
+                            if (foundedEntity!!.coverUrl != null && foundedEntity!!.coverUrl!!.isNotEmpty() && PreferencesHandler.instance.showCovers && !PreferencesHandler.instance.showCoversByRequest) {
                                 // load pic in new Thread
                                 CoverHandler().loadPic(parsed.last())
                             }
                         } else {
                             foundedEntity!!.filterResult = filterResult
-                            filteredList.add(foundedEntity!!)
-                            filtered++
+                            if(PreferencesHandler.instance.showFilterStatistics){
+                                filteredList.add(foundedEntity!!)
+                                filtered++
+                            }
                         }
                     } else if (qName.equals("content")) {
                         contentFound = false

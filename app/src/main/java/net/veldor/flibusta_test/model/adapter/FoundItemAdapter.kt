@@ -22,6 +22,7 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FoundItemBinding
 import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
+import net.veldor.flibusta_test.model.handler.CoverHandler
 import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.SortHandler
@@ -233,6 +234,11 @@ class FoundItemAdapter(
                     context.theme
                 )
             )
+            if (item.downloadLinks.isEmpty()) {
+                binding.centerActionBtn.visibility = View.INVISIBLE
+            } else {
+                binding.centerActionBtn.visibility = View.VISIBLE
+            }
             binding.firstInfoBlockRightParam.visibility = View.VISIBLE
             binding.firstInfoBlockLeftParam.visibility = View.VISIBLE
             binding.secondInfoBlockRightParam.visibility = View.VISIBLE
@@ -245,7 +251,6 @@ class FoundItemAdapter(
                 binding.rootView.foreground = null
             }
             binding.rootView.setOnClickListener {}
-            binding.centerActionBtn.visibility = View.VISIBLE
             binding.name.visibility = View.VISIBLE
             binding.name.setTextColor(
                 ResourcesCompat.getColor(
@@ -270,23 +275,17 @@ class FoundItemAdapter(
             }
 
             if (PreferencesHandler.instance.showCovers) {
-                binding.previewImage.setOnClickListener {
-                    delegate.imageClicked(item)
-                }
-                // гружу обложку
-                binding.previewImage.visibility = View.VISIBLE
-                if (item.coverUrl == null) {
-                    binding.previewImage.setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.no_cover,
-                            context.theme
-                        )
-                    )
-                } else {
+                if (PreferencesHandler.instance.showCoversByRequest) {
+                    binding.previewImage.visibility = View.VISIBLE
                     if (item.cover != null && item.cover!!.isFile && item.cover!!.exists() && item.cover!!.canRead()) {
-                        binding.previewImage.setImageBitmap(BitmapFactory.decodeFile(item.cover!!.path))
-                    } else {
+                        binding.previewImage.setImageBitmap(
+                            BitmapFactory.decodeFile(
+                                item.cover!!.path
+                            )
+                        )
+                        timer?.cancel()
+                    }
+                    else if(item.coverUrl != null){
                         binding.previewImage.setImageDrawable(
                             ResourcesCompat.getDrawable(
                                 context.resources,
@@ -294,26 +293,98 @@ class FoundItemAdapter(
                                 context.theme
                             )
                         )
-                        // periodic check cover loaded
-                        timer =
-                            object : CountDownTimer(30000.toLong(), 1000) {
-                                override fun onTick(millisUntilFinished: Long) {
-                                    if (item.cover != null && item.cover!!.isFile && item.cover!!.exists() && item.cover!!.canRead()) {
-                                        binding.previewImage.setImageBitmap(
-                                            BitmapFactory.decodeFile(
-                                                item.cover!!.path
+                        binding.previewImage.setOnClickListener {
+                            // load image
+                            binding.previewImage.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    context.resources,
+                                    R.drawable.image_loading,
+                                    context.theme
+                                )
+                            )
+                            binding.previewImage.setOnClickListener{}
+                            CoverHandler().loadPic(item)
+                            timer =
+                                object : CountDownTimer(30000.toLong(), 1000) {
+                                    override fun onTick(millisUntilFinished: Long) {
+                                        if (item.cover != null && item.cover!!.isFile && item.cover!!.exists() && item.cover!!.canRead()) {
+                                            binding.previewImage.setImageBitmap(
+                                                BitmapFactory.decodeFile(
+                                                    item.cover!!.path
+                                                )
                                             )
-                                        )
-                                        timer?.cancel()
+                                            timer?.cancel()
+                                            binding.previewImage.setOnClickListener {
+                                                delegate.imageClicked(item)
+                                            }
+                                        }
+                                    }
+
+                                    override fun onFinish() {
                                     }
                                 }
+                            timer?.start()
+                        }
+                    }
+                    else{
+                        binding.previewImage.setOnClickListener {
+                            delegate.imageClicked(item)
+                        }
+                        binding.previewImage.setImageDrawable(
+                            ResourcesCompat.getDrawable(
+                                context.resources,
+                                R.drawable.no_cover,
+                                context.theme
+                            )
+                        )
+                    }
+                } else {
+                    binding.previewImage.setOnClickListener {
+                        delegate.imageClicked(item)
+                    }
+                    // гружу обложку
+                    binding.previewImage.visibility = View.VISIBLE
+                    if (item.coverUrl == null) {
+                        binding.previewImage.setImageDrawable(
+                            ResourcesCompat.getDrawable(
+                                context.resources,
+                                R.drawable.no_cover,
+                                context.theme
+                            )
+                        )
+                    } else {
+                        if (item.cover != null && item.cover!!.isFile && item.cover!!.exists() && item.cover!!.canRead()) {
+                            binding.previewImage.setImageBitmap(BitmapFactory.decodeFile(item.cover!!.path))
+                        } else {
+                            binding.previewImage.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    context.resources,
+                                    R.drawable.image_wait_load,
+                                    context.theme
+                                )
+                            )
+                            // periodic check cover loaded
+                            timer =
+                                object : CountDownTimer(30000.toLong(), 1000) {
+                                    override fun onTick(millisUntilFinished: Long) {
+                                        if (item.cover != null && item.cover!!.isFile && item.cover!!.exists() && item.cover!!.canRead()) {
+                                            binding.previewImage.setImageBitmap(
+                                                BitmapFactory.decodeFile(
+                                                    item.cover!!.path
+                                                )
+                                            )
+                                            timer?.cancel()
+                                        }
+                                    }
 
-                                override fun onFinish() {
+                                    override fun onFinish() {
+                                    }
                                 }
-                            }
-                        timer?.start()
+                            timer?.start()
+                        }
                     }
                 }
+
             } else {
                 // скрою окно иконки
                 binding.previewImage.visibility = View.GONE
@@ -321,7 +392,13 @@ class FoundItemAdapter(
             // available formats
             binding.availableLinkFormats.isClickable = true
             binding.availableLinkFormats.isFocusable = true
-            binding.availableLinkFormats.setTextColor(ResourcesCompat.getColor(context.resources, R.color.white, null))
+            binding.availableLinkFormats.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    null
+                )
+            )
             GrammarHandler.getAvailableDownloadFormats(item, binding.availableLinkFormats)
             binding.availableLinkFormats.visibility = View.VISIBLE
             binding.availableLinkFormats.setOnClickListener {
@@ -342,14 +419,15 @@ class FoundItemAdapter(
                 }
             } else {
                 binding.firstInfoBlockLeftParam.isClickable = false
-                binding.firstInfoBlockLeftParam.text = context.getString(R.string.author_unknown_title)
+                binding.firstInfoBlockLeftParam.text =
+                    context.getString(R.string.author_unknown_title)
                 makeNoSelectable(binding.firstInfoBlockLeftParam)
             }
             // translate
-            if(item.translate.isNullOrEmpty()){
-                binding.firstInfoBlockRightParam.text = context.getString(R.string.no_translate_title)
-            }
-            else{
+            if (item.translate.isNullOrEmpty()) {
+                binding.firstInfoBlockRightParam.text =
+                    context.getString(R.string.no_translate_title)
+            } else {
                 binding.firstInfoBlockRightParam.text = item.translate
             }
             // sequence
@@ -362,7 +440,8 @@ class FoundItemAdapter(
                     delegate.sequenceClicked(item)
                 }
             } else {
-                binding.secondInfoBlockLeftParam.text = context.getString(R.string.no_sequence_title)
+                binding.secondInfoBlockLeftParam.text =
+                    context.getString(R.string.no_sequence_title)
                 binding.secondInfoBlockLeftParam.isClickable = false
                 binding.secondInfoBlockLeftParam.setOnClickListener {}
                 makeNoSelectable(binding.secondInfoBlockLeftParam)
@@ -387,6 +466,24 @@ class FoundItemAdapter(
                 if (item.read) View.VISIBLE else View.INVISIBLE
             binding.rightActionBtn.visibility =
                 if (item.downloaded) View.VISIBLE else View.INVISIBLE
+
+            if (PreferencesHandler.instance.addFilterByLongClick) {
+                makeSelectable(binding.firstInfoBlockLeftParam)
+                binding.firstInfoBlockLeftParam.setOnLongClickListener {
+                    delegate.buttonLongPressed(item, "author")
+                    return@setOnLongClickListener true
+                }
+                makeSelectable(binding.secondInfoBlockLeftParam)
+                binding.secondInfoBlockLeftParam.setOnLongClickListener {
+                    delegate.buttonLongPressed(item, "sequence")
+                    return@setOnLongClickListener true
+                }
+                makeSelectable(binding.secondInfoBlockRightParam)
+                binding.secondInfoBlockRightParam.setOnLongClickListener {
+                    delegate.buttonLongPressed(item, "genre")
+                    return@setOnLongClickListener true
+                }
+            }
         }
 
         private fun makeSelectable(view: View) {
@@ -447,7 +544,13 @@ class FoundItemAdapter(
                 binding.availableLinkFormats.isClickable = false
                 binding.availableLinkFormats.isFocusable = true
                 binding.availableLinkFormats.text = item.content
-                binding.availableLinkFormats.setTextColor(ResourcesCompat.getColor(context.resources, R.color.textColor, null))
+                binding.availableLinkFormats.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.textColor,
+                        null
+                    )
+                )
                 binding.availableLinkFormats.visibility = View.VISIBLE
             } else {
                 binding.availableLinkFormats.visibility = View.GONE
@@ -675,5 +778,13 @@ class FoundItemAdapter(
             }
         }
         return -1
+    }
+
+    override fun itemFiltered(item: FoundEntity) {
+        if (values.contains(item)) {
+            val num = values.indexOf(item)
+            values.remove(item)
+            notifyItemRemoved(num)
+        }
     }
 }

@@ -255,7 +255,7 @@
     <string name="book_name_title">Название</string>
     <string name="book_author_title">Автор</string>
     <string name="sequence_title">Серия</string>
-    <string name="add_to_filter_msg">Добавить фильтр</string>
+    <string name="add_to_filter_msg">Добавить фильтр (Поставьте * в начале значения, чтобы искать значение в тексте, иначе фильтр будет работать по строгому совпадению текста)</string>
     <string name="genre_title">Жанр</string>
     <string name="format_title">Формат</string>
     <string name="add_to_blacklist_msg">Добавить</string>
@@ -390,4 +390,28 @@
     <string name="hints_showed_title">Автозаполнение включено</string>
     <string name="books_availability_pattern">Проверка доступности книг: %d из %d (Ссылок проверено: %d)</string>
     <string name="book_added_to_queue_pattern">%s : добавлено в очередь загрузки</string>
+    <string name="filtered_pattern">Отфильтровано %d</string>
+    <string name="show_filter_title">Показать фильтры</string>
+    <string name="filter_preferences">Настройки фильтрации</string>
+    <string name="fullscreen_menu">Полный экран</string>
+    <string name="edit_item_title">Изменить</string>
+    <string name="change_filter_msg">Изменить значение</string>
+    <string name="add_filter_msg">Введите шаблон</string>
+    <string name="opds_preferences">Настройки каталога</string>
+    <string name="opds_history_pref">История поиска</string>
+    <string name="opds_history_enabled_title">Загруженные результаты будут храниться в памяти для быстрого доступа. Возможность требует достаточное количество оперативной памяти. Отключите эту функцию, если на устройстве мало оперативной памяти или вы загружаете большие объёмы данных</string>
+    <string name="opds_history_disabled_title">История каталога отключена. При нажатии кнопки назад результаты поиска будут загружены с сервера</string>
+    <string name="disable_message">Отключить</string>
+    <string name="keep_message">Оставить</string>
+    <string name="disable_catalog_history_title">Отключение истории каталога</string>
+    <string name="disable_catalog_history_message">В истории каталога очень много элементов. Сейчас она сохраняется в памяти устройства. Это может привести к снижению производительности. Вы можете отключить ведение истории, в этом случае предыдущие результаты поиска будут заново загружаться с сервера. В дальнейшем вы можете управлять ведением истории в настройках каталога</string>
+    <string name="no_cover_title">Обложки нет</string>
+    <string name="book_covers_shown_automatically_title">Обложки показываются автоматически</string>
+    <string name="book_covers_shown_by_request_title">Для загрузки обложки- нажмите на неё</string>
+    <string name="show_covers_by_request_title">Загрузка картинок по запросу</string>
+    <string name="load_covers_by_request_message">Загружать по запросу</string>
+    <string name="hide_covers_message">Не показывать</string>
+    <string name="show_covers_title">Показывать всегда</string>
+    <string name="covers_notification_title">Отображение обложек</string>
+    <string name="covers_notification_message">Сейчас активна автоматическая загрузка обложек книг. При загрузках больших количеств данных это может привести к снижению производительности и повышенному потреблению трафика. Вы можете продолжить загружать обложки, не загружать совсем или загружать по запросу (по клику на обожку). Выберите вариант ниже. В будущем вы можете управлять этим параметром через настройки внешнего вида.</string>
 </resources>
