@@ -10,24 +10,12 @@ import android.widget.ImageView
 import android.widget.SpinnerAdapter
 import android.widget.TextView
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.handler.FormatHandler
-import net.veldor.flibusta_test.model.selections.DownloadLink
+import net.veldor.flibusta_test.model.selections.BookmarkItem
 
-class BookmarkDirAdapter(list: List<DownloadLink?>?, context: Context) : SpinnerAdapter {
+class BookmarkDirAdapter(val context: Context, private val bookmarks: List<BookmarkItem>) : SpinnerAdapter {
 
     var selected: Int = -1
     private var inflater: LayoutInflater = LayoutInflater.from(context)
-    private var itemList: ArrayList<String> = arrayListOf()
-    private var context: Context
-
-    init {
-        list?.forEach {
-            if (it != null) {
-                itemList.add(FormatHandler.getShortFromFullMimeWithoutZip(it.mime))
-            }
-        }
-        this.context = context
-    }
 
     override fun registerDataSetObserver(p0: DataSetObserver?) {
     }
@@ -36,11 +24,11 @@ class BookmarkDirAdapter(list: List<DownloadLink?>?, context: Context) : Spinner
     }
 
     override fun getCount(): Int {
-        return itemList.size
+        return bookmarks.size
     }
 
     override fun getItem(position: Int): Any {
-        return itemList[position]
+        return bookmarks[position]
     }
 
     override fun getItemId(p0: Int): Long {
@@ -57,8 +45,8 @@ class BookmarkDirAdapter(list: List<DownloadLink?>?, context: Context) : Spinner
             view = inflater.inflate(R.layout.format_view, parent, false)
         }
         val label = view!!.findViewById<TextView>(R.id.sortLabel)
-        if (itemList.isNotEmpty()) {
-            label.text = itemList[position]
+        if (bookmarks.isNotEmpty()) {
+            label.text = bookmarks[position].name
         }
         return view
     }
@@ -80,12 +68,12 @@ class BookmarkDirAdapter(list: List<DownloadLink?>?, context: Context) : Spinner
         if (convertView == null) {
             view = inflater.inflate(R.layout.format_dropdown_list_view, parent, false)
         }
-        if (itemList.isNullOrEmpty()) {
+        if (bookmarks.isEmpty()) {
             view!!.findViewById<TextView>(R.id.itemName).text =
                 context.getString(R.string.no_options_title)
         } else {
             view!!.findViewById<TextView>(R.id.itemName).text =
-                itemList[position]
+                bookmarks[position].name
         }
         val checkView = view.findViewById<ImageView>(R.id.checkedView)
         if (position == selected) {
@@ -95,10 +83,4 @@ class BookmarkDirAdapter(list: List<DownloadLink?>?, context: Context) : Spinner
         }
         return view
     }
-
-    fun setSelection(selectedMime: String?) {
-        selected = itemList.indexOf(selectedMime)
-    }
-
-
 }

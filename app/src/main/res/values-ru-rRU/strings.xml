@@ -416,4 +416,14 @@
     <string name="covers_notification_message">Сейчас активна автоматическая загрузка обложек книг. При загрузках больших количеств данных это может привести к снижению производительности и повышенному потреблению трафика. Вы можете продолжить загружать обложки, не загружать совсем или загружать по запросу (по клику на обожку). Выберите вариант ниже. В будущем вы можете управлять этим параметром через настройки внешнего вида.</string>
     <string name="show_sort_title">Сортировка</string>
     <string name="show_add_bookmark_title">Добавить закладку</string>
+    <string name="no_category_title">Без категории</string>
+    <string name="bookmark_name_title">Имя закладки</string>
+    <string name="add_new_folder_title">Добавить категорию</string>
+    <string name="new_dir_name_title">Имя категории</string>
+    <string name="add_title">Добавить</string>
+    <string name="add_bookmark_template">Добавлена закладка %s</string>
+    <string name="add_bookmark_with_category_template">Добавлена закладка %s в категорию %s</string>
+    <string name="bookmark_not_ready_title">Сначала загрузите какую-нибудь страницу</string>
+    <string name="bookmark_link_title">Ссылка</string>
+    <string name="remove_bookmark_title">Удалить закладку</string>
 </resources>

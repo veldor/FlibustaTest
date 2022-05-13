@@ -423,4 +423,11 @@ Later you can change this parameter in Catalog settings</string>
     <string name="bookmark_name_title">Bookmark name</string>
     <string name="add_new_folder_title">Add new folder</string>
     <string name="new_dir_name_title">Dir name</string>
+    <string name="no_category_title">No category</string>
+    <string name="add_title">Add</string>
+    <string name="add_bookmark_template">Add bookmark %s</string>
+    <string name="add_bookmark_with_category_template">Add bookmark %s to category %s</string>
+    <string name="bookmark_not_ready_title">Search something first</string>
+    <string name="bookmark_link_title">Bookmark link</string>
+    <string name="remove_bookmark_title">Remove bookmark</string>
 </resources>

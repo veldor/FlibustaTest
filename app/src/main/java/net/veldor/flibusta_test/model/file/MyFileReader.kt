@@ -13,8 +13,11 @@ object MyFileReader {
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><subscribe> </subscribe>"
     private const val BLACKLIST_NEW =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><blacklist> </blacklist>"
+    private const val BOOKMARKS_NEW =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><bookmarks> </bookmarks>"
     const val BOOKS_SUBSCRIBE_FILE = "booksSubscribe.xml"
     const val BOOKS_BLACKLIST_FILE = "booksBlacklist.xml"
+    const val BOOKMARKS_OPDS_FILE = "bookmarksOpds.xml"
     const val AUTHORS_SUBSCRIBE_FILE = "authorsSubscribe.xml"
     const val AUTHORS_BLACKLIST_FILE = "authorsBlacklist.xml"
     const val SEQUENCES_SUBSCRIBE_FILE = "sequencesSubscribe.xml"
@@ -78,6 +81,24 @@ object MyFileReader {
         return text.toString()
     }
 
+    fun getOpdsBookmarks(): String {
+        val file = File(App.instance.filesDir, BOOKMARKS_OPDS_FILE)
+        if (!file.exists()) {
+            makeFile(file, BOOKMARKS_NEW)
+        }
+        val text = StringBuilder()
+        try {
+            val br = BufferedReader(FileReader(file))
+            var line: String?
+            while (br.readLine().also { line = it } != null) {
+                text.append(line)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return text.toString()
+    }
+
     private fun getAuthorsSubscribe(): String {
         val authorsSubscribeFile = File(App.instance.filesDir, AUTHORS_SUBSCRIBE_FILE)
         if (!authorsSubscribeFile.exists()) {
@@ -131,6 +152,7 @@ object MyFileReader {
         }
         return text.toString()
     }
+
     private fun getFormatBlacklist(): String {
         val blacklistFile = File(App.instance.filesDir, FORMAT_BLACKLIST_FILE)
         if (!blacklistFile.exists()) {
@@ -184,6 +206,7 @@ object MyFileReader {
         }
         return text.toString()
     }
+
     private fun getSequencesSubscribe(): String {
         val sequencesSubscribeFile = File(App.instance.filesDir, SEQUENCES_SUBSCRIBE_FILE)
         if (!sequencesSubscribeFile.exists()) {
@@ -259,10 +282,12 @@ object MyFileReader {
         val blacklistFile = File(App.instance.filesDir, GENRES_BLACKLIST_FILE)
         makeFile(blacklistFile, value)
     }
+
     private fun saveFormatBlacklist(value: String) {
         val blacklistFile = File(App.instance.filesDir, FORMAT_BLACKLIST_FILE)
         makeFile(blacklistFile, value)
     }
+
     private fun saveGenresSubscription(value: String) {
         val blacklistFile = File(App.instance.filesDir, GENRES_SUBSCRIBE_FILE)
         makeFile(blacklistFile, value)
@@ -288,7 +313,7 @@ object MyFileReader {
     }
 
     fun saveBlacklist(blacklistFileName: String, content: String) {
-        when(blacklistFileName){
+        when (blacklistFileName) {
             BOOKS_BLACKLIST_FILE -> saveBooksBlacklist(content)
             AUTHORS_BLACKLIST_FILE -> saveAuthorsBlacklist(content)
             SEQUENCES_BLACKLIST_FILE -> saveSequencesBlacklist(content)
@@ -296,12 +321,18 @@ object MyFileReader {
             FORMAT_BLACKLIST_FILE -> saveFormatBlacklist(content)
         }
     }
+
     fun saveSubscription(fileName: String, content: String) {
-        when(fileName){
+        when (fileName) {
             BOOKS_SUBSCRIBE_FILE -> saveBooksSubscription(content)
             AUTHORS_SUBSCRIBE_FILE -> saveAuthorsSubscription(content)
             SEQUENCES_SUBSCRIBE_FILE -> saveSequencesSubscription(content)
             GENRES_SUBSCRIBE_FILE -> saveGenresSubscription(content)
         }
+    }
+
+    fun saveBookmarksList(content: String) {
+        val file = File(App.instance.filesDir, BOOKMARKS_OPDS_FILE)
+        makeFile(file, content)
     }
 }

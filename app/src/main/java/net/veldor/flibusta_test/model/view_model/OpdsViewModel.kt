@@ -39,10 +39,7 @@ class OpdsViewModel : ViewModel() {
     val liveRequestState: LiveData<String> = _liveRequestState
     private var formatDelegate: FormatAvailabilityCheckDelegate? = null
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("surprise", "OpdsViewModel.kt 45: clearred")
-    }
+    private var lastRequestedUrl: String? = null
 
     fun request(
         request: RequestItem?
@@ -50,7 +47,9 @@ class OpdsViewModel : ViewModel() {
         if (request == null) {
             return
         }
-        Log.d("surprise", "OpdsViewModel.kt 49: ${request.request}")
+        if (request.addToHistory) {
+            lastRequestedUrl = request.request
+        }
         var appendResult = request.append
         CoverHandler.dropPreviousLoading()
         if (currentWork != null) {
@@ -310,6 +309,30 @@ class OpdsViewModel : ViewModel() {
             }
             searchResultsDelegate?.valueFiltered(filtered)
         }
+    }
+
+    fun addBookmark(category: String?, name: String, link: String) {
+        if (lastRequestedUrl != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                if (category != null && category.isNotEmpty()) {
+                    // add category if not exists
+                    BookmarkHandler.instance.addCategory(category)
+                }
+                BookmarkHandler.instance.addBookmark(category, name, link)
+            }
+        }
+    }
+
+    fun readyToCreateBookmark(): Boolean {
+        return lastRequestedUrl != null
+    }
+
+    fun getBookmarkLink(): String? {
+        return lastRequestedUrl
+    }
+
+    fun removeBookmark() {
+            BookmarkHandler.instance.deleteBookmark(lastRequestedUrl)
     }
 
 

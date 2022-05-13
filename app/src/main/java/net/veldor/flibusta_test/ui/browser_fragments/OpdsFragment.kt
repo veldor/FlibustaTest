@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.internal.ViewUtils.dpToPx
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentOpdsBinding
@@ -35,12 +36,14 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
 import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
 import net.veldor.flibusta_test.model.handler.*
+import net.veldor.flibusta_test.model.handler.BookmarkHandler.Companion.TYPE_CATEGORY
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.interfaces.MyAdapterInterface
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
+import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.HistoryItem
 import net.veldor.flibusta_test.model.selections.RequestItem
 import net.veldor.flibusta_test.model.selections.SortOption
@@ -62,6 +65,7 @@ class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
     SearchResultActionDelegate {
 
+    private var bookmarkReservedName: String? = null
     private var mDisableHistoryDialog: AlertDialog? = null
     private var autocompleteComponent: SearchAutoComplete? = null
     private var mLastRequest: RequestItem? = null
@@ -109,7 +113,13 @@ class OpdsFragment : Fragment(),
                 showSortDialog()
             }
             R.id.action_add_bookmark -> {
-                showAddBookmarkDialog()
+                if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
+                    viewModel.removeBookmark()
+                    Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
+                    activity?.invalidateOptionsMenu()
+                } else {
+                    showAddBookmarkDialog()
+                }
             }
             R.id.action_search -> {
                 binding.bookSearchView.visibility = View.VISIBLE
@@ -124,10 +134,72 @@ class OpdsFragment : Fragment(),
     }
 
     private fun showAddBookmarkDialog() {
-        val layout = layoutInflater.inflate(R.layout.dialog_catalog_bookmark, null, false)
-        val spinner = layout.findViewById<Spinner>(R.id.bookmarkFoldersSpinner)
-        spinner.adapter = BookmarkDirAdapter()
-        TODO("Not yet implemented")
+        if (viewModel.readyToCreateBookmark()) {
+            val layout = layoutInflater.inflate(R.layout.dialog_catalog_bookmark, null, false)
+            val linkValueView = layout.findViewById<TextInputEditText>(R.id.linkValue)
+            val bookmarkNameTextView =
+                layout.findViewById<TextInputEditText>(R.id.bookmarkName)
+            bookmarkNameTextView.setText(bookmarkReservedName)
+            linkValueView.setText(viewModel.getBookmarkLink())
+            val spinner = layout.findViewById<Spinner>(R.id.bookmarkFoldersSpinner)
+            spinner.adapter = BookmarkDirAdapter(
+                requireActivity(),
+                BookmarkHandler.instance.getBookmarkCategories(requireContext())
+            )
+            AlertDialog.Builder(requireActivity())
+                .setTitle("Add bookmark")
+                .setView(layout)
+                .setPositiveButton(getString(R.string.add_title)) { _, _ ->
+                    // add bookmark
+                    val checkbox = layout.findViewById<CheckBox>(R.id.addNewBookmarkFolderCheckBox)
+                    val category: String? = if (checkbox.isChecked) {
+                        val categoryTextView =
+                            layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
+                        categoryTextView.text.toString()
+                    } else {
+                        val selectedItem = spinner.selectedItem as BookmarkItem?
+                        if (selectedItem != null && selectedItem.type == TYPE_CATEGORY) {
+                            selectedItem.name
+                        } else {
+                            null
+                        }
+                    }
+                    viewModel.addBookmark(
+                        category,
+                        bookmarkNameTextView.text.toString(),
+                        linkValueView.text.toString()
+                    )
+                    if (category.isNullOrEmpty()) {
+                        Toast.makeText(
+                            requireContext(),
+                            String.format(
+                                Locale.ENGLISH,
+                                getString(R.string.add_bookmark_template),
+                                bookmarkNameTextView.text.toString()
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            String.format(
+                                Locale.ENGLISH,
+                                getString(R.string.add_bookmark_with_category_template),
+                                bookmarkNameTextView.text.toString(),
+                                category
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .show()
+        } else {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.bookmark_not_ready_title),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun showSortDialog() {
@@ -207,11 +279,6 @@ class OpdsFragment : Fragment(),
         binding.bookSearchView.clearFocus()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("surprise", "OpdsFragment.kt 154: destroyed, save options")
-        Log.d("surprise", "OpdsFragment.kt 155: size is ${viewModel.getPreviousResults().size}")
-    }
 
     private fun configureBackdrop() {
 // Get the fragment reference
@@ -503,6 +570,7 @@ class OpdsFragment : Fragment(),
                 }
                 addValueToAutocompleteList(request, binding.searchType.checkedRadioButtonId)
                 newRequestLaunched()
+                bookmarkReservedName = request
                 mLastRequest = RequestItem(
                     UrlHelper.getSearchRequest(
                         binding.searchType.checkedRadioButtonId,
@@ -561,6 +629,7 @@ class OpdsFragment : Fragment(),
 
             when (binding.searchType.checkedRadioButtonId) {
                 R.id.searchAuthor -> {
+                    bookmarkReservedName = "Авторы"
                     mLastRequest = RequestItem(
                         "/opds/authorsindex",
                         append = false,
@@ -572,6 +641,7 @@ class OpdsFragment : Fragment(),
                     )
                 }
                 R.id.searchGenre -> {
+                    bookmarkReservedName = "Жанры"
                     mLastRequest = RequestItem(
                         "/opds/genres",
                         append = false,
@@ -583,6 +653,7 @@ class OpdsFragment : Fragment(),
                     )
                 }
                 R.id.searchSequence -> {
+                    bookmarkReservedName = "Серии"
                     mLastRequest = RequestItem(
                         "/opds/sequencesindex",
                         append = false,
@@ -653,6 +724,7 @@ class OpdsFragment : Fragment(),
             newRequestLaunched()
             when (binding.searchType.checkedRadioButtonId) {
                 R.id.searchBook -> {
+                    bookmarkReservedName = "Новинки"
                     mLastRequest = RequestItem(
                         "/opds/new/0/new",
                         append = false,
@@ -664,6 +736,7 @@ class OpdsFragment : Fragment(),
                     )
                 }
                 R.id.searchAuthor -> {
+                    bookmarkReservedName = "Новинки по авторам"
                     mLastRequest = RequestItem(
                         "/opds/newauthors",
                         append = false,
@@ -675,6 +748,7 @@ class OpdsFragment : Fragment(),
                     )
                 }
                 R.id.searchGenre -> {
+                    bookmarkReservedName = "Новинки по жанрам"
                     mLastRequest = RequestItem(
                         "/opds/newgenres",
                         append = false,
@@ -686,6 +760,7 @@ class OpdsFragment : Fragment(),
                     )
                 }
                 R.id.searchSequence -> {
+                    bookmarkReservedName = "Новинки по сериям"
                     mLastRequest = RequestItem(
                         "/opds/newsequences",
                         append = false,
@@ -886,6 +961,16 @@ class OpdsFragment : Fragment(),
         if (!PreferencesHandler.instance.showFilterStatistics) {
             menu.findItem(R.id.action_show_filter)?.isVisible = false
         }
+        // check when request link in bookmarks list
+        if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
+            val item = menu.findItem(R.id.action_add_bookmark)
+            item.icon = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.ic_baseline_bookmark_border_24,
+                requireActivity().theme
+            )
+            item.title = getString(R.string.remove_bookmark_title)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -900,6 +985,7 @@ class OpdsFragment : Fragment(),
             TYPE_AUTHOR -> {
                 if (item.link?.startsWith("/opds/new/0/newauthors") == true) {
                     // go to link
+                    bookmarkReservedName = "Книги автора ${item.name}"
                     newRequestLaunched()
                     mLastRequest = RequestItem(
                         item.link!!,
@@ -923,6 +1009,7 @@ class OpdsFragment : Fragment(),
                 startActivity(goDownloadIntent)
             }
             else -> {
+                bookmarkReservedName = item.name
                 // перейду по ссылке
                 newRequestLaunched()
                 mLastRequest = RequestItem(
@@ -949,6 +1036,7 @@ class OpdsFragment : Fragment(),
     }
 
     override fun itemPressed(item: FoundEntity) {
+        bookmarkReservedName = item.name
         when (item.type) {
             TYPE_AUTHOR -> {
                 if (item.link?.startsWith("/opds/new/0/newauthors") == true) {
@@ -1050,6 +1138,7 @@ class OpdsFragment : Fragment(),
         binding.massLoadFab.hide()
         binding.foundResultsQuantity.visibility = View.GONE
         (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(true)
+        activity?.invalidateOptionsMenu()
     }
 
     override fun authorClicked(item: FoundEntity) {
@@ -1080,6 +1169,7 @@ class OpdsFragment : Fragment(),
 
     override fun sequenceClicked(item: FoundEntity) {
         if (item.sequences.size == 1) {
+            bookmarkReservedName = item.sequences[0].name
             newRequestLaunched()
             mLastRequest = RequestItem(
                 item.sequences[0].link!!,
@@ -1108,6 +1198,7 @@ class OpdsFragment : Fragment(),
         }
         // покажу список выбора автора
         dialogBuilder.setItems(list.toTypedArray()) { _: DialogInterface?, i: Int ->
+            bookmarkReservedName = sequences[i].name
             newRequestLaunched()
             mLastRequest = RequestItem(
                 sequences[i].link!!,
@@ -1229,6 +1320,7 @@ class OpdsFragment : Fragment(),
     }
 
     private fun loadAuthor(which: Int, author: FoundEntity) {
+        bookmarkReservedName = author.name
         var url: String? = null
         val link = Regex("[^0-9]").replace(author.id!!, "")
         Log.d("surprise", "loadAuthor: link is $link")

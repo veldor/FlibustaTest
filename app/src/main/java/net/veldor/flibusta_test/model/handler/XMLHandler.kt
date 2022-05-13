@@ -1,7 +1,6 @@
 package net.veldor.flibusta_test.model.handler
 
 import android.util.Log
-import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
@@ -123,7 +122,7 @@ object XMLHandler {
         return false
     }
 
-    suspend fun searchDownloadLinks(textStream: InputStream): ArrayList<FoundEntity> {
+    fun searchDownloadLinks(textStream: InputStream): ArrayList<FoundEntity> {
         val result: ArrayList<FoundEntity> = arrayListOf()
         val booksList = HashMap<String, FoundEntity>()
         val dom: org.jsoup.nodes.Document
@@ -150,15 +149,6 @@ object XMLHandler {
                 downloadLink = DownloadLink()
                 downloadLink.url = href
                 booksList[bookId]?.downloadLinks?.add(downloadLink)
-                /*// add download link
-                val linkItem =
-                    DownloadLinkHandler.createDownloadLinkFromHref(UrlHelper.getBaseUrl() + href)
-                if (linkItem != null) {
-                    if (booksList[bookId]!!.downloadLinks.isEmpty()) {
-                        booksList[bookId]!!.author = linkItem.author
-                    }
-                    booksList[bookId]!!.downloadLinks.add(linkItem)
-                }*/
             }
         }
         Log.d("surprise", "XMLHandler.kt 159: books in result ${booksList.size}")
