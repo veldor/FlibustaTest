@@ -1,7 +1,6 @@
 package net.veldor.flibusta_test.model.handler
 
 import android.content.Context
-import android.util.Log
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
@@ -10,7 +9,6 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.FileItem
 import net.veldor.flibusta_test.model.selections.SortOption
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import java.util.ArrayList
 
 class SortHandler {
     fun getBookSortOptions(context: Context): List<SortOption?> {
@@ -262,7 +260,6 @@ class SortHandler {
                 }
             }
             6 -> {
-                Log.d("surprise", "sortFiles: sort by modification time")
                 arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
                     if (lhs.file.lastModified() > rhs.file.lastModified()) {
                         return@sort -1
@@ -274,7 +271,6 @@ class SortHandler {
                 }
             }
             7 -> {
-                Log.d("surprise", "sortFiles: sort by modification time invert")
                 arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
                     if (lhs.file.lastModified() < rhs.file.lastModified()) {
                         return@sort -1

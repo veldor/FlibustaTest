@@ -25,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentOpdsBinding
+import net.veldor.flibusta_test.model.adapter.BookmarkDirAdapter
 import net.veldor.flibusta_test.model.adapter.FoundItemAdapter
 import net.veldor.flibusta_test.model.adapter.FoundItemCompactAdapter
 import net.veldor.flibusta_test.model.adapter.OpdsSortAdapter
@@ -42,6 +43,7 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.HistoryItem
 import net.veldor.flibusta_test.model.selections.RequestItem
+import net.veldor.flibusta_test.model.selections.SortOption
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import net.veldor.flibusta_test.model.view_model.OpdsViewModel
@@ -103,6 +105,12 @@ class OpdsFragment : Fragment(),
                 // show download state fragment
                 showDownloadState()
             }
+            R.id.action_show_sort -> {
+                showSortDialog()
+            }
+            R.id.action_add_bookmark -> {
+                showAddBookmarkDialog()
+            }
             R.id.action_search -> {
                 binding.bookSearchView.visibility = View.VISIBLE
                 binding.bookSearchView.isIconified = false
@@ -113,6 +121,56 @@ class OpdsFragment : Fragment(),
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showAddBookmarkDialog() {
+        val layout = layoutInflater.inflate(R.layout.dialog_catalog_bookmark, null, false)
+        val spinner = layout.findViewById<Spinner>(R.id.bookmarkFoldersSpinner)
+        spinner.adapter = BookmarkDirAdapter()
+        TODO("Not yet implemented")
+    }
+
+    private fun showSortDialog() {
+        val sortType: Int
+        val sortOptions: List<SortOption?>
+        val selectedOption: Int
+        when {
+            (binding.resultsList.adapter as MyAdapterInterface).containsGenres() -> {
+                sortType = R.id.searchGenre
+                sortOptions = SortHandler().getDefaultSortOptions(requireContext())
+                selectedOption = SelectedSortTypeHandler.instance.getGenreSortOptionIndex()
+            }
+            (binding.resultsList.adapter as MyAdapterInterface).containsSequences() -> {
+                sortType = R.id.searchSequence
+                sortOptions = SortHandler().getDefaultSortOptions(requireContext())
+                selectedOption = SelectedSortTypeHandler.instance.getSequenceSortOptionIndex()
+            }
+            (binding.resultsList.adapter as MyAdapterInterface).containsAuthors() -> {
+                sortType = R.id.searchAuthor
+                sortOptions = SortHandler().getAuthorSortOptions(requireContext())
+                selectedOption = SelectedSortTypeHandler.instance.getAuthorSortOptionIndex()
+            }
+            else -> {
+                sortType = R.id.searchBook
+                sortOptions = SortHandler().getBookSortOptions(requireContext())
+                selectedOption = SelectedSortTypeHandler.instance.getBookSortOptionIndex()
+            }
+        }
+        val searchArray: Array<CharSequence> = Array(sortOptions.size) { index ->
+            sortOptions[index]!!.name
+        }
+
+        val builder = AlertDialog.Builder(requireActivity())
+            .setTitle("Sort list by")
+            .setSingleChoiceItems(searchArray, selectedOption) { dialog, selected ->
+                dialog.dismiss()
+                SelectedSortTypeHandler.instance.saveSortType(
+                    sortType,
+                    selected
+                )
+                (binding.resultsList.adapter as MyAdapterInterface).sort()
+            }
+        builder.show()
     }
 
     private fun showDownloadState() {
@@ -881,12 +939,12 @@ class OpdsFragment : Fragment(),
     }
 
     override fun imageClicked(item: FoundEntity) {
-        if(item.coverUrl != null){
+        if (item.coverUrl != null) {
             backdropCoverFragment?.setTarget(item)
             bottomSheetCoverBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-        else{
-            Toast.makeText(requireContext(), getString(R.string.no_cover_title), Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(requireContext(), getString(R.string.no_cover_title), Toast.LENGTH_LONG)
+                .show()
         }
     }
 

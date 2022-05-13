@@ -418,4 +418,9 @@ Later you can change this parameter in Catalog settings</string>
     <string name="book_covers_shown_by_request_title">Show covers by click on cover</string>
     <string name="book_covers_shown_automatically_title">Book covers shows automatically</string>
     <string name="no_cover_title">No cover</string>
+    <string name="show_sort_title">Sort</string>
+    <string name="show_add_bookmark_title">Add bookmark</string>
+    <string name="bookmark_name_title">Bookmark name</string>
+    <string name="add_new_folder_title">Add new folder</string>
+    <string name="new_dir_name_title">Dir name</string>
 </resources>
