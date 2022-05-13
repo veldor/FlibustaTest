@@ -44,6 +44,19 @@ class BrowserActivity : BaseActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavView.setupWithNavController(navController)
+
+        if (intent.hasExtra("link")) {
+            val link = intent.getStringExtra("link")
+            if(link != null){
+                if (link.startsWith("/opds/")){
+                    // load link to opds fragment
+                    val f = getCurrentFragment()
+                    if (f is OpdsFragment) {
+                        f.loadLink(link)
+                    }
+                }
+            }
+        }
     }
 
     companion object {
@@ -70,8 +83,7 @@ class BrowserActivity : BaseActivity() {
         val fragment = getCurrentFragment()
         if (fragment is OpdsFragment) {
             return fragment.keyPressed(keyCode)
-        }
-        else if(fragment is WebViewFragment){
+        } else if (fragment is WebViewFragment) {
             return fragment.keyPressed(keyCode)
         }
         return super.onKeyDown(keyCode, event)
@@ -89,6 +101,7 @@ class BrowserActivity : BaseActivity() {
         binding.bottomNavView.selectedItemId =
             R.id.navigation_web_view
     }
+
     fun returnToOpds() {
         Log.d("surprise", "BrowserActivity.kt 93: return to OPDS")
         goFromOpds = false

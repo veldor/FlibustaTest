@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -65,6 +66,7 @@ class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
     SearchResultActionDelegate {
 
+    private var linkForLoad: String? = null
     private var bookmarkReservedName: String? = null
     private var mDisableHistoryDialog: AlertDialog? = null
     private var autocompleteComponent: SearchAutoComplete? = null
@@ -805,6 +807,20 @@ class OpdsFragment : Fragment(),
         binding.resultsList.adapter = a
         binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
 
+        if (linkForLoad != null) {
+            newRequestLaunched()
+            mLastRequest = RequestItem(
+                linkForLoad!!,
+                append = false,
+                addToHistory = true,
+                clickedElementIndex = -1
+            )
+            viewModel.request(
+                mLastRequest
+            )
+            linkForLoad = null
+        }
+
         // add scroll listener for next results load to recycler
         binding.resultsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -969,6 +985,15 @@ class OpdsFragment : Fragment(),
                 R.drawable.ic_baseline_bookmark_border_24,
                 requireActivity().theme
             )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                item.icon.setTint(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.white,
+                        requireActivity().theme
+                    )
+                )
+            }
             item.title = getString(R.string.remove_bookmark_title)
         }
     }
@@ -1519,5 +1544,9 @@ class OpdsFragment : Fragment(),
                 else -> TYPE_SEQUENCE
             }
         )
+    }
+
+    fun loadLink(link: String) {
+        linkForLoad = link
     }
 }

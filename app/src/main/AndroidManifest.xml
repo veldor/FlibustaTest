@@ -28,13 +28,16 @@
         tools:replace="android:allowBackup"
         tools:targetApi="q">
         <activity
+            android:name=".ui.BookmarksActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.DownloadDirContentActivity"
             android:exported="false" />
 
         <receiver
             android:name=".model.receiver.DownloadBookProcessReceiver"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
         <activity
             android:name=".ui.DownloadedBooksActionsActivity"

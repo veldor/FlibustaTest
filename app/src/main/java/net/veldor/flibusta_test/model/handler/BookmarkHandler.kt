@@ -7,6 +7,7 @@ import net.veldor.flibusta_test.model.file.MyFileReader
 import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.blacklist.BlacklistType
 import org.w3c.dom.Element
+import org.w3c.dom.NodeList
 
 class BookmarkHandler private constructor() {
 
@@ -131,7 +132,10 @@ class BookmarkHandler private constructor() {
             var counter = 0
             while (items?.item(counter) != null) {
                 val node = items.item(counter)
-                if (node.hasAttributes() && node.attributes.getNamedItem("link").textContent == lastRequestedUrl) {
+                if (node.hasAttributes() && node.attributes.getNamedItem("type").textContent == TYPE_BOOKMARK && node.attributes.getNamedItem(
+                        "link"
+                    ).textContent == lastRequestedUrl
+                ) {
                     node.parentNode.removeChild(node)
                     // save and exit
                     val resultString = BlacklistType.getStringFromDocument(dom)
@@ -140,6 +144,86 @@ class BookmarkHandler private constructor() {
                 }
                 counter++
             }
+        }
+    }
+
+    fun get(category: String?): java.util.ArrayList<BookmarkItem> {
+        Log.d("surprise", "BookmarkHandler.kt 148: search for $category")
+        val results = ArrayList<BookmarkItem>()
+        val rawData = MyFileReader.getOpdsBookmarks()
+        val dom = BlacklistType.getDocument(rawData)
+        val nodes: NodeList? = if (category == null) {
+            dom?.documentElement?.childNodes
+        } else {
+            var result: NodeList? = null
+            // find requested category
+            val nodes = dom?.documentElement?.childNodes
+            if (nodes != null && nodes.length > 0) {
+                var counter = 0
+                while (nodes.item(counter) != null) {
+                    val node = nodes.item(counter)
+                    if (node.hasAttributes()) {
+                        // look for category
+                        if (node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
+                                "name"
+                            ).textContent == category
+                        ) {
+                            result = node.childNodes
+                            break
+                        }
+                    }
+                    counter++
+                }
+            }
+            result
+        }
+        if (nodes != null && nodes.length > 0) {
+            var counter = 0
+            while (nodes.item(counter) != null) {
+                val node = nodes.item(counter)
+                if (node.hasAttributes()) {
+                    if (node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY) {
+                        results.add(
+                            BookmarkItem(
+                                name = node.attributes.getNamedItem("name").textContent,
+                                type = TYPE_CATEGORY,
+                                link = null
+                            )
+                        )
+                    } else if (node.attributes.getNamedItem("type").textContent == TYPE_BOOKMARK) {
+                        results.add(
+                            BookmarkItem(
+                                name = node.attributes.getNamedItem("name").textContent,
+                                type = TYPE_BOOKMARK,
+                                link = node.attributes.getNamedItem("link").textContent
+                            )
+                        )
+                    }
+                }
+                counter++
+            }
+        }
+        return results
+    }
+
+    fun deleteCategory(name: String) {
+        val rawData = MyFileReader.getOpdsBookmarks()
+        val dom = BlacklistType.getDocument(rawData)
+        val items = dom?.getElementsByTagName("item")
+        var counter = 0
+        while (items?.item(counter) != null) {
+            val node = items.item(counter)
+            if (node.hasAttributes() && node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
+                    "name"
+                ).textContent == name
+            ) {
+                node.parentNode.removeChild(node)
+                // save and exit
+                val resultString = BlacklistType.getStringFromDocument(dom)
+                MyFileReader.saveBookmarksList(resultString)
+                return
+            }
+            counter++
         }
     }
 

@@ -38,6 +38,11 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
+            R.id.goToBookmarks -> {
+                val intent = Intent(mContext, BookmarksActivity::class.java)
+                mContext.startActivity(intent)
+                tryCloseDrawer()
+            }
             R.id.goToSettings -> {
                 val intent = Intent(mContext, PreferencesActivity::class.java)
                 mContext.startActivity(intent)
