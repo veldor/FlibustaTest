@@ -76,6 +76,7 @@ class BookmarkHandler private constructor() {
     }
 
     fun addBookmark(category: String?, name: String, link: String) {
+        Log.d("surprise", "BookmarkHandler.kt 79: add $name with $link on $category")
         val rawData = MyFileReader.getOpdsBookmarks()
         val dom = BlacklistType.getDocument(rawData)
         if (dom != null) {
@@ -218,6 +219,30 @@ class BookmarkHandler private constructor() {
                 ).textContent == name
             ) {
                 node.parentNode.removeChild(node)
+                // save and exit
+                val resultString = BlacklistType.getStringFromDocument(dom)
+                MyFileReader.saveBookmarksList(resultString)
+                return
+            }
+            counter++
+        }
+    }
+
+    fun changeBookmark(item: BookmarkItem, newItem: BookmarkItem) {
+        // find old item
+        val results = ArrayList<BookmarkItem>()
+        val rawData = MyFileReader.getOpdsBookmarks()
+        val dom = BlacklistType.getDocument(rawData)
+        val items = dom?.getElementsByTagName("item")
+        var counter = 0
+        while (items?.item(counter) != null) {
+            val node = items.item(counter)
+            if (node.hasAttributes() && node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
+                    "name"
+                ).textContent == item.name
+            ) {
+                (node as Element).setAttribute("name", newItem.name)
+                node.setAttribute("link", newItem.link)
                 // save and exit
                 val resultString = BlacklistType.getStringFromDocument(dom)
                 MyFileReader.saveBookmarksList(resultString)

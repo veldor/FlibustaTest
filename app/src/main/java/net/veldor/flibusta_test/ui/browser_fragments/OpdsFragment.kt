@@ -72,8 +72,8 @@ class OpdsFragment : Fragment(),
     private var autocompleteComponent: SearchAutoComplete? = null
     private var mLastRequest: RequestItem? = null
     private var bottomSheetCoverBehavior: BottomSheetBehavior<View>? = null
-    private var bottomSheetFilterBehavior: BottomSheetBehavior<View>? = null
-    private var bottomSheetOpdsBehavior: BottomSheetBehavior<View>? = null
+    var bottomSheetFilterBehavior: BottomSheetBehavior<View>? = null
+    var bottomSheetOpdsBehavior: BottomSheetBehavior<View>? = null
     private var backdropDownloadStateFragment: DownloadScheduleStatementFragment? = null
     private var backdropCoverFragment: CoverBackdropFragment? = null
     private var backdropFilterFragment: FilterBackdropFragment? = null
@@ -149,7 +149,7 @@ class OpdsFragment : Fragment(),
                 BookmarkHandler.instance.getBookmarkCategories(requireContext())
             )
             AlertDialog.Builder(requireActivity())
-                .setTitle("Add bookmark")
+                .setTitle(getString(R.string.add_bookmark_title))
                 .setView(layout)
                 .setPositiveButton(getString(R.string.add_title)) { _, _ ->
                     // add bookmark
@@ -171,6 +171,7 @@ class OpdsFragment : Fragment(),
                         bookmarkNameTextView.text.toString(),
                         linkValueView.text.toString()
                     )
+                    activity?.invalidateOptionsMenu()
                     if (category.isNullOrEmpty()) {
                         Toast.makeText(
                             requireContext(),
@@ -235,7 +236,7 @@ class OpdsFragment : Fragment(),
         }
 
         val builder = AlertDialog.Builder(requireActivity())
-            .setTitle("Sort list by")
+            .setTitle(getString(R.string.sort_list_by_title))
             .setSingleChoiceItems(searchArray, selectedOption) { dialog, selected ->
                 dialog.dismiss()
                 SelectedSortTypeHandler.instance.saveSortType(
@@ -282,7 +283,7 @@ class OpdsFragment : Fragment(),
     }
 
 
-    private fun configureBackdrop() {
+    fun configureBackdrop() {
 // Get the fragment reference
         backdropFragment =
             requireActivity().supportFragmentManager.findFragmentById(R.id.opdsBackdropFragment) as OpdsDownloadBackdropFragment?
@@ -452,6 +453,7 @@ class OpdsFragment : Fragment(),
             barThickness = dpToPx(requireContext(), 2),
             barGap = dpToPx(requireContext(), 5)
         )
+        hamburgerDrawable.color = ResourcesCompat.getColor(resources, R.color.icon_text_color, requireActivity().theme)
         showAutofillBtn.setImageDrawable(
             hamburgerDrawable
         )
@@ -571,6 +573,10 @@ class OpdsFragment : Fragment(),
                     }
                 }
                 addValueToAutocompleteList(request, binding.searchType.checkedRadioButtonId)
+                // refresh autofill
+                val searchAdapter =
+                    setAutocompleteAdapter()
+                autocompleteComponent?.setAdapter(searchAdapter)
                 newRequestLaunched()
                 bookmarkReservedName = request
                 mLastRequest = RequestItem(
@@ -1345,9 +1351,12 @@ class OpdsFragment : Fragment(),
     }
 
     private fun loadAuthor(which: Int, author: FoundEntity) {
+        Log.d("surprise", "OpdsFragment.kt 1350: ${author.name}")
+        Log.d("surprise", "OpdsFragment.kt 1350: ${author.link}")
+        Log.d("surprise", "OpdsFragment.kt 1350: ${author.id}")
         bookmarkReservedName = author.name
         var url: String? = null
-        val link = Regex("[^0-9]").replace(author.id!!, "")
+        val link = Regex("[^0-9]").replace(author.link!!, "")
         Log.d("surprise", "loadAuthor: link is $link")
         when (which) {
             0 -> {

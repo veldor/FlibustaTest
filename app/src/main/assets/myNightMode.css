@@ -8,11 +8,26 @@ html body#second,
 html body div#page,
 html body div#main,
 html body div#container,
+html body div#content-top,
 html body table td
 {
 	background-color: #000;
 	color: #ada3a3;
 
+}
+
+#main > div.breadcrumb{
+    background-color: #000;
+}
+
+html{
+background-color: #000;
+}
+html body#home{
+background-color: #000;
+}
+html body div#page{
+background-color: #000;
 }
 
 html body a.author-link {
@@ -71,4 +86,8 @@ a.book-genre-link{
 
 a.book-series-link{
     color:#5DDF67;
+}
+
+div#navigationButtonsDiv button{
+    background-color: #000;
 }

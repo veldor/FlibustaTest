@@ -1,6 +1,7 @@
 package net.veldor.flibusta_test.model.web
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
@@ -21,20 +22,13 @@ class WebViewClient internal constructor(
     val context: Context,
     val delegate: DownloadLinksDelegate
 ) : WebViewClient() {
+    var isFullscreen: Boolean = false
     private var mViewMode = 0
     private var mNightMode = false
 
     @Deprecated("Deprecated in Java")
     override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse {
         return handleRequest(view, url)!!
-    }
-
-    override fun onPageFinished(view: WebView?, url: String?) {
-        super.onPageFinished(view, url)
-        // load bootstrap css
-        view?.loadUrl("javascript:(function(){ document.body.style.paddingTop = '50px'})();")
-        view?.loadUrl("javascript:(function(){ document.body.style.paddingBottom = '50px'})();")
-
     }
 
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -86,7 +80,6 @@ class WebViewClient internal constructor(
     }
 
     private fun injectMyCss(originalCss: String?): String? {
-        Log.d("surprise", "WebViewClient.kt 77: append css")
         // старые версии Android не понимают переменные цветов и новые объявления JS, подключусь в режиме совместимости
         var inputStream: InputStream
         var output = originalCss
@@ -102,8 +95,15 @@ class WebViewClient internal constructor(
                 val cssText = inputStreamToString(inputStream)
                 output += cssText
             }
-            if (mNightMode) {
+            if (PreferencesHandler.instance.nightMode == PreferencesHandler.NIGHT_THEME_NIGHT || (PreferencesHandler.instance.nightMode != PreferencesHandler.NIGHT_THEME_DAY &&
+                        (App.instance.resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
+            ) {
                 inputStream = App.instance.assets.open(MY_CSS_NIGHT_STYLE)
+                output += inputStreamToString(inputStream)
+            }
+            if (isFullscreen) {
+                inputStream = App.instance.assets.open(MY_CSS_FULLSCREEN_STYLE)
                 output += inputStreamToString(inputStream)
             }
             inputStream = App.instance.assets.open(BOOTSTRAP_CSS_STYLE)
@@ -263,6 +263,7 @@ class WebViewClient internal constructor(
         private const val MY_COMPAT_CSS_STYLE = "myCompatStyle.css"
         private const val BOOTSTRAP_CSS_STYLE = "bootstrap.css"
         private const val MY_CSS_NIGHT_STYLE = "myNightMode.css"
+        private const val MY_CSS_FULLSCREEN_STYLE = "forFullscreen.css"
         private const val MY_COMPAT_FAT_CSS_STYLE = "myCompatFatStyle.css"
         private const val MY_JS = "myJs.js"
         private const val HTML_TYPE = "text/html"

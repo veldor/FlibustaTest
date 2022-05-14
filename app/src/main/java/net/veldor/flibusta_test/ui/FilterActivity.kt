@@ -19,6 +19,12 @@ class FilterActivity : BaseActivity() {
         setContentView(binding.drawerLayout)
         setupUI()
 
+        // скрою переход на данное активити
+        val menuNav = mNavigationView.menu
+        val item = menuNav.findItem(R.id.goToBlacklist)
+        item.isEnabled = false
+        item.isChecked = true
+
         // setup bottom menu
         binding.bottomNavView
         val fragment: NavHostFragment =

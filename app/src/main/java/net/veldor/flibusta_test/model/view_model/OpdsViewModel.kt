@@ -29,7 +29,7 @@ import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
-class OpdsViewModel : ViewModel() {
+open class OpdsViewModel : ViewModel() {
     private var checkBooksWork: Job? = null
     private var lastScrolled: Int = -1
     var searchResultsDelegate: SearchResultActionDelegate? = null
@@ -312,15 +312,11 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun addBookmark(category: String?, name: String, link: String) {
-        if (lastRequestedUrl != null) {
-            viewModelScope.launch(Dispatchers.IO) {
-                if (category != null && category.isNotEmpty()) {
-                    // add category if not exists
-                    BookmarkHandler.instance.addCategory(category)
-                }
-                BookmarkHandler.instance.addBookmark(category, name, link)
-            }
+        if (category != null && category.isNotEmpty()) {
+            // add category if not exists
+            BookmarkHandler.instance.addCategory(category)
         }
+        BookmarkHandler.instance.addBookmark(category, name, link)
     }
 
     fun readyToCreateBookmark(): Boolean {
@@ -332,7 +328,7 @@ class OpdsViewModel : ViewModel() {
     }
 
     fun removeBookmark() {
-            BookmarkHandler.instance.deleteBookmark(lastRequestedUrl)
+        BookmarkHandler.instance.deleteBookmark(lastRequestedUrl)
     }
 
 

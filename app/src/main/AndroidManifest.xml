@@ -28,9 +28,11 @@
         tools:replace="android:allowBackup"
         tools:targetApi="q">
         <activity
+            android:label="@string/navigation_go_bookmarks"
             android:name=".ui.BookmarksActivity"
             android:exported="false" />
         <activity
+            android:label="@string/navigation_go_file_list"
             android:name=".ui.DownloadDirContentActivity"
             android:exported="false" />
 
@@ -43,6 +45,7 @@
             android:name=".ui.DownloadedBooksActionsActivity"
             android:exported="true" />
         <activity
+            android:label="@string/navigation_go_downloads_list"
             android:name=".ui.DownloadScheduleActivity"
             android:exported="false" />
         <activity
@@ -52,6 +55,7 @@
             android:name=".ui.FilterActivity"
             android:exported="false" />
         <activity
+            android:label="@string/navigation_go_settings"
             android:name=".ui.PreferencesActivity"
             android:exported="false" />
         <activity

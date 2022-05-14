@@ -11,8 +11,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityBrowserBinding
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.view_model.WebViewViewModel
 import net.veldor.flibusta_test.ui.browser_fragments.OpdsFragment
 import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
@@ -30,9 +32,7 @@ class BrowserActivity : BaseActivity() {
         setContentView(binding.rootView)
         rootView = binding.root
         setupUI()
-
         // setup bottom menu
-        binding.bottomNavView
         val fragment: NavHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController: NavController = fragment.navController
@@ -47,13 +47,22 @@ class BrowserActivity : BaseActivity() {
 
         if (intent.hasExtra("link")) {
             val link = intent.getStringExtra("link")
-            if(link != null){
-                if (link.startsWith("/opds/")){
+            if (link != null) {
+                if (link.startsWith("/opds/")) {
                     // load link to opds fragment
                     val f = getCurrentFragment()
                     if (f is OpdsFragment) {
                         f.loadLink(link)
                     }
+                } else {
+
+                    val f = getCurrentFragment()
+                    if (f is OpdsFragment) {
+                        Log.d("surprise", "BrowserActivity.kt 61: config opds")
+                        f.configureBackdrop()
+                    }
+                    PreferencesHandler.instance.lastWebViewLink = link
+                    binding.bottomNavView.selectedItemId = R.id.navigation_web_view
                 }
             }
         }

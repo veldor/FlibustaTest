@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_color"
     tools:context=".ui.BrowserActivity">
 
     <androidx.appcompat.widget.SearchView
@@ -42,8 +43,8 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@color/dropdownBackgroundColor"
-        android:backgroundTint="@color/dropdownBackgroundColor"
+        android:background="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent">
@@ -55,11 +56,13 @@
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/switchViewLeftBtn"
                 style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
+                android:tint="@color/white"
                 android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
+                app:layout_constraintEnd_toStartOf="@+id/switchViewRightBtn"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -67,6 +70,9 @@
                 android:id="@+id/currentViewName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/switchViewRightBtn"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -76,12 +82,13 @@
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/switchViewRightBtn"
                 style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
                 android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
                 app:layout_constraintEnd_toEndOf="parent"
+                android:tint="@color/white"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/switchViewLeftBtn"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.AppCompatImageButton
@@ -90,6 +97,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="30dp"
+                android:layout_marginTop="20dp"
+                android:tint="@color/white"
                 android:layout_marginEnd="30dp"
                 android:src="@drawable/ic_baseline_check_24"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -105,6 +114,7 @@
         android:id="@+id/myWebView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/background_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -127,7 +137,7 @@
         app:fab_showAnimation="@anim/fab_slide_up_animation"
         app:icon="@drawable/ic_baseline_arrow_downward_24"
         app:iconTint="@color/lightTextColor"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/viewSwitcherContainer"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

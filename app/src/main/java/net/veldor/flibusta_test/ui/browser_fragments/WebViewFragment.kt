@@ -1,12 +1,17 @@
 package net.veldor.flibusta_test.ui.browser_fragments
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
+import android.widget.Spinner
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
@@ -14,18 +19,24 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentWebViewBinding
+import net.veldor.flibusta_test.model.adapter.BookmarkDirAdapter
 import net.veldor.flibusta_test.model.delegate.DownloadLinksDelegate
 import net.veldor.flibusta_test.model.delegate.DownloadTaskAppendedDelegate
+import net.veldor.flibusta_test.model.handler.BookmarkHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
+import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.view_model.WebViewViewModel
 import net.veldor.flibusta_test.ui.BrowserActivity
 import java.io.InputStream
 import java.net.URLEncoder
+import java.util.*
+
 
 open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppendedDelegate {
     private lateinit var errorSnackbar: Snackbar
@@ -39,11 +50,15 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
     lateinit var binding: FragmentWebViewBinding
     internal lateinit var viewModel: WebViewViewModel
 
+    private var shortAnimationDuration: Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Retrieve and cache the system's default "short" animation time.
+        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         activity?.invalidateOptionsMenu()
         setHasOptionsMenu(true)
         viewModel = ViewModelProvider(this).get(WebViewViewModel::class.java)
@@ -56,6 +71,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
         val isViewSetup = savedInstanceState?.getBoolean("ViewSetup")
         if (isViewSetup != null && isViewSetup) {
             isViewSetupOpened = true
+
             binding.viewSwitcherContainer.visibility = View.VISIBLE
         }
         setupUI()
@@ -69,6 +85,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
 
     private fun setupUI() {
 
+        binding.myWebView.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.background_color, requireActivity().theme))
         binding.hideFullscreenBtn.setOnClickListener {
             disableFullscreen()
             it.visibility = View.GONE
@@ -124,7 +141,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
 
         binding.viewOkBtn.setOnClickListener {
             isViewSetupOpened = false
-            binding.viewSwitcherContainer.visibility = View.GONE
+            crossfadeHide()
         }
         binding.currentViewName.text = viewModes[PreferencesHandler.instance.browserViewMode]
         binding.switchViewLeftBtn.setOnClickListener {
@@ -161,6 +178,8 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
     }
 
     private fun disableFullscreen() {
+        binding.myWebView.client.isFullscreen = false
+        binding.myWebView.loadUrl(PreferencesHandler.instance.lastWebViewLink)
         val decorView: View = requireActivity().window.decorView
         decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         requireActivity().window.clearFlags(
@@ -184,6 +203,34 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.browser_menu, menu)
+
+        // check when request link in bookmarks list
+        if (BookmarkHandler.instance.bookmarkInList(
+                binding.myWebView.url.substring(
+                    binding.myWebView.url.indexOf(
+                        "/",
+                        8
+                    )
+                )
+            )
+        ) {
+            val item = menu.findItem(R.id.action_add_bookmark)
+            item.icon = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.ic_baseline_bookmark_border_24,
+                requireActivity().theme
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                item.icon.setTint(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.white,
+                        requireActivity().theme
+                    )
+                )
+            }
+            item.title = getString(R.string.remove_bookmark_title)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -200,11 +247,100 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
                 enableFullscreen()
                 isFullscreen = true
             }
+            R.id.action_add_bookmark -> {
+                if (BookmarkHandler.instance.bookmarkInList(
+                        binding.myWebView.url.substring(
+                            binding.myWebView.url.indexOf(
+                                "/",
+                                8
+                            )
+                        )
+                    )
+                ) {
+                    viewModel.removeBookmark()
+                    Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
+                    activity?.invalidateOptionsMenu()
+                } else {
+                    showAddBookmarkDialog()
+                }
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
+
+    private fun showAddBookmarkDialog() {
+        val layout = layoutInflater.inflate(R.layout.dialog_catalog_bookmark, null, false)
+        val linkValueView = layout.findViewById<TextInputEditText>(R.id.linkValue)
+        val bookmarkNameTextView =
+            layout.findViewById<TextInputEditText>(R.id.bookmarkName)
+        bookmarkNameTextView.setText(binding.myWebView.title)
+        linkValueView.setText(
+            binding.myWebView.url.substring(
+                binding.myWebView.url.indexOf(
+                    "/",
+                    8
+                )
+            )
+        )
+        val spinner = layout.findViewById<Spinner>(R.id.bookmarkFoldersSpinner)
+        spinner.adapter = BookmarkDirAdapter(
+            requireActivity(),
+            BookmarkHandler.instance.getBookmarkCategories(requireContext())
+        )
+        AlertDialog.Builder(requireActivity())
+            .setTitle(getString(R.string.add_bookmark_title))
+            .setView(layout)
+            .setPositiveButton(getString(R.string.add_title)) { _, _ ->
+                // add bookmark
+                val checkbox = layout.findViewById<CheckBox>(R.id.addNewBookmarkFolderCheckBox)
+                val category: String? = if (checkbox.isChecked) {
+                    val categoryTextView =
+                        layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
+                    categoryTextView.text.toString()
+                } else {
+                    val selectedItem = spinner.selectedItem as BookmarkItem?
+                    if (selectedItem != null && selectedItem.type == BookmarkHandler.TYPE_CATEGORY) {
+                        selectedItem.name
+                    } else {
+                        null
+                    }
+                }
+                viewModel.addBookmark(
+                    category,
+                    bookmarkNameTextView.text.toString(),
+                    linkValueView.text.toString()
+                )
+                activity?.invalidateOptionsMenu()
+                if (category.isNullOrEmpty()) {
+                    Toast.makeText(
+                        requireContext(),
+                        String.format(
+                            Locale.ENGLISH,
+                            getString(R.string.add_bookmark_template),
+                            bookmarkNameTextView.text.toString()
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        String.format(
+                            Locale.ENGLISH,
+                            getString(R.string.add_bookmark_with_category_template),
+                            bookmarkNameTextView.text.toString(),
+                            category
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .show()
+    }
+
     private fun enableFullscreen() {
+        binding.myWebView.client.isFullscreen = true
+        binding.myWebView.loadUrl(PreferencesHandler.instance.lastWebViewLink)
         val decorView: View = requireActivity().window.decorView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val uiOptions =
@@ -238,7 +374,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
 
     private fun showViewSwitcher() {
         isViewSetupOpened = true
-        binding.viewSwitcherContainer.visibility = View.VISIBLE
+        crossfadeShow()
     }
 
     companion object {
@@ -276,7 +412,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
     }
 
     override fun notifyRequestError() {
-        requireActivity().runOnUiThread{
+        requireActivity().runOnUiThread {
             showErrorSnackbar()
         }
     }
@@ -384,5 +520,53 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
         super.onSaveInstanceState(outState)
         outState.putBoolean("Fullscreen", isFullscreen)
         outState.putBoolean("ViewSetup", isViewSetupOpened)
+    }
+
+    private fun crossfadeShow() {
+        binding.viewSwitcherContainer.apply {
+            // Set the content view to 0% opacity but visible, so that it is visible
+            // (but fully transparent) during the animation.
+            alpha = 0.5f
+            translationY = 500F
+            visibility = View.VISIBLE
+
+            // Animate the content view to 100% opacity, and clear any animation
+            // listener set on the view.
+            animate()
+                .alpha(1f)
+                .translationY(0F)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+
+        /*val anim = ValueAnimator.ofInt(binding.viewSwitcherContainer.measuredHeight, -100)
+        anim.addUpdateListener { valueAnimator ->
+            val `val` = valueAnimator.animatedValue as Int
+            val layoutParams: ViewGroup.LayoutParams = binding.viewSwitcherContainer.layoutParams
+            layoutParams.height = `val`
+            binding.viewSwitcherContainer.layoutParams = layoutParams
+        }
+        anim.duration = shortAnimationDuration.toLong()
+        anim.start()*/
+    }
+
+    private fun crossfadeHide() {
+        binding.viewSwitcherContainer.apply {
+            // Set the content view to 0% opacity but visible, so that it is visible
+            // (but fully transparent) during the animation.
+            alpha = 1f
+
+            // Animate the content view to 100% opacity, and clear any animation
+            // listener set on the view.
+            animate()
+                .alpha(0f)
+                .translationY(500F)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        binding.viewSwitcherContainer.visibility = View.GONE
+                    }
+                })
+        }
     }
 }

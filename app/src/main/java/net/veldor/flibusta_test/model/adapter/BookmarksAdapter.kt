@@ -3,6 +3,7 @@ package net.veldor.flibusta_test.model.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -68,6 +69,14 @@ class BookmarksAdapter(
         }
     }
 
+    fun change(item: BookmarkItem, newItem: BookmarkItem) {
+        TODO("Not yet implemented")
+    }
+
+    fun getPosition(item: BookmarkItem): Int {
+        return values.lastIndexOf(item)
+    }
+
     inner class ViewHolder(private val binding: BookmarkItemBinding) :
         RecyclerView.ViewHolder(
             binding.root
@@ -77,6 +86,7 @@ class BookmarksAdapter(
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             if (item.type == TYPE_CATEGORY) {
+                binding.linkText.visibility = View.GONE
                 binding.itemType.setImageDrawable(
                     ResourcesCompat.getDrawable(
                         context.resources,
@@ -85,6 +95,7 @@ class BookmarksAdapter(
                     )
                 )
             } else {
+                binding.linkText.visibility = View.VISIBLE
                 binding.itemType.setImageDrawable(
                     ResourcesCompat.getDrawable(
                         context.resources,

@@ -7,15 +7,18 @@
         android:title="@android:string/search_go"
         yourapp:showAsAction="always" />
     <item
+        android:id="@+id/action_fullscreen"
+        android:icon="@drawable/ic_baseline_open_in_full_24"
+        android:title="@string/fullscreen_menu"
+        yourapp:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_view"
         android:icon="@drawable/ic_baseline_eye_24"
         android:title="@string/view_menu"
         yourapp:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_fullscreen"
-        android:icon="@drawable/ic_baseline_open_in_full_24"
-        android:title="@string/fullscreen_menu"
+        android:id="@+id/action_add_bookmark"
+        android:icon="@drawable/ic_baseline_bookmark_add_24"
+        android:title="@string/show_add_bookmark_title"
         yourapp:showAsAction="ifRoom" />
-
-
 </menu>

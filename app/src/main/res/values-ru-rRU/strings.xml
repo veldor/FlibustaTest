@@ -385,7 +385,7 @@
     <string name="unzip_title">Приложение распаковывает загруженные архивы. Внимание! Возможны проблемы при наличии более одного файла в архиве!</string>
     <string name="enter_request_title">Введите запрос</string>
     <string name="no_download_links_title">Для книги не найдены ссылки на скачивание</string>
-    <string name="view_menu">Просмотр</string>
+    <string name="view_menu">Внешний вид</string>
     <string name="select_authors_choose_message">Выберите автора</string>
     <string name="hints_showed_title">Автозаполнение включено</string>
     <string name="books_availability_pattern">Проверка доступности книг: %d из %d (Ссылок проверено: %d)</string>
@@ -426,4 +426,7 @@
     <string name="bookmark_not_ready_title">Сначала загрузите какую-нибудь страницу</string>
     <string name="bookmark_link_title">Ссылка</string>
     <string name="remove_bookmark_title">Удалить закладку</string>
+    <string name="change_item_title">Изменить</string>
+    <string name="add_bookmark_title">Добавление закладки</string>
+    <string name="change_bookmark_title">Изменение закладки</string>
 </resources>

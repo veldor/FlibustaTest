@@ -1,13 +1,8 @@
 package net.veldor.flibusta_test.model.view_model
 
-import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.veldor.flibusta_test.App
-import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.delegate.DownloadTaskAppendedDelegate
 import net.veldor.flibusta_test.model.handler.DownloadHandler
 import net.veldor.flibusta_test.model.handler.DownloadLinkHandler
@@ -16,7 +11,7 @@ import net.veldor.flibusta_test.model.handler.XMLHandler
 import java.io.InputStream
 
 
-class WebViewViewModel : ViewModel() {
+class WebViewViewModel : OpdsViewModel() {
 
     private var taskAppendedDelegate: DownloadTaskAppendedDelegate? = null
 

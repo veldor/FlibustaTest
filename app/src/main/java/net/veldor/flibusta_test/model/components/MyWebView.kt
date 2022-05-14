@@ -16,12 +16,14 @@ import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
 import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment.Companion.VIEW_MODE_NORMAL
 
 class MyWebView(context: Context?, attrs: AttributeSet?) : WebView(context, attrs) {
+    lateinit var client: WebViewClient
     private var init = false
 
     @SuppressLint("SetJavaScriptEnabled")
     fun setup(delegate: DownloadLinksDelegate) {
         if (!this.isInEditMode) {
-            this.webViewClient = WebViewClient(context, delegate)
+            client = WebViewClient(context, delegate)
+            this.webViewClient = client
             val webSettings = this.settings
             webSettings.javaScriptEnabled = true
             webSettings.allowFileAccess = true

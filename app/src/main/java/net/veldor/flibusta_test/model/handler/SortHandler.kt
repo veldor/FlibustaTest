@@ -36,6 +36,8 @@ class SortHandler {
             SortOption(20, context.getString(R.string.sort_option_pub_year_reverse)),
             SortOption(10, context.getString(R.string.sort_option_add_to_site)),
             SortOption(21, context.getString(R.string.sort_option_add_to_site)),
+            SortOption(22, context.getString(R.string.sort_option_translator)),
+            SortOption(23, context.getString(R.string.sort_option_translator_reverse)),
         )
     }
 
@@ -98,6 +100,8 @@ class SortHandler {
             20 -> return compareIntValues(lhs.publicationYear, rhs.publicationYear, true)
             10 -> return compareIntValues(lhs.publishTime, rhs.publishTime, false)
             21 -> return compareIntValues(lhs.publishTime, rhs.publishTime, true)
+            22 -> return compareStrings(lhs.translate, rhs.translate, false)
+            23 -> return compareIntValues(lhs.translate, rhs.translate, true)
         }
         return 1
     }

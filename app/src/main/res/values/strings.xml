@@ -430,4 +430,10 @@ Later you can change this parameter in Catalog settings</string>
     <string name="bookmark_not_ready_title">Search something first</string>
     <string name="bookmark_link_title">Bookmark link</string>
     <string name="remove_bookmark_title">Remove bookmark</string>
+    <string name="change_item_title">Change</string>
+    <string name="add_bookmark_title">Add bookmark</string>
+    <string name="change_bookmark_title">Change bookmark</string>
+    <string name="sort_list_by_title">Sort list by</string>
+    <string name="sort_option_translator">By translator</string>
+    <string name="sort_option_translator_reverse">By translator (From Z)</string>
 </resources>

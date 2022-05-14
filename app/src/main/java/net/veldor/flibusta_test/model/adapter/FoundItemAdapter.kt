@@ -507,6 +507,8 @@ class FoundItemAdapter(
             // hide all useless
             binding.name.visibility = View.VISIBLE
             binding.name.isClickable = false
+            binding.name.isFocusable = false
+            makeNoSelectable(binding.name)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 binding.rootView.foreground = null
             }
@@ -516,7 +518,7 @@ class FoundItemAdapter(
                         ResourcesCompat.getColor(
                             context.resources,
                             R.color.genre_text_color,
-                            null
+                            context.theme
                         )
                     )
                 }
@@ -525,7 +527,7 @@ class FoundItemAdapter(
                         ResourcesCompat.getColor(
                             context.resources,
                             R.color.sequences_text_color,
-                            null
+                            context.theme
                         )
                     )
                 }
@@ -534,7 +536,7 @@ class FoundItemAdapter(
                         ResourcesCompat.getColor(
                             context.resources,
                             R.color.author_text_color,
-                            null
+                            context.theme
                         )
                     )
                 }
