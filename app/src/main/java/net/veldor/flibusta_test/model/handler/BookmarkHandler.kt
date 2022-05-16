@@ -6,6 +6,7 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.file.MyFileReader
 import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.blacklist.BlacklistType
+import net.veldor.flibusta_test.model.utils.RandomString
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 
@@ -17,8 +18,7 @@ class BookmarkHandler private constructor() {
         val rawData = MyFileReader.getOpdsBookmarks()
         val dom = BlacklistType.getDocument(rawData)
         val nodes = dom?.documentElement?.childNodes
-        results.add(BookmarkItem(context.getString(R.string.no_category_title), null, null))
-        Log.d("surprise", "BookmarkHandler.kt 18: nodes len is ${nodes?.length}")
+        results.add(BookmarkItem("", context.getString(R.string.no_category_title), null, null))
         if (nodes != null && nodes.length > 0) {
             var counter = 0
             while (nodes.item(counter) != null) {
@@ -28,6 +28,7 @@ class BookmarkHandler private constructor() {
                     if (node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY) {
                         results.add(
                             BookmarkItem(
+                                node.attributes.getNamedItem("id").textContent,
                                 node.attributes.getNamedItem("name").textContent,
                                 TYPE_CATEGORY,
                                 null
@@ -41,12 +42,11 @@ class BookmarkHandler private constructor() {
         return results
     }
 
-    fun addCategory(category: String) {
+    fun addCategory(category: String): BookmarkItem {
         val rawData = MyFileReader.getOpdsBookmarks()
-        val dom = BlacklistType.getDocument(rawData)
+        val dom = BlacklistType.getDocument(rawData)!!
         // check existence
-        val nodes = dom?.documentElement?.childNodes
-        var found = false
+        val nodes = dom.documentElement.childNodes
         if (nodes != null && nodes.length > 0) {
             var counter = 0
             while (nodes.item(counter) != null) {
@@ -57,61 +57,49 @@ class BookmarkHandler private constructor() {
                             "name"
                         ).textContent == category
                     ) {
-                        found = true
-                        break
+                        return BookmarkItem(
+                            id = node.attributes.getNamedItem("id").textContent,
+                            name = node.attributes.getNamedItem("name").textContent,
+                            type = TYPE_CATEGORY,
+                            link = null
+                        )
                     }
                 }
                 counter++
             }
         }
-        if (!found) {
-            val newNode = dom?.createElement("item")
-            newNode?.setAttribute("type", TYPE_CATEGORY)
-            newNode?.setAttribute("name", category)
-            dom?.documentElement?.appendChild(newNode)
-            // save
-            val resultString = BlacklistType.getStringFromDocument(dom)
-            MyFileReader.saveBookmarksList(resultString)
-        }
+        val newNode = dom.createElement("item")
+        newNode?.setAttribute("id", RandomString().nextString())
+        newNode?.setAttribute("type", TYPE_CATEGORY)
+        newNode?.setAttribute("name", category)
+        dom.documentElement.appendChild(newNode)
+        // save
+        val resultString = BlacklistType.getStringFromDocument(dom)
+        MyFileReader.saveBookmarksList(resultString)
+        return BookmarkItem(
+            id = newNode.attributes.getNamedItem("id").textContent,
+            name = newNode.attributes.getNamedItem("name").textContent,
+            type = TYPE_CATEGORY,
+            link = null
+        )
     }
 
-    fun addBookmark(category: String?, name: String, link: String) {
-        Log.d("surprise", "BookmarkHandler.kt 79: add $name with $link on $category")
+    fun addBookmark(category: BookmarkItem, name: String, link: String) {
         val rawData = MyFileReader.getOpdsBookmarks()
-        val dom = BlacklistType.getDocument(rawData)
-        if (dom != null) {
-            var targetNode: Element? = null
-            if (category == null) {
-                targetNode = dom.documentElement
-            } else {
-                // search for category
-                val nodes = dom.documentElement?.childNodes
-                if (nodes != null && nodes.length > 0) {
-                    var counter = 0
-                    while (nodes.item(counter) != null) {
-                        val node = nodes.item(counter)
-                        if (node.hasAttributes()) {
-                            // look for category
-                            if (node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
-                                    "name"
-                                ).textContent == category
-                            ) {
-                                targetNode = node as Element
-                                break
-                            }
-                        }
-                        counter++
-                    }
-                }
-            }
-            val newNode = dom.createElement("item")
-            newNode?.setAttribute("type", TYPE_BOOKMARK)
-            newNode?.setAttribute("name", name)
-            newNode?.setAttribute("link", link)
-            targetNode?.appendChild(newNode)
-            val resultString = BlacklistType.getStringFromDocument(dom)
-            MyFileReader.saveBookmarksList(resultString)
+        val dom = BlacklistType.getDocument(rawData)!!
+        val targetNode: Element? = if (category.id.isEmpty()) {
+            dom.documentElement
+        } else {
+            dom.getElementById(category.id)
         }
+        val newNode = dom.createElement("item")
+        newNode?.setAttribute("type", TYPE_BOOKMARK)
+        newNode?.setAttribute("id", RandomString().nextString())
+        newNode?.setAttribute("name", name)
+        newNode?.setAttribute("link", link)
+        targetNode?.appendChild(newNode)
+        val resultString = BlacklistType.getStringFromDocument(dom)
+        MyFileReader.saveBookmarksList(resultString)
     }
 
     fun bookmarkInList(bookmarkLink: String?): Boolean {
@@ -186,6 +174,7 @@ class BookmarkHandler private constructor() {
                     if (node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY) {
                         results.add(
                             BookmarkItem(
+                                id = node.attributes.getNamedItem("id").textContent,
                                 name = node.attributes.getNamedItem("name").textContent,
                                 type = TYPE_CATEGORY,
                                 link = null
@@ -194,6 +183,7 @@ class BookmarkHandler private constructor() {
                     } else if (node.attributes.getNamedItem("type").textContent == TYPE_BOOKMARK) {
                         results.add(
                             BookmarkItem(
+                                id = node.attributes.getNamedItem("id").textContent,
                                 name = node.attributes.getNamedItem("name").textContent,
                                 type = TYPE_BOOKMARK,
                                 link = node.attributes.getNamedItem("link").textContent
@@ -207,49 +197,64 @@ class BookmarkHandler private constructor() {
         return results
     }
 
-    fun deleteCategory(name: String) {
+    fun deleteCategory(item: BookmarkItem) {
         val rawData = MyFileReader.getOpdsBookmarks()
         val dom = BlacklistType.getDocument(rawData)
-        val items = dom?.getElementsByTagName("item")
-        var counter = 0
-        while (items?.item(counter) != null) {
-            val node = items.item(counter)
-            if (node.hasAttributes() && node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
-                    "name"
-                ).textContent == name
-            ) {
-                node.parentNode.removeChild(node)
-                // save and exit
-                val resultString = BlacklistType.getStringFromDocument(dom)
-                MyFileReader.saveBookmarksList(resultString)
-                return
-            }
-            counter++
+        val element = dom?.getElementById(item.id)
+        if (element != null) {
+            element.parentNode.removeChild(element)
+            // save and exit
+            val resultString = BlacklistType.getStringFromDocument(dom)
+            MyFileReader.saveBookmarksList(resultString)
         }
     }
 
-    fun changeBookmark(item: BookmarkItem, newItem: BookmarkItem) {
-        // find old item
-        val results = ArrayList<BookmarkItem>()
+    fun changeBookmark(category: BookmarkItem, bookmark: BookmarkItem) {
         val rawData = MyFileReader.getOpdsBookmarks()
-        val dom = BlacklistType.getDocument(rawData)
-        val items = dom?.getElementsByTagName("item")
+        val dom = BlacklistType.getDocument(rawData)!!
+        val bookmarkItem = dom.getElementById(bookmark.id)
+        val categoryItem = if (category.id.isEmpty()) {
+            dom.documentElement
+        } else {
+            dom.getElementById(category.id)
+        }
+        bookmarkItem.setAttribute("name", bookmark.name)
+        bookmarkItem.setAttribute("link", bookmark.link)
+        categoryItem.appendChild(bookmarkItem)
+        val resultString = BlacklistType.getStringFromDocument(dom)
+        MyFileReader.saveBookmarksList(resultString)
+    }
+
+    fun getCategoryPosition(context: Context, item: BookmarkItem): Int {
+        val rawData = MyFileReader.getOpdsBookmarks()
+        val dom = BlacklistType.getDocument(rawData)!!
+        val element = dom.getElementById(item.id)
+        if (element.parentNode.isSameNode(dom.documentElement)) {
+            Log.d("surprise", "BookmarkHandler.kt 241: bookmark in root")
+            return 0
+        }
+        val categoryName = element.parentNode.attributes.getNamedItem("name").textContent
+        // get all categories
+        val categories = getBookmarkCategories(context)
         var counter = 0
-        while (items?.item(counter) != null) {
-            val node = items.item(counter)
-            if (node.hasAttributes() && node.attributes.getNamedItem("type").textContent == TYPE_CATEGORY && node.attributes.getNamedItem(
-                    "name"
-                ).textContent == item.name
-            ) {
-                (node as Element).setAttribute("name", newItem.name)
-                node.setAttribute("link", newItem.link)
-                // save and exit
-                val resultString = BlacklistType.getStringFromDocument(dom)
-                MyFileReader.saveBookmarksList(resultString)
-                return
+        categories.forEach {
+            if (it.name == categoryName) {
+                return counter
             }
             counter++
         }
+        return 0
+    }
+
+    fun getBookmarkCategoryName(item: BookmarkItem): String? {
+        val rawData = MyFileReader.getOpdsBookmarks()
+        val dom = BlacklistType.getDocument(rawData)!!
+        val element = dom.getElementById(item.id)
+        val parent = element.parentNode
+        if (parent.isSameNode(dom.documentElement)) {
+            return null
+        }
+        return parent.attributes.getNamedItem("name").textContent
     }
 
 

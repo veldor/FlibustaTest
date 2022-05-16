@@ -419,7 +419,7 @@
     <string name="no_category_title">Без категории</string>
     <string name="bookmark_name_title">Имя закладки</string>
     <string name="add_new_folder_title">Добавить категорию</string>
-    <string name="new_dir_name_title">Имя категории</string>
+    <string name="new_dir_name_title">Введите имя новой категории</string>
     <string name="add_title">Добавить</string>
     <string name="add_bookmark_template">Добавлена закладка %s</string>
     <string name="add_bookmark_with_category_template">Добавлена закладка %s в категорию %s</string>
@@ -429,4 +429,8 @@
     <string name="change_item_title">Изменить</string>
     <string name="add_bookmark_title">Добавление закладки</string>
     <string name="change_bookmark_title">Изменение закладки</string>
+    <string name="select_category_title">Выберите категорию</string>
+    <string name="sort_option_translator_reverse">По переводчику (от Я)</string>
+    <string name="sort_option_translator">По переводчику</string>
+    <string name="sort_list_by_title">Сортировка по</string>
 </resources>

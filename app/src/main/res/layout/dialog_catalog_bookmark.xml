@@ -7,48 +7,65 @@
     android:layout_height="fill_parent"
     android:padding="10dp">
 
-    <Spinner
-        android:id="@+id/bookmarkFoldersSpinner"
+    <TextView
+        android:id="@+id/selectCategoryText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:text="@string/select_category_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <CheckBox
-        android:id="@+id/addNewBookmarkFolderCheckBox"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/bookmarkFoldersSpinner"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_new_folder_title"
-        app:layout_constraintBottom_toBottomOf="@+id/addNewFolderContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/addNewFolderContainer" />
+        app:layout_constraintTop_toBottomOf="@id/selectCategoryText" />
+
+    <TextView
+        android:id="@+id/orTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:text="@string/or_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bookmarkFoldersSpinner" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/addNewFolderContainer"
         android:layout_width="0dp"
-        android:layout_marginStart="10dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
         android:hint="@string/new_dir_name_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/addNewBookmarkFolderCheckBox"
-        app:layout_constraintTop_toBottomOf="@+id/bookmarkFoldersSpinner"
-        android:layout_marginLeft="10dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/orTextView">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/addNewFolderText"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/linkNameContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/bookmark_name_title"
-        android:id="@+id/linkNameContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +74,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/bookmarkName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.textfield.TextInputLayout>
 

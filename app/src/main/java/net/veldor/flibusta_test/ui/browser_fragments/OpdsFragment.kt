@@ -152,19 +152,14 @@ class OpdsFragment : Fragment(),
                 .setTitle(getString(R.string.add_bookmark_title))
                 .setView(layout)
                 .setPositiveButton(getString(R.string.add_title)) { _, _ ->
-                    // add bookmark
-                    val checkbox = layout.findViewById<CheckBox>(R.id.addNewBookmarkFolderCheckBox)
-                    val category: String? = if (checkbox.isChecked) {
-                        val categoryTextView =
-                            layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
-                        categoryTextView.text.toString()
+                    val categoryTextView =
+                        layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
+                    val category: BookmarkItem
+                    if (categoryTextView.text?.isNotEmpty() == true) {
+                        category =
+                            BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
                     } else {
-                        val selectedItem = spinner.selectedItem as BookmarkItem?
-                        if (selectedItem != null && selectedItem.type == TYPE_CATEGORY) {
-                            selectedItem.name
-                        } else {
-                            null
-                        }
+                        category = spinner.selectedItem as BookmarkItem
                     }
                     viewModel.addBookmark(
                         category,
@@ -172,7 +167,7 @@ class OpdsFragment : Fragment(),
                         linkValueView.text.toString()
                     )
                     activity?.invalidateOptionsMenu()
-                    if (category.isNullOrEmpty()) {
+                    if (category.id.isEmpty()) {
                         Toast.makeText(
                             requireContext(),
                             String.format(
@@ -189,7 +184,7 @@ class OpdsFragment : Fragment(),
                                 Locale.ENGLISH,
                                 getString(R.string.add_bookmark_with_category_template),
                                 bookmarkNameTextView.text.toString(),
-                                category
+                                category.name
                             ),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -453,7 +448,8 @@ class OpdsFragment : Fragment(),
             barThickness = dpToPx(requireContext(), 2),
             barGap = dpToPx(requireContext(), 5)
         )
-        hamburgerDrawable.color = ResourcesCompat.getColor(resources, R.color.icon_text_color, requireActivity().theme)
+        hamburgerDrawable.color =
+            ResourcesCompat.getColor(resources, R.color.icon_text_color, requireActivity().theme)
         showAutofillBtn.setImageDrawable(
             hamburgerDrawable
         )

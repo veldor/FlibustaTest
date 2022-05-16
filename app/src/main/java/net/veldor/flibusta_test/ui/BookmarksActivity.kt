@@ -3,11 +3,10 @@ package net.veldor.flibusta_test.ui
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.CheckBox
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,7 +20,6 @@ import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
 import net.veldor.flibusta_test.model.handler.BookmarkHandler
 import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.view_model.BookmarksViewModel
-import java.util.*
 
 class BookmarksActivity : BaseActivity(), SomeActionDelegate {
     private lateinit var recycler: RecyclerView
@@ -117,34 +115,47 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate {
     private fun showChangeBookmarkDialog(item: BookmarkItem) {
         val layout = layoutInflater.inflate(R.layout.dialog_catalog_bookmark, null, false)
         val linkValueView = layout.findViewById<TextInputEditText>(R.id.linkValue)
-        val checkbox = layout.findViewById<CheckBox>(R.id.addNewBookmarkFolderCheckBox)
-        checkbox.visibility = View.GONE
         val bookmarkNameTextView =
             layout.findViewById<TextInputEditText>(R.id.bookmarkName)
         bookmarkNameTextView.setText(item.name)
         linkValueView.setText(item.link)
         val categoryTextView =
             layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
-        categoryTextView.visibility = View.GONE
         val spinner = layout.findViewById<Spinner>(R.id.bookmarkFoldersSpinner)
-        spinner.visibility = View.GONE
+        // select current book category
+        spinner.adapter = BookmarkDirAdapter(
+            this,
+            BookmarkHandler.instance.getBookmarkCategories(this)
+        )
+        spinner.setSelection(BookmarkHandler.instance.getCategoryPosition(this, item))
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.change_bookmark_title))
             .setView(layout)
             .setPositiveButton(getString(R.string.change_item_title)) { _, _ ->
-                val newValue = BookmarkItem(
-                    name = bookmarkNameTextView.text.toString(),
-                    type = BookmarkHandler.TYPE_BOOKMARK,
-                    link = linkValueView.text.toString()
-                )
-                viewModel.changeBookmark(
-                    item,
-                    newValue
-                )
+                // handle category
                 val position = (recycler.adapter as BookmarksAdapter).getPosition(item)
-                item.name = newValue.name
-                item.link = newValue.link
-                (recycler.adapter as BookmarksAdapter).notifyItemChanged(position)
+                val oldCategoryName = BookmarkHandler.instance.getBookmarkCategoryName(item)
+                val category: BookmarkItem
+                if (categoryTextView.text?.isNotEmpty() == true) {
+                    category =
+                        BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
+                } else {
+                    category = spinner.selectedItem as BookmarkItem
+                }
+                item.name = bookmarkNameTextView.text.toString()
+                item.link = linkValueView.text.toString()
+
+                viewModel.changeBookmark(
+                    category,
+                    item
+                )
+                if (category.name == oldCategoryName) {
+                    Log.d("surprise", "BookmarksActivity.kt 152: in same")
+                    (recycler.adapter as BookmarksAdapter).notifyItemChanged(position)
+                } else {
+                    Log.d("surprise", "BookmarksActivity.kt 156: removed")
+                    (recycler.adapter as BookmarksAdapter).remove(position)
+                }
             }
             .show()
     }

@@ -19,14 +19,14 @@ import net.veldor.flibusta_test.model.selections.FileItem
 class BookmarksViewModel : ViewModel() {
 
     fun deleteCategory(item: BookmarkItem) {
-        BookmarkHandler.instance.deleteCategory(item.name)
+        BookmarkHandler.instance.deleteCategory(item)
     }
 
     fun deleteBookmark(item: BookmarkItem) {
         BookmarkHandler.instance.deleteBookmark(item.link)
     }
 
-    fun changeBookmark(item: BookmarkItem, newValue: BookmarkItem) {
-        BookmarkHandler.instance.changeBookmark(item, newValue)
+    fun changeBookmark(category: BookmarkItem, bookmark: BookmarkItem) {
+        BookmarkHandler.instance.changeBookmark(category, bookmark)
     }
 }

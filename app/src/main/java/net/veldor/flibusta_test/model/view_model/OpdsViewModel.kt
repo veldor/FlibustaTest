@@ -21,6 +21,7 @@ import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.helper.StringHelper
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.parser.OpdsParser
+import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.HistoryItem
 import net.veldor.flibusta_test.model.selections.RequestItem
@@ -311,11 +312,7 @@ open class OpdsViewModel : ViewModel() {
         }
     }
 
-    fun addBookmark(category: String?, name: String, link: String) {
-        if (category != null && category.isNotEmpty()) {
-            // add category if not exists
-            BookmarkHandler.instance.addCategory(category)
-        }
+    fun addBookmark(category: BookmarkItem, name: String, link: String) {
         BookmarkHandler.instance.addBookmark(category, name, link)
     }
 

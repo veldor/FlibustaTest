@@ -69,12 +69,13 @@ class BookmarksAdapter(
         }
     }
 
-    fun change(item: BookmarkItem, newItem: BookmarkItem) {
-        TODO("Not yet implemented")
-    }
-
     fun getPosition(item: BookmarkItem): Int {
         return values.lastIndexOf(item)
+    }
+
+    fun remove(position: Int) {
+        values.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     inner class ViewHolder(private val binding: BookmarkItemBinding) :
