@@ -10,9 +10,12 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +46,28 @@ class FoundItemAdapter(
     CoroutineScope,
     RecyclerView.Adapter<FoundItemAdapter.ViewHolder>(), MyAdapterInterface {
 
+    private val _size: MutableLiveData<Int> = MutableLiveData(0)
+    override val liveSize: LiveData<Int> = _size
+
+    private var selectedFilterOption: Int = R.id.filterName
+    private var useFilter: Boolean = false
+        set(state) {
+            if (state) {
+                // use filter
+                originValues = resultValues
+                _size.postValue(originValues.size)
+            } else {
+                // use normal list
+                if (originValues.isNotEmpty()) {
+                    resultValues = originValues
+                    _size.postValue(resultValues.size)
+                    notifyItemRangeChanged(0, originValues.size - 1)
+                }
+            }
+            field = state
+        }
+
+
     private var loadInProgress: Boolean = false
     private var lastSortOption: Int = -1
     private var hasNext: Boolean = false
@@ -52,16 +77,18 @@ class FoundItemAdapter(
     private var showCheckboxes = false
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
-    private var values: ArrayList<FoundEntity> = arrayListOf()
+
+    private var resultValues: ArrayList<FoundEntity> = arrayListOf()
+    private var originValues: ArrayList<FoundEntity> = arrayListOf()
 
     override fun setNextPageLink(link: String?) {
         hasNext = link != null
     }
 
     override fun sort() {
-        if (values.isNotEmpty()) {
-            SortHandler().sortItems(values)
-            notifyItemRangeChanged(0, values.size)
+        if (resultValues.isNotEmpty()) {
+            SortHandler().sortItems(resultValues)
+            notifyItemRangeChanged(0, resultValues.size)
         }
     }
 
@@ -80,15 +107,15 @@ class FoundItemAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        if (values.size > position) {
-            return values[position].itemId
+        if (resultValues.size > position) {
+            return resultValues[position].itemId
         }
         return -1
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        if (i < values.size) {
-            viewHolder.bind(values[i])
+        if (i < resultValues.size) {
+            viewHolder.bind(resultValues[i])
         } else {
             if (hasNext) {
                 viewHolder.bindButton()
@@ -102,15 +129,16 @@ class FoundItemAdapter(
 
     override fun getItemCount(): Int {
         if (hasNext) {
-            return values.size + 1
+            return resultValues.size + 1
         }
-        return values.size
+        return resultValues.size
     }
 
     override fun clearList() {
-        notifyItemRangeRemoved(0, values.size)
-        values = arrayListOf()
+        notifyItemRangeRemoved(0, resultValues.size)
+        resultValues = arrayListOf()
         notifyItemRangeInserted(0, 0)
+        _size.postValue(0)
         hasNext = false
     }
 
@@ -119,7 +147,8 @@ class FoundItemAdapter(
         showCheckboxes = false
         lastSortOption = -1
         val oldLength = itemCount
-        values.addAll(results)
+        resultValues.addAll(results)
+        _size.postValue(resultValues.size)
         if (oldLength > 0) {
             Log.d("surprise", "appendContent: add to old results")
             notifyItemRangeInserted(itemCount, results.size)
@@ -284,8 +313,7 @@ class FoundItemAdapter(
                             )
                         )
                         timer?.cancel()
-                    }
-                    else if(item.coverUrl != null){
+                    } else if (item.coverUrl != null) {
                         binding.previewImage.setImageDrawable(
                             ResourcesCompat.getDrawable(
                                 context.resources,
@@ -302,7 +330,7 @@ class FoundItemAdapter(
                                     context.theme
                                 )
                             )
-                            binding.previewImage.setOnClickListener{}
+                            binding.previewImage.setOnClickListener {}
                             CoverHandler().loadPic(item)
                             timer =
                                 object : CountDownTimer(30000.toLong(), 1000) {
@@ -325,8 +353,7 @@ class FoundItemAdapter(
                                 }
                             timer?.start()
                         }
-                    }
-                    else{
+                    } else {
                         binding.previewImage.setOnClickListener {
                             delegate.imageClicked(item)
                         }
@@ -632,23 +659,24 @@ class FoundItemAdapter(
     }
 
     override fun getList(): ArrayList<FoundEntity> {
-        return values
+        return resultValues
     }
 
 
     override fun markBookRead(item: FoundEntity) {
         var position: Int = -1
-        values.forEach {
+        resultValues.forEach {
             if (it.id == item.id) {
-                position = values.lastIndexOf(it)
+                position = resultValues.lastIndexOf(it)
             }
         }
-        if (position >= 0 && values.size > position) {
+        if (position >= 0 && resultValues.size > position) {
             if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideRead && item.read) {
-                values.removeAt(position)
+                resultValues.removeAt(position)
+                _size.postValue(resultValues.size)
                 notifyItemRemoved(position)
             } else {
-                values[position].read = true
+                resultValues[position].read = true
                 notifyItemChanged(position)
             }
         }
@@ -656,17 +684,18 @@ class FoundItemAdapter(
 
     override fun markAsDownloaded(item: DownloadedBooks?) {
         var position: Int = -1
-        values.forEach {
+        resultValues.forEach {
             if (it.id == item?.bookId) {
-                position = values.lastIndexOf(it)
+                position = resultValues.lastIndexOf(it)
             }
         }
-        if (position >= 0 && values.size > position) {
+        if (position >= 0 && resultValues.size > position) {
             if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideDownloaded) {
-                values.removeAt(position)
+                resultValues.removeAt(position)
+                _size.postValue(resultValues.size)
                 notifyItemRemoved(position)
             } else {
-                values[position].downloaded = true
+                resultValues[position].downloaded = true
                 notifyItemChanged(position)
             }
         }
@@ -674,13 +703,13 @@ class FoundItemAdapter(
 
     override fun markBookUnread(item: FoundEntity) {
         var position: Int = -1
-        values.forEach {
+        resultValues.forEach {
             if (it.id == item.id) {
-                position = values.lastIndexOf(it)
+                position = resultValues.lastIndexOf(it)
             }
         }
-        if (position >= 0 && values.size > position) {
-            values[position].read = false
+        if (position >= 0 && resultValues.size > position) {
+            resultValues[position].read = false
             notifyItemChanged(position)
         }
     }
@@ -693,13 +722,14 @@ class FoundItemAdapter(
     }
 
     override fun notEmpty(): Boolean {
-        return values.isNotEmpty()
+        return resultValues.isNotEmpty()
     }
 
     init {
         if (arrayList.size > 0) {
             Log.d("surprise", "i have books on start: ${arrayList.size}")
-            values = arrayList
+            resultValues = arrayList
+            _size.postValue(resultValues.size)
         }
     }
 
@@ -708,12 +738,13 @@ class FoundItemAdapter(
     }
 
     override fun getResultsSize(): Int {
-        return values.size
+        Log.d("surprise", "FoundItemAdapter.kt 729: size is ${resultValues.size}")
+        return resultValues.size
     }
 
     override fun markClickedElement(clickedElementIndex: Long) {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.selected) {
                     it.selected = false
                     notifyItemChanged(getItemPositionById(it.itemId))
@@ -721,15 +752,15 @@ class FoundItemAdapter(
             }
             val position = getItemPositionById(clickedElementIndex)
             if (position >= 0) {
-                values[position].selected = true
+                resultValues[position].selected = true
                 notifyItemChanged(position)
             }
         }
     }
 
     override fun containsBooks(): Boolean {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.type == TYPE_BOOK) {
                     return true
                 }
@@ -739,8 +770,8 @@ class FoundItemAdapter(
     }
 
     override fun containsAuthors(): Boolean {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.type == TYPE_AUTHORS || it.type == TYPE_AUTHOR) {
                     return true
                 }
@@ -750,8 +781,8 @@ class FoundItemAdapter(
     }
 
     override fun containsGenres(): Boolean {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.type == TYPE_GENRE) {
                     return true
                 }
@@ -761,8 +792,8 @@ class FoundItemAdapter(
     }
 
     override fun containsSequences(): Boolean {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.type == TYPE_SEQUENCE) {
                     return true
                 }
@@ -772,10 +803,10 @@ class FoundItemAdapter(
     }
 
     override fun getItemPositionById(clickedItemId: Long): Int {
-        if (values.isNotEmpty()) {
-            values.forEach {
+        if (resultValues.isNotEmpty()) {
+            resultValues.forEach {
                 if (it.itemId == clickedItemId) {
-                    return values.indexOf(it)
+                    return resultValues.indexOf(it)
                 }
             }
         }
@@ -783,10 +814,75 @@ class FoundItemAdapter(
     }
 
     override fun itemFiltered(item: FoundEntity) {
-        if (values.contains(item)) {
-            val num = values.indexOf(item)
-            values.remove(item)
+        if (resultValues.contains(item)) {
+            val num = resultValues.indexOf(item)
+            resultValues.remove(item)
             notifyItemRemoved(num)
+        }
+    }
+
+    override fun setFilterEnabled(state: Boolean) {
+        useFilter = state
+    }
+
+    override fun setFilterSelection(selected: Int) {
+        selectedFilterOption = selected
+    }
+
+    override fun filterEnabled(): Boolean {
+        return useFilter
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString() ?: ""
+                resultValues = if (charString.isEmpty()) {
+                    originValues
+                } else {
+                    val filteredList = ArrayList<FoundEntity>()
+                    originValues
+                        .filter {
+                            when (selectedFilterOption) {
+                                R.id.filterName -> {
+                                    (it.name?.lowercase()?.contains(constraint!!) == true)
+                                }
+                                R.id.filterAuthor -> {
+                                    (it.author?.lowercase()?.contains(constraint!!) == true)
+                                }
+                                R.id.filterGenre -> {
+                                    (it.genreComplex?.lowercase()?.contains(constraint!!) == true)
+                                }
+                                R.id.filterSequence -> {
+                                    (it.sequencesComplex.lowercase().contains(constraint!!))
+                                }
+                                else -> {
+                                    (it.translate?.lowercase()?.contains(constraint!!) == true)
+                                }
+                            }
+                        }
+                        .forEach { filteredList.add(it) }
+                    filteredList
+                }
+                return FilterResults().apply { values = resultValues }
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                resultValues = if (results?.values == null)
+                    ArrayList()
+                else {
+                    val r = results.values as ArrayList<*>
+                    val result: ArrayList<FoundEntity> = arrayListOf()
+                    r.forEach {
+                        if (it is FoundEntity) {
+                            result.add(it)
+                        }
+                    }
+                    _size.postValue(result.size)
+                    result
+                }
+                notifyDataSetChanged()
+            }
         }
     }
 }

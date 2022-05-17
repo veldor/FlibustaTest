@@ -37,7 +37,6 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
 import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
 import net.veldor.flibusta_test.model.handler.*
-import net.veldor.flibusta_test.model.handler.BookmarkHandler.Companion.TYPE_CATEGORY
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.interfaces.MyAdapterInterface
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
@@ -59,12 +58,11 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.set
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 import java.net.URLEncoder
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
-    SearchResultActionDelegate {
+    SearchResultActionDelegate, SearchView.OnQueryTextListener {
 
     private var linkForLoad: String? = null
     private var bookmarkReservedName: String? = null
@@ -72,8 +70,8 @@ class OpdsFragment : Fragment(),
     private var autocompleteComponent: SearchAutoComplete? = null
     private var mLastRequest: RequestItem? = null
     private var bottomSheetCoverBehavior: BottomSheetBehavior<View>? = null
-    var bottomSheetFilterBehavior: BottomSheetBehavior<View>? = null
-    var bottomSheetOpdsBehavior: BottomSheetBehavior<View>? = null
+    private var bottomSheetFilterBehavior: BottomSheetBehavior<View>? = null
+    private var bottomSheetOpdsBehavior: BottomSheetBehavior<View>? = null
     private var backdropDownloadStateFragment: DownloadScheduleStatementFragment? = null
     private var backdropCoverFragment: CoverBackdropFragment? = null
     private var backdropFilterFragment: FilterBackdropFragment? = null
@@ -154,12 +152,10 @@ class OpdsFragment : Fragment(),
                 .setPositiveButton(getString(R.string.add_title)) { _, _ ->
                     val categoryTextView =
                         layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
-                    val category: BookmarkItem
-                    if (categoryTextView.text?.isNotEmpty() == true) {
-                        category =
-                            BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
+                    val category: BookmarkItem = if (categoryTextView.text?.isNotEmpty() == true) {
+                        BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
                     } else {
-                        category = spinner.selectedItem as BookmarkItem
+                        spinner.selectedItem as BookmarkItem
                     }
                     viewModel.addBookmark(
                         category,
@@ -338,6 +334,14 @@ class OpdsFragment : Fragment(),
     }
 
     private fun setupObservers() {
+        (binding.resultsList.adapter as MyAdapterInterface?)?.liveSize?.observe(viewLifecycleOwner) {
+            binding.foundResultsQuantity.text = String.format(
+                Locale.ENGLISH,
+                getString(R.string.found_results_quantity_title),
+                it
+            )
+        }
+
         OpdsResultsHandler.instance.livePossibleMemoryOverflow.observe(viewLifecycleOwner) {
             if (it) {
                 showDisableHistoryDialog()
@@ -835,6 +839,7 @@ class OpdsFragment : Fragment(),
                         val position = manager.findLastCompletelyVisibleItemPosition()
                         viewModel.saveScrolledPosition(position)
                         if (
+                            !(binding.resultsList.adapter as MyAdapterInterface).filterEnabled() &&
                             !viewModel.loadInProgress() &&
                             position == adapter.itemCount - 1 &&
                             position > lastScrolled &&
@@ -842,6 +847,7 @@ class OpdsFragment : Fragment(),
                             !PreferencesHandler.instance.isDisplayPagerButton &&
                             viewModel.getNextPageLink() != null
                         ) {
+                            newRequestLaunched()
                             mLastRequest = RequestItem(
                                 viewModel.getNextPageLink()!!,
                                 append = true,
@@ -858,6 +864,34 @@ class OpdsFragment : Fragment(),
 
             }
         })
+
+        binding.filterListView.isSubmitButtonEnabled = true
+
+        //setup filter list option
+        binding.useFilterBtn.setOnClickListener {
+            binding.filterListView.visibility = View.VISIBLE
+            binding.filterByType.visibility = View.VISIBLE
+            it.visibility = View.GONE
+            binding.filterListView.isIconified = false
+            binding.filterListView.requestFocus()
+            (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(true)
+        }
+
+        binding.filterListView.setOnCloseListener {
+            lastScrolled = lastScrolled - 1
+            (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(false)
+            binding.filterListView.visibility = View.GONE
+            binding.filterByType.visibility = View.GONE
+            binding.useFilterBtn.visibility = View.VISIBLE
+            return@setOnCloseListener true
+        }
+
+        binding.filterByType.setOnCheckedChangeListener { _, selected ->
+            binding.filterListView.setQuery("", false)
+            (binding.resultsList.adapter as MyAdapterInterface).setFilterSelection(selected)
+        }
+
+        binding.filterListView.setOnQueryTextListener(this)
     }
 
     private fun showCoversNotificationDialog() {
@@ -909,11 +943,6 @@ class OpdsFragment : Fragment(),
                 a?.appendContent(it.results)
             }
             binding.foundResultsQuantity.visibility = View.VISIBLE
-            binding.foundResultsQuantity.text = String.format(
-                Locale.ENGLISH,
-                getString(R.string.found_results_quantity_title),
-                a?.getResultsSize()
-            )
             if (PreferencesHandler.instance.opdsPagingType) {
                 a?.setNextPageLink(previousResults.lastOrNull()?.nextPageLink)
             }
@@ -1160,6 +1189,13 @@ class OpdsFragment : Fragment(),
     }
 
     private fun newRequestLaunched() {
+        // disable filter
+        (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(false)
+        binding.filterListView.visibility = View.GONE
+        binding.filterListView.setQuery("", false)
+        binding.filterByType.visibility = View.GONE
+        binding.useFilterBtn.visibility = View.VISIBLE
+
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         binding.fab.show()
         binding.massLoadFab.hide()
@@ -1262,11 +1298,6 @@ class OpdsFragment : Fragment(),
             }
             (binding.resultsList.adapter as MyAdapterInterface).appendContent(searchResult.results)
             binding.foundResultsQuantity.visibility = View.VISIBLE
-            binding.foundResultsQuantity.text = String.format(
-                Locale.ENGLISH,
-                getString(R.string.found_results_quantity_title),
-                (binding.resultsList.adapter as MyAdapterInterface).getResultsSize()
-            )
             if (PreferencesHandler.instance.opdsPagingType) {
                 (binding.resultsList.adapter as MyAdapterInterface).setHasNext(searchResult.nextPageLink != null)
                 (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(false)
@@ -1295,11 +1326,6 @@ class OpdsFragment : Fragment(),
             item.forEach {
                 (binding.resultsList.adapter as MyAdapterInterface?)?.itemFiltered(it)
             }
-            binding.foundResultsQuantity.text = String.format(
-                Locale.ENGLISH,
-                getString(R.string.found_results_quantity_title),
-                (binding.resultsList.adapter as MyAdapterInterface).getResultsSize()
-            )
         }
     }
 
@@ -1553,5 +1579,17 @@ class OpdsFragment : Fragment(),
 
     fun loadLink(link: String) {
         linkForLoad = link
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        (binding.resultsList.adapter as MyAdapterInterface).filter.filter(query)
+        binding.foundResultsQuantity.visibility = View.VISIBLE
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        (binding.resultsList.adapter as MyAdapterInterface).filter.filter(newText)
+        binding.foundResultsQuantity.visibility = View.VISIBLE
+        return false
     }
 }

@@ -433,4 +433,8 @@
     <string name="sort_option_translator_reverse">По переводчику (от Я)</string>
     <string name="sort_option_translator">По переводчику</string>
     <string name="sort_list_by_title">Сортировка по</string>
+    <string name="filter_by_name_title">Имя</string>
+    <string name="use_filter_button_desc">Использования фильтра в найденных результатах</string>
+    <string name="filter_option_translator">Перевод</string>
+    <string name="search_in_list_title">Поиск по списку</string>
 </resources>
