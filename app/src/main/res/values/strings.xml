@@ -437,4 +437,5 @@ Later you can change this parameter in Catalog settings</string>
     <string name="sort_option_translator">By translator</string>
     <string name="sort_option_translator_reverse">By translator (From Z)</string>
     <string name="select_category_title">Select category</string>
+    <string name="search_in_list_title">Search in list</string>
 </resources>

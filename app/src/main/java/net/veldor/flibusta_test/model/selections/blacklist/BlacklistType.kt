@@ -71,7 +71,7 @@ abstract class BlacklistType {
             mDom!!.documentElement.insertBefore(elem, mDom!!.documentElement.firstChild)
             MyFileReader.saveBlacklist(blacklistFileName, getStringFromDocument(mDom))
             refreshBlacklist()
-            return BlacklistItem(blacklistName, value)
+            return BlacklistItem(value, blacklistName)
         }
         return null
     }

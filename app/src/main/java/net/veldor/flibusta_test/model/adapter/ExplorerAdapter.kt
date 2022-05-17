@@ -1,9 +1,12 @@
 package net.veldor.flibusta_test.model.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
@@ -18,9 +21,10 @@ class ExplorerAdapter(
     arrayList: ArrayList<FileItem>?,
     val context: DownloadDirContentActivity
 ) :
-    RecyclerView.Adapter<ExplorerAdapter.ViewHolder>() {
+    RecyclerView.Adapter<ExplorerAdapter.ViewHolder>(), Filterable {
 
     private var values: ArrayList<FileItem> = arrayListOf()
+    private var filteredValues: ArrayList<FileItem> = arrayListOf()
 
 
     private var mLayoutInflater: LayoutInflater =
@@ -37,33 +41,30 @@ class ExplorerAdapter(
     fun clearList() {
         notifyItemRangeRemoved(0, itemCount)
         values = ArrayList()
+        filteredValues = ArrayList()
         notifyItemRangeInserted(0, 0)
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun appendContent(results: ArrayList<FileItem>) {
-        val oldLength = itemCount
+    fun appendContent(results: ArrayList<FileItem>, filterRequest: String?) {
         values.addAll(results)
-        if (oldLength > 0) {
-            notifyItemRangeInserted(oldLength, results.size)
-        } else {
-            notifyDataSetChanged()
-        }
+        filter.filter(filterRequest)
     }
 
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        viewHolder.bind(values[i], i)
+        viewHolder.bind(filteredValues[i], i)
     }
 
     override fun getItemCount(): Int {
-        return values.size
+        return filteredValues.size
     }
 
     fun delete(item: FileItem) {
-        val position = values.lastIndexOf(item)
+        val position = filteredValues.lastIndexOf(item)
+        values.remove(item)
         if (position >= 0) {
-            values.remove(item)
+            filteredValues.remove(item)
             notifyItemRemoved(position)
         }
     }
@@ -74,6 +75,7 @@ class ExplorerAdapter(
         ) {
 
         fun bind(item: FileItem, position: Int) {
+            Log.d("surprise", "ExplorerAdapter.kt 77: bind ${item.name}")
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             val sdf = SimpleDateFormat("dd MMM yyyy hh:mm:ss", Locale.ENGLISH)
@@ -245,12 +247,52 @@ class ExplorerAdapter(
 
 
     fun getList(): ArrayList<FileItem> {
-        return values
+        return filteredValues
     }
 
     init {
         if (arrayList != null && arrayList.isNotEmpty()) {
             values = arrayList
+            filteredValues = values
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString() ?: ""
+                Log.d("surprise", "ExplorerAdapter.kt 267: filter for $charString")
+                filteredValues = if (charString.isEmpty()) {
+                    values
+                } else {
+                    val filteredList = ArrayList<FileItem>()
+                    values
+                        .filter {
+                            (it.name.lowercase().contains(charString))
+
+                        }
+                        .forEach {
+                            filteredList.add(it)
+                        }
+                    filteredList
+                }
+                return FilterResults().apply { values = filteredValues }
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                filteredValues = if (results?.values != null) {
+                    val r = results.values as ArrayList<*>
+                    val result: ArrayList<FileItem> = arrayListOf()
+                    r.forEach {
+                        if (it is FileItem) {
+                            result.add(it)
+                        }
+                    }
+                    result
+                } else
+                    arrayListOf()
+                notifyItemRangeChanged(0, filteredValues.size)
+            }
         }
     }
 }

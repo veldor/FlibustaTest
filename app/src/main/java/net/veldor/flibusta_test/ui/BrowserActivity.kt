@@ -11,7 +11,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityBrowserBinding
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
@@ -19,8 +18,8 @@ import net.veldor.flibusta_test.model.view_model.WebViewViewModel
 import net.veldor.flibusta_test.ui.browser_fragments.OpdsFragment
 import net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment
 
-class BrowserActivity : BaseActivity() {
 
+class BrowserActivity : BaseActivity() {
     var goFromOpds: Boolean = false
     lateinit var viewModel: WebViewViewModel
     lateinit var binding: ActivityBrowserBinding
@@ -44,6 +43,8 @@ class BrowserActivity : BaseActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavView.setupWithNavController(navController)
+        // disable reselect
+        binding.bottomNavView.setOnItemReselectedListener {}
 
         if (intent.hasExtra("link")) {
             val link = intent.getStringExtra("link")
