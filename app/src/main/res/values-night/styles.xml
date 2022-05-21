@@ -12,13 +12,26 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryDark">@color/black</item>
-        <item name="colorAccent">@color/white</item>
+        <item name="tint">@color/always_white</item>
+        <item name="colorAccent">@color/always_white</item>
         <item name="windowActionBar">false</item>
-        <item name="colorControlNormal">#000000</item>
-        <item name="android:textColor">#000000</item>
+        <item name="colorControlNormal">@color/always_white</item>
+        <item name="android:textColor">@color/always_white</item>
         <item name="android:windowBackground">@color/black</item>
         <item name="background">@color/black</item>
         <item name="windowNoTitle">true</item>
+        <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
+    </style>
+
+    <style name="MyEinkActionBar" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="android:textColorPrimary">@color/always_white</item>
+        <item name="colorControlNormal">@color/always_white</item>
+        <item name="android:textColorSecondary">@color/always_white</item>
+        <item name="background">@color/black</item>
+        <item name="backgroundColor">@color/black</item>
+        <item name="colorButtonNormal">@color/always_white</item>
+        <item name="color">@color/always_white</item>
+        <item name="iconTint">@color/always_white</item>
         <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
     </style>
 

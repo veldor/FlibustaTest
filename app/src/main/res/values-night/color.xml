@@ -3,6 +3,9 @@
     <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="textColor">#C0C0C0</color>
+    <color name="white">#000000</color>
+    <color name="e_ink_text_color">#FFFFFF</color>
+    <color name="always_white">#FFFFFF</color>
     <color name="background_color">#000000</color>
     <color name="dropdownBackgroundColor">#434343</color>
     <color name="sequences_background">#94000000</color>

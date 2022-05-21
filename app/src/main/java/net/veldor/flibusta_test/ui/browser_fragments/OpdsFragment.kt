@@ -430,6 +430,31 @@ class OpdsFragment : Fragment(),
                     Log.d("surprise", "showErrorSnackbar: no request")
                 }
             }
+            if(PreferencesHandler.instance.isEInk){
+                errorSnackbar.setBackgroundTint(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.always_white,
+                        requireActivity().theme
+                    )
+                )
+                errorSnackbar.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.black,
+                        requireActivity().theme
+                    )
+                )
+            }
+            else{
+                errorSnackbar.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.white,
+                        requireActivity().theme
+                    )
+                )
+            }
             errorSnackbar.setActionTextColor(
                 ResourcesCompat.getColor(
                     resources,
@@ -444,7 +469,10 @@ class OpdsFragment : Fragment(),
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
 
+
         if (PreferencesHandler.instance.isEInk) {
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.always_white, requireActivity().theme))
+            binding.fab.supportImageTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme))
             binding.searchOptionsContainer.setBackgroundColor(
                 ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme)
             )
@@ -651,6 +679,7 @@ class OpdsFragment : Fragment(),
         if (mLastQuery != null) {
             binding.bookSearchView.setQuery(mLastQuery, false)
         }
+        binding.bookSearchView.isSubmitButtonEnabled = true
         binding.bookSearchView.queryHint = getString(R.string.enter_request_title)
         binding.bookSearchView.setOnQueryTextFocusChangeListener { view, b ->
             Log.d("surprise", "setupUI: focus changed")

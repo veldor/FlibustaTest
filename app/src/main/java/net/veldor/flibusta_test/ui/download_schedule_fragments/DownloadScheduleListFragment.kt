@@ -38,7 +38,7 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
 
     private fun setupUI() {
         if(PreferencesHandler.instance.isEInk){
-            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme));
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme))
         }
 
         setHasOptionsMenu(true)

@@ -38,7 +38,6 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
         viewModel = ViewModelProvider(this).get(DirContentViewModel::class.java)
         binding = ActivityDownloadedBinding.inflate(layoutInflater)
         setContentView(binding.drawerLayout)

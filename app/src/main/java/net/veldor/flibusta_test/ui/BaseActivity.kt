@@ -219,6 +219,7 @@ open class BaseActivity : AppCompatActivity() {
     override fun getTheme(): Resources.Theme {
         if (PreferencesHandler.instance.isEInk) {
             val theme = super.getTheme()
+            Log.d("surprise", "getTheme: apply eink theme")
             theme.applyStyle(R.style.EInkAppTheme, true)
             return theme
         }

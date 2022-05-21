@@ -59,9 +59,6 @@ class DownloadScheduleActivity : BaseActivity() {
         val item = menuNav.findItem(R.id.goToDownloadsList)
         item.isEnabled = false
         item.isChecked = true
-        // активирую кнопку возвращения к предыдущему окну
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun setupObservers() {

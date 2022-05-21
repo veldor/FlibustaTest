@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 FlibustaChecker.STATE_AVAILABLE -> {
                     binding.testFlibustaIsUpText.setTextColor(
-                    ResourcesCompat.getColor(resources, R.color.white, theme)
+                    ResourcesCompat.getColor(resources, R.color.always_white, theme)
                 )
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.text =
@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                 FlibustaChecker.STATE_UNAVAILABLE -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.white, theme)
+                        ResourcesCompat.getColor(resources, R.color.always_white, theme)
                     )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun readyToGo() {
         binding.connectionTestText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.white, theme)
+            ResourcesCompat.getColor(resources, R.color.always_white, theme)
         )
         binding.connectionTestText.text = GrammarHandler.getColoredString(
             getString(R.string.connected_message),
@@ -217,13 +217,31 @@ class MainActivity : AppCompatActivity() {
                 binding.clientRunningProgress.visibility = View.VISIBLE
                 launchConnection()
             }
-            errorSnackbar.setActionTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.genre_text_color,
-                    null
+            if(PreferencesHandler.instance.isEInk){
+                errorSnackbar.setBackgroundTint(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.always_white,
+                        theme
+                    )
                 )
-            )
+                errorSnackbar.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.black,
+                        theme
+                    )
+                )
+            }
+            else{
+                errorSnackbar.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.genre_text_color,
+                        null
+                    )
+                )
+            }
             errorSnackbar.show()
         }
     }
@@ -292,8 +310,8 @@ class MainActivity : AppCompatActivity() {
             binding.appVersion.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.appVersion.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -301,8 +319,8 @@ class MainActivity : AppCompatActivity() {
             binding.testStartApp.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.testStartApp.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -310,8 +328,8 @@ class MainActivity : AppCompatActivity() {
             binding.isEbook.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.isEbook.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -319,8 +337,8 @@ class MainActivity : AppCompatActivity() {
             binding.useHardwareAccelerationSwitcher.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.useHardwareAccelerationSwitcher.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -328,8 +346,8 @@ class MainActivity : AppCompatActivity() {
             binding.startConnectionTestBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.startConnectionTestBtn.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -337,8 +355,8 @@ class MainActivity : AppCompatActivity() {
             binding.showTorLogBtn?.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.showTorLogBtn?.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -346,8 +364,8 @@ class MainActivity : AppCompatActivity() {
             binding.clientProgressText.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.clientProgressText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -355,8 +373,8 @@ class MainActivity : AppCompatActivity() {
             binding.connectionTestText.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.connectionTestText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -364,8 +382,8 @@ class MainActivity : AppCompatActivity() {
             binding.testFlibustaIsUpText.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.black,
-                    null
+                    R.color.e_ink_text_color,
+                    theme
                 )
             )
             binding.testFlibustaIsUpText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
@@ -377,10 +395,10 @@ class MainActivity : AppCompatActivity() {
                     binding.rootView.background = ContextCompat.getDrawable(this, R.drawable.back_3)
                 } else {
                     binding.rootView.background =
-                        ResourcesCompat.getDrawable(resources, R.drawable.back_3, null)
+                        ResourcesCompat.getDrawable(resources, R.drawable.back_3, theme)
                 }
             }
-            binding.isEbook.setTextColor(ResourcesCompat.getColor(resources, R.color.white, null))
+            binding.isEbook.setTextColor(ResourcesCompat.getColor(resources, R.color.white, theme))
             binding.useHardwareAccelerationSwitcher.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
@@ -514,7 +532,7 @@ class MainActivity : AppCompatActivity() {
                 Color.parseColor("#5403ad")
             )
         binding.clientProgressText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.white, theme)
+            ResourcesCompat.getColor(resources, R.color.always_white, theme)
         )
         binding.clientRunningProgress.visibility = View.INVISIBLE
         binding.testFlibustaIsUpText.visibility = View.VISIBLE
