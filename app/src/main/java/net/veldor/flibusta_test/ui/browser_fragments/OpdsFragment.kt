@@ -432,7 +432,7 @@ class OpdsFragment : Fragment(),
             errorSnackbar.setActionTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.book_name_color,
+                    R.color.white,
                     requireActivity().theme
                 )
             )
@@ -442,6 +442,14 @@ class OpdsFragment : Fragment(),
 
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
+
+        if(PreferencesHandler.instance.isEInk){
+            binding.searchOptionsContainer.setBackgroundColor(
+                ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme)
+            )
+            binding.bookSearchView.queryHint = ""
+        }
+
         binding.bookSearchView.isSubmitButtonEnabled = false
         val searchLayout = binding.bookSearchView.getChildAt(0) as LinearLayout
         val buttonStyle: Int = R.attr.buttonBarButtonStyle

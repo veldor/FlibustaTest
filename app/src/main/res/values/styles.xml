@@ -9,7 +9,6 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/background_color</item>
         <item name="windowActionBar">false</item>
@@ -19,40 +18,18 @@
     </style>
     <!-- Base application theme. -->
     <style name="AppThemeBar" parent="Theme.AppCompat.DayNight">
-    </style>
-
-    <style name="OldAppTheme" parent="Theme.AppCompat.DayNight">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+        <item name="titleTextColor">@color/white</item>
     </style>
 
     <style name="EInkAppTheme" parent="Theme.AppCompat.DayNight">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
-        <item name="colorAccent">@color/black</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/white</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="background">@color/white</item>
         <item name="windowNoTitle">true</item>
-        <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
-    </style>
-
-    <style name="MyEinkActionBar" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
-        <item name="android:textColorPrimary">#000000</item>
-        <item name="colorControlNormal">#000000</item>
-        <item name="android:textColorSecondary">#000000</item>
-        <item name="tint">#000000</item>
-        <item name="colorButtonNormal">#000000</item>
-        <item name="color">#000000</item>
-        <item name="iconTint">#000000</item>
         <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
     </style>
 
@@ -72,11 +49,6 @@
         <item name="color">@color/app_bar_icons_color</item>
     </style>
 
-    <style name="ThemeOverlay.AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColorPrimary">#CDC9C9</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
 
     <style name="preferencesStyle"  parent="Theme.AppCompat.DayNight">
         <item name="android:tint">@color/icon_text_color</item>

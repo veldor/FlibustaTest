@@ -197,7 +197,6 @@
         android:background="@color/colorPrimary"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        android:textColor="@color/app_bar_icons_color"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bookSearchView">
@@ -235,6 +234,7 @@
                         android:layout_weight="1"
                         android:checked="true"
                         android:text="@string/search_book_message"
+                        android:textColor="@color/app_bar_icons_color"
                         android:theme="@style/LightTheme" />
 
                     <RadioButton
@@ -245,6 +245,7 @@
                         android:layout_marginLeft="5dp"
                         android:layout_weight="1"
                         android:text="@string/search_author_message"
+                        android:textColor="@color/app_bar_icons_color"
                         android:theme="@style/LightTheme" />
 
                     <RadioButton
@@ -255,6 +256,7 @@
                         android:layout_marginLeft="5dp"
                         android:layout_weight="1"
                         android:text="@string/search_genre_message"
+                        android:textColor="@color/app_bar_icons_color"
                         android:theme="@style/LightTheme" />
 
                     <RadioButton
@@ -265,6 +267,7 @@
                         android:layout_marginLeft="5dp"
                         android:layout_weight="1"
                         android:text="@string/search_sequence_message"
+                        android:textColor="@color/app_bar_icons_color"
                         android:theme="@style/LightTheme" />
                 </RadioGroup>
 
@@ -274,6 +277,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/new_books_title"
+                    android:textColor="@color/app_bar_icons_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
@@ -296,6 +300,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/load_by_pages_title"
+                    android:textColor="@color/app_bar_icons_color"
                     android:textOff="@string/load_all_results_title"
                     android:textOn="@string/load_by_pages_title"
                     android:theme="@style/LightTheme"
@@ -311,6 +316,7 @@
                     android:layout_marginStart="20dp"
                     android:layout_marginLeft="20dp"
                     android:text="@string/sort_list"
+                    android:textColor="@color/app_bar_icons_color"
                     app:layout_constraintBottom_toBottomOf="@+id/sortShowSpinner"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/sortShowSpinner" />
@@ -335,6 +341,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/use_filter_title"
+                    android:textColor="@color/app_bar_icons_color"
                     android:theme="@style/LightTheme"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -347,6 +354,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/open_filter_preferences_title"
+                    android:textColor="@color/app_bar_icons_color"
                     android:visibility="gone"
                     app:layout_constraintTop_toBottomOf="@+id/use_filters_switch" />
 
@@ -356,6 +364,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/do_search_title"
+                    android:textColor="@color/app_bar_icons_color"
                     app:layout_constraintTop_toBottomOf="@+id/showFilterPreferencesBtn" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

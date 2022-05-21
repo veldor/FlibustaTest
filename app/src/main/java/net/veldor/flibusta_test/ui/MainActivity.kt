@@ -112,6 +112,9 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.liveTorWorks.observe(this) {
             if (it) {
+                binding.clientProgressText.setTextColor(
+                    ResourcesCompat.getColor(resources, R.color.white, theme)
+                )
                 // tor client loaded
                 binding.clientProgressText.text = GrammarHandler.getColoredString(
                     getString(R.string.tor_loaded),
@@ -128,6 +131,9 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 FlibustaChecker.STATE_PASSED -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
+                    binding.testFlibustaIsUpText.setTextColor(
+                        ResourcesCompat.getColor(resources, R.color.white, theme)
+                    )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
                             getString(R.string.cant_check_flibusta_message),
@@ -136,6 +142,9 @@ class MainActivity : AppCompatActivity() {
                     flibustaServerChecked()
                 }
                 FlibustaChecker.STATE_AVAILABLE -> {
+                    binding.testFlibustaIsUpText.setTextColor(
+                    ResourcesCompat.getColor(resources, R.color.white, theme)
+                )
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
@@ -146,6 +155,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 FlibustaChecker.STATE_UNAVAILABLE -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
+                    binding.testFlibustaIsUpText.setTextColor(
+                        ResourcesCompat.getColor(resources, R.color.white, theme)
+                    )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
                             getString(R.string.flibusta_server_is_down),
@@ -170,6 +182,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readyToGo() {
+        binding.connectionTestText.setTextColor(
+            ResourcesCompat.getColor(resources, R.color.white, theme)
+        )
         binding.connectionTestText.text = GrammarHandler.getColoredString(
             getString(R.string.connected_message),
             Color.parseColor("#0c6126")
@@ -498,6 +513,9 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.vpn_use),
                 Color.parseColor("#5403ad")
             )
+        binding.clientProgressText.setTextColor(
+            ResourcesCompat.getColor(resources, R.color.white, theme)
+        )
         binding.clientRunningProgress.visibility = View.INVISIBLE
         binding.testFlibustaIsUpText.visibility = View.VISIBLE
         binding.testFlibustaIsUpProgress.visibility = View.VISIBLE

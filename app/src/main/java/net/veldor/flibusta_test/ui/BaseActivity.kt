@@ -1,9 +1,12 @@
 package net.veldor.flibusta_test.ui
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -16,6 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import net.veldor.flibusta_test.App
@@ -24,6 +28,7 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.handler.NavigatorSelectHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import java.util.*
+
 
 open class BaseActivity : AppCompatActivity() {
 
@@ -42,17 +47,44 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.AppTheme)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
-            window.navigationBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
-        }
     }
 
     protected open fun setupUI() {
         // включу поддержку тулбара
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar?.let { setSupportActionBar(it) }
+
+        if (PreferencesHandler.instance.isEInk) {
+
+            val myColorStateList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(),
+                ), intArrayOf(
+                    ResourcesCompat.getColor(resources, R.color.black, theme),
+                    ResourcesCompat.getColor(resources, R.color.light_gray, theme),
+                )
+            )
+            val bottomMenu = findViewById<BottomNavigationView?>(R.id.bottom_nav_view)
+            bottomMenu?.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    theme
+                )
+            )
+            bottomMenu?.itemIconTintList = myColorStateList
+            bottomMenu?.itemTextColor = myColorStateList
+        } else {
+            toolbar?.setTitleTextColor(
+                ResourcesCompat.getColor(resources, R.color.white, theme)
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+                window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
+                window.navigationBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
+            }
+        }
 
         mDrawer = findViewById(R.id.drawer_layout)
         if (mDrawer != null) {
@@ -125,7 +157,7 @@ open class BaseActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             }
-            if(anchorView != null){
+            if (anchorView != null) {
                 bookAddedSnackbar?.anchorView = anchorView!!
             }
             if (bookAddedSnackbar?.isShown != true) {
@@ -169,5 +201,14 @@ open class BaseActivity : AppCompatActivity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun getTheme(): Resources.Theme {
+        if (PreferencesHandler.instance.isEInk) {
+            val theme = super.getTheme()
+            theme.applyStyle(R.style.EInkAppTheme, true)
+            return theme
+        }
+        return super.getTheme()
     }
 }

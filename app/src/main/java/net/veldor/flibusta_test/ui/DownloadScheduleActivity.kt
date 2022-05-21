@@ -35,7 +35,6 @@ class DownloadScheduleActivity : BaseActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavView.setupWithNavController(navController)
-        binding.bottomNavView.setOnItemReselectedListener {}
     }
 
     override fun setupUI() {

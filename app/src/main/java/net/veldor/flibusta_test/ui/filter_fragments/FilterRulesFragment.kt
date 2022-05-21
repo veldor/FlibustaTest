@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.textfield.TextInputEditText
@@ -20,7 +19,7 @@ import net.veldor.flibusta_test.model.adapter.BlacklistAdapter
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
 import net.veldor.flibusta_test.model.selections.blacklist.*
 
-class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTextListener {
+class FilterRulesFragment : Fragment(), SomeActionDelegate {
     private lateinit var binding: FragmentFilterRulesBinding
 
     override fun onCreateView(
@@ -30,8 +29,6 @@ class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTe
     ): View {
         binding = FragmentFilterRulesBinding.inflate(layoutInflater)
 
-        binding.filterListView.setOnQueryTextListener(this)
-
         val adapter =
             BlacklistAdapter(BlacklistBooks.instance.getBlacklist(), requireActivity(), this)
         binding.resultsList.layoutManager = LinearLayoutManager(requireContext())
@@ -40,19 +37,19 @@ class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTe
         binding.blacklistType.setOnCheckedChangeListener { _: RadioGroup?, checkedId: Int ->
             when (checkedId) {
                 R.id.blacklistBook -> {
-                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistBooks.instance.getBlacklist(), binding.filterListView.query.toString())
+                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistBooks.instance.getBlacklist())
                 }
                 R.id.blacklistAuthor -> {
-                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistAuthors.instance.getBlacklist(), binding.filterListView.query.toString())
+                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistAuthors.instance.getBlacklist())
                 }
                 R.id.blacklistSequence -> {
-                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistSequences.instance.getBlacklist(), binding.filterListView.query.toString())
+                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistSequences.instance.getBlacklist())
                 }
                 R.id.blacklistGenre -> {
-                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistGenre.instance.getBlacklist(), binding.filterListView.query.toString())
+                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistGenre.instance.getBlacklist())
                 }
                 R.id.blacklistFormat -> {
-                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistFormat.instance.getBlacklist(), binding.filterListView.query.toString())
+                    (binding.resultsList.adapter as BlacklistAdapter).changeList(BlacklistFormat.instance.getBlacklist())
                 }
             }
         }
@@ -95,13 +92,12 @@ class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTe
                 }
                 else -> null
             }
-            if (newItem != null) {
+            if(newItem != null){
                 (binding.resultsList.adapter as BlacklistAdapter).itemAdded(newItem)
-                Toast.makeText(requireContext(), "Добавляю значение $value", Toast.LENGTH_LONG)
-                    .show()
-            } else {
-                Toast.makeText(requireContext(), "Значение $value уже в списке.", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(requireContext(), "Добавляю значение $value", Toast.LENGTH_LONG).show()
+            }
+            else{
+                Toast.makeText(requireContext(), "Значение $value уже в списке.", Toast.LENGTH_LONG).show()
             }
             binding.blacklistItemInput.setText("")
         } else {
@@ -155,15 +151,5 @@ class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTe
                 }
             }
             .show()
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        (binding.resultsList.adapter as BlacklistAdapter).filter.filter(query)
-        return false
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        (binding.resultsList.adapter as BlacklistAdapter).filter.filter(newText)
-        return false
     }
 }
