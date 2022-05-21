@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 FlibustaChecker.STATE_PASSED -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.white, theme)
+                        ResourcesCompat.getColor(resources, R.color.always_white, theme)
                     )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
@@ -398,14 +398,6 @@ class MainActivity : AppCompatActivity() {
                         ResourcesCompat.getDrawable(resources, R.drawable.back_3, theme)
                 }
             }
-            binding.isEbook.setTextColor(ResourcesCompat.getColor(resources, R.color.white, theme))
-            binding.useHardwareAccelerationSwitcher.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.white,
-                    null
-                )
-            )
         }
         binding.startConnectionTestBtn.setOnClickListener {
             val targetActivityIntent = Intent(this, ConnectivityGuideActivity::class.java)
