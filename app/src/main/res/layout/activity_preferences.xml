@@ -12,22 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appBarLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fitsSystemWindows="true">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </androidx.appcompat.widget.Toolbar>
-        </com.google.android.material.appbar.AppBarLayout>
+        <include
+            android:id="@+id/included_toolbar"
+            layout="@layout/reusable_toolbar_view" />
 
         <LinearLayout
-            android:layout_below="@id/appBarLayout"
+            android:layout_below="@id/included_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <FrameLayout
@@ -37,15 +27,8 @@
         </LinearLayout>
     </RelativeLayout>
 
-
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:layout_marginTop="?android:attr/actionBarSize"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/side_navigation_menu" />
+    <include
+        android:id="@+id/reusable_navigation"
+        layout="@layout/reusable_navigation_view" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

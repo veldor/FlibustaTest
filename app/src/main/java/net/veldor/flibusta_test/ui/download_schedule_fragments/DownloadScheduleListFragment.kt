@@ -1,7 +1,11 @@
 package net.veldor.flibusta_test.ui.download_schedule_fragments
 
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +16,7 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
 import net.veldor.flibusta_test.model.handler.DownloadHandler
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.view_model.DownloadScheduleViewModel
 
 
@@ -32,6 +37,10 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
     }
 
     private fun setupUI() {
+        if(PreferencesHandler.instance.isEInk){
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme));
+        }
+
         setHasOptionsMenu(true)
         activity?.invalidateOptionsMenu()
         val adapter =

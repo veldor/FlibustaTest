@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +22,7 @@ import net.veldor.flibusta_test.model.handler.BookmarkHandler
 import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.view_model.BookmarksViewModel
 
-class BookmarksActivity : BaseActivity(), SomeActionDelegate {
+class BookmarksActivity : BaseActivity(), SomeActionDelegate, SearchView.OnQueryTextListener {
     private lateinit var recycler: RecyclerView
     private lateinit var binding: ActivityBookmarksBinding
     private lateinit var viewModel: BookmarksViewModel
@@ -29,7 +30,6 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
         viewModel = ViewModelProvider(this).get(BookmarksViewModel::class.java)
         binding = ActivityBookmarksBinding.inflate(layoutInflater)
         setContentView(binding.drawerLayout)
@@ -38,6 +38,7 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate {
 
     override fun setupUI() {
         super.setupUI()
+        binding.filterListView.setOnQueryTextListener(this)
         // скрою переход на данное активити
         val menuNav = mNavigationView.menu
         val item = menuNav.findItem(R.id.goToBookmarks)
@@ -61,7 +62,8 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate {
                     (recycler.adapter as BookmarksAdapter).appendContent(
                         BookmarkHandler.instance.get(
                             item.name
-                        )
+                        ),
+                        binding.filterListView.query.toString()
                     )
                 } else {
                     val intent = Intent(this, BrowserActivity::class.java)
@@ -167,10 +169,21 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate {
             (recycler.adapter as BookmarksAdapter).appendContent(
                 BookmarkHandler.instance.get(
                     null
-                )
+                ),
+                binding.filterListView.query.toString()
             )
         } else {
             super.onBackPressed()
         }
     }
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        (binding.showDirContent.adapter as BookmarksAdapter).filter.filter(query)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        (binding.showDirContent.adapter as BookmarksAdapter).filter.filter(newText)
+        return false
+    }
+
 }

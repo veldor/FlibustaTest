@@ -25,6 +25,7 @@
     <color name="selected_item_background">#8A00BCD4</color>
     <color name="sequences_background">#A4FFFFFF</color>
     <color name="textColor">#000000</color>
+    <color name="invertedTextColor">#FFFFFF</color>
     <color name="translator_text_color">#3e5f75</color>
     <color name="backdrop_border">#242424</color>
     <color name="backdrop_background">#7E7E7E</color>

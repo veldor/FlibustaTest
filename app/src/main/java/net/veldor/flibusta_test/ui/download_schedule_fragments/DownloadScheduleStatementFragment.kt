@@ -13,6 +13,7 @@ import net.veldor.flibusta_test.databinding.FragmentDownloadScheduleStatementBin
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.handler.DownloadHandler
 import net.veldor.flibusta_test.model.handler.GrammarHandler
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.view_model.DownloadScheduleViewModel
 import java.util.*
 
@@ -99,11 +100,20 @@ class DownloadScheduleStatementFragment : Fragment() {
             } else {
                 binding.currentBookLoadProgress.progress = (it.bookLoadedSize / 1000).toInt()
             }
-            binding.totalLoadProgressText.text = String.format(Locale.ENGLISH, getString(R.string.of_pattern), it.loadErrors + it.successLoads + 1, it.booksInQueue)
-            if(it.bookLoadedSize > 0){
-                binding.currentLoadProgressText.text = String.format(Locale.ENGLISH, getString(R.string.of_string_pattern), GrammarHandler.getTextSize(it.bookLoadedSize),GrammarHandler.getTextSize(it.bookFullSize))
-            }
-            else{
+            binding.totalLoadProgressText.text = String.format(
+                Locale.ENGLISH,
+                getString(R.string.of_pattern),
+                it.loadErrors + it.successLoads + 1,
+                it.booksInQueue
+            )
+            if (it.bookLoadedSize > 0) {
+                binding.currentLoadProgressText.text = String.format(
+                    Locale.ENGLISH,
+                    getString(R.string.of_string_pattern),
+                    GrammarHandler.getTextSize(it.bookLoadedSize),
+                    GrammarHandler.getTextSize(it.bookFullSize)
+                )
+            } else {
                 binding.currentBookLoadProgress.isIndeterminate = true
                 binding.currentLoadProgressText.text = getString(R.string.waiting)
             }
@@ -113,13 +123,19 @@ class DownloadScheduleStatementFragment : Fragment() {
         DownloadHandler.instance.downloadInProgress.observe(viewLifecycleOwner) {
             binding.currentState.text =
                 if (it) getString(R.string.download_running_state_title) else getString(R.string.download_stopped_state_title)
-            binding.currentState.setTextColor(
-                if (it) ResourcesCompat.getColor(
-                    resources,
-                    R.color.genre_text_color,
-                    null
-                ) else ResourcesCompat.getColor(resources, R.color.book_name_color, null)
-            )
+            if (!PreferencesHandler.instance.isEInk) {
+                binding.currentState.setTextColor(
+                    if (it) ResourcesCompat.getColor(
+                        resources,
+                        R.color.genre_text_color,
+                        null
+                    ) else ResourcesCompat.getColor(
+                        resources,
+                        R.color.book_name_color,
+                        requireActivity().theme
+                    )
+                )
+            }
             binding.runningStateOptions.visibility = if (it) View.VISIBLE else View.GONE
             binding.stoppedStateOptions.visibility = if (it) View.GONE else View.VISIBLE
         }
@@ -128,7 +144,15 @@ class DownloadScheduleStatementFragment : Fragment() {
         ) {
             if (it.isEmpty()) {
                 binding.currentState.text = getString(R.string.empty_download_queue_status_title)
-                binding.currentState.setTextColor(ResourcesCompat.getColor(resources, R.color.author_text_color, null))
+                if (!PreferencesHandler.instance.isEInk) {
+                    binding.currentState.setTextColor(
+                        ResourcesCompat.getColor(
+                            resources,
+                            R.color.author_text_color,
+                            requireActivity().theme
+                        )
+                    )
+                }
                 binding.startDownloadButton.isEnabled = false
                 binding.startDownloadButton.text = getString(R.string.download_queue_empty_title)
                 binding.dropAllBtn.isEnabled = false

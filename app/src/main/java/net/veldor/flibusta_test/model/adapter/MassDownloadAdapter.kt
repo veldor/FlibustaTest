@@ -57,6 +57,21 @@ class MassDownloadAdapter(
         RecyclerView.ViewHolder(
             binding.root
         ) {
+        init {
+            if(PreferencesHandler.instance.isEInk){
+                binding.bookName.setTextColor(ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.black,
+                    context.theme
+                ))
+                binding.authorName.setTextColor(ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.black,
+                    context.theme
+                ))
+            }
+        }
+
         fun bind(item: FoundEntity) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()

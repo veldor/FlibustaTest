@@ -4,131 +4,156 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <RadioGroup
-        android:id="@+id/blacklist_type"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <RadioButton
-            android:id="@+id/blacklistBook"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="@string/book_name_title" />
-
-
-        <RadioButton
-            android:id="@+id/blacklistAuthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/book_author_title" />
-
-
-        <RadioButton
-            android:id="@+id/blacklistSequence"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/sequence_title" />
-
-        <RadioButton
-            android:id="@+id/blacklistGenre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/genre_title" />
-
-        <RadioButton
-            android:id="@+id/blacklistFormat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/format_title" />
-    </RadioGroup>
-
-    <TextView
-        android:id="@+id/rulesHint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:text="@string/add_to_filter_msg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/blacklist_type" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/blacklistInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        app:layout_constraintEnd_toStartOf="@+id/add_to_blacklist_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rulesHint"
-        app:startIconDrawable="@drawable/fab_add">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/blacklistItemInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:background="@android:color/transparent"
-            android:hint="@string/add_filter_msg"
-            android:imeOptions="actionDone"
-            android:inputType="text"
-            android:maxLength="150"
-            app:boxBackgroundColor="@android:color/transparent" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <Button
-        android:id="@+id/add_to_blacklist_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:padding="10dp"
-        android:text="@string/add_to_blacklist_msg"
-        app:layout_constraintBottom_toBottomOf="@+id/blacklistInputLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/blacklistInputLayout" />
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/filterListView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:imeOptions="flagNoExtractUi"
-        app:iconifiedByDefault="false"
-        app:layout_constraintTop_toBottomOf="@id/blacklistInputLayout"
-        app:queryHint="@string/search_in_list_title" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/resultsList"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filterListView" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioGroup
+                android:id="@+id/blacklist_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <RadioButton
+                    android:id="@+id/blacklistBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:singleLine="true"
+                    android:text="@string/book_name_title"
+                    android:textSize="11sp" />
+
+
+                <RadioButton
+                    android:id="@+id/blacklistAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/book_author_title"
+                    android:textSize="11sp" />
+
+
+                <RadioButton
+                    android:id="@+id/blacklistSequence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/sequence_title"
+                    android:textSize="11sp" />
+
+                <RadioButton
+                    android:id="@+id/blacklistGenre"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/genre_title"
+                    android:textSize="11sp" />
+
+                <RadioButton
+                    android:id="@+id/blacklistFormat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/format_title"
+                    android:textSize="11sp" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/rulesHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="@string/add_to_filter_msg"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/blacklist_type" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/blacklistInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                app:layout_constraintEnd_toStartOf="@+id/add_to_blacklist_btn"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rulesHint"
+                app:startIconDrawable="@drawable/fab_add">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/blacklistItemInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/add_filter_msg"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:maxLength="150"
+                    app:boxBackgroundColor="@android:color/transparent" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <Button
+                android:id="@+id/add_to_blacklist_btn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:padding="10dp"
+                android:text="@string/add_to_blacklist_msg"
+                app:layout_constraintBottom_toBottomOf="@+id/blacklistInputLayout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/blacklistInputLayout" />
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/filterListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:imeOptions="flagNoExtractUi"
+                app:iconifiedByDefault="false"
+                app:layout_constraintTop_toBottomOf="@id/blacklistInputLayout"
+                app:queryHint="@string/search_in_list_title" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/resultsList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/filterListView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

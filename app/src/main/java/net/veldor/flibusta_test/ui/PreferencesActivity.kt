@@ -1,8 +1,9 @@
 package net.veldor.flibusta_test.ui
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference
@@ -19,7 +20,6 @@ class PreferencesActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setTheme(R.style.AppTheme)
         viewModel = ViewModelProvider(this).get(PreferencesViewModel::class.java)
         binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.drawerLayout)
@@ -35,6 +35,16 @@ class PreferencesActivity : BaseActivity() {
 
     override fun setupUI() {
         super.setupUI()
+        if (PreferencesHandler.instance.isEInk) {
+            // тут фикс, так как почему-то не применяется светлая тема при выборе eInk
+            findViewById<Toolbar>(R.id.einkToolbar)?.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    theme
+                )
+            )
+        }
         // скрою переход на данное активити
         val menuNav = mNavigationView.menu
         val item = menuNav.findItem(R.id.goToSettings)
@@ -67,21 +77,16 @@ class PreferencesActivity : BaseActivity() {
             if (switchNightModePref != null) {
                 switchNightModePref.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _, new_value ->
-                        if(PreferencesHandler.instance.isEInk){
-                            Toast.makeText(requireContext(), getString(R.string.only_light_theme_message), Toast.LENGTH_LONG).show()
-                        }
-                        else{
-                            when (new_value as String) {
-                                PreferencesHandler.NIGHT_THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
-                                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                                )
-                                PreferencesHandler.NIGHT_THEME_DAY -> AppCompatDelegate.setDefaultNightMode(
-                                    AppCompatDelegate.MODE_NIGHT_NO
-                                )
-                                PreferencesHandler.NIGHT_THEME_NIGHT -> AppCompatDelegate.setDefaultNightMode(
-                                    AppCompatDelegate.MODE_NIGHT_YES
-                                )
-                            }
+                        when (new_value as String) {
+                            PreferencesHandler.NIGHT_THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                            )
+                            PreferencesHandler.NIGHT_THEME_DAY -> AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_NO
+                            )
+                            PreferencesHandler.NIGHT_THEME_NIGHT -> AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_YES
+                            )
                         }
                         requireActivity().recreate()
                         true

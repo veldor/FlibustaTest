@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.res.ResourcesCompat
 import net.veldor.flibusta_test.R
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.selections.SortOption
 
 class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapter {
@@ -15,7 +17,7 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
     var notFirstSelection: Boolean = false
     private var inflater: LayoutInflater = LayoutInflater.from(context)
     private var itemList: List<SortOption?>? = null
-    private var context:Context
+    private var context: Context
 
     init {
         itemList = list
@@ -43,7 +45,7 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
     }
 
     override fun getItemId(position: Int): Long {
-        if(position > 0 && itemList != null && itemList!!.size >= position){
+        if (position > 0 && itemList != null && itemList!!.size >= position) {
             return itemList!![position]!!.id.toLong()
         }
         return -1
@@ -58,8 +60,35 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
         if (convertView == null) {
             view = inflater.inflate(R.layout.sort_list_view, parent, false)
         }
+        if (PreferencesHandler.instance.isEInk) {
+            view?.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    context.theme
+                )
+            )
+        }
         val label = view!!.findViewById<TextView>(R.id.sortLabel)
-        if(itemList != null && itemList?.isNotEmpty() == true){
+        if (!PreferencesHandler.instance.isEInk) {
+            label.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    context.theme
+                )
+            )
+        }
+        else{
+            label.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.black,
+                    context.theme
+                )
+            )
+        }
+        if (itemList != null && itemList?.isNotEmpty() == true) {
             label.text = itemList!![position]?.name
         }
         return view
@@ -82,17 +111,32 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
         if (convertView == null) {
             view = inflater.inflate(R.layout.sort_dropdown_list_view, parent, false)
         }
-        if(itemList.isNullOrEmpty()){
-            view!!.findViewById<TextView>(R.id.itemName).text = context.getString(R.string.no_options_title)
+        if(PreferencesHandler.instance.isEInk){
+            view?.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.black,
+                    context.theme
+                )
+            )
         }
-        else{
+        if (itemList.isNullOrEmpty()) {
+            view!!.findViewById<TextView>(R.id.itemName).text =
+                context.getString(R.string.no_options_title)
+        } else {
             view!!.findViewById<TextView>(R.id.itemName).text = itemList!![position]!!.name
+            view.findViewById<TextView>(R.id.itemName).setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    context.theme
+                )
+            )
         }
         val checkView = view.findViewById<ImageView>(R.id.checkedView)
-        if(position == selected){
+        if (position == selected) {
             checkView.visibility = View.VISIBLE
-        }
-        else{
+        } else {
             checkView.visibility = View.GONE
         }
         return view

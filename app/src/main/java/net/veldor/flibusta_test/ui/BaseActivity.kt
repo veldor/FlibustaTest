@@ -51,7 +51,12 @@ open class BaseActivity : AppCompatActivity() {
 
     protected open fun setupUI() {
         // включу поддержку тулбара
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbar = if (PreferencesHandler.instance.isEInk) {
+            findViewById(R.id.einkToolbar)
+        } else {
+            findViewById<Toolbar>(R.id.toolbar)
+        }
+        toolbar?.visibility = View.VISIBLE
         toolbar?.let { setSupportActionBar(it) }
 
         if (PreferencesHandler.instance.isEInk) {
@@ -76,9 +81,6 @@ open class BaseActivity : AppCompatActivity() {
             bottomMenu?.itemIconTintList = myColorStateList
             bottomMenu?.itemTextColor = myColorStateList
         } else {
-            toolbar?.setTitleTextColor(
-                ResourcesCompat.getColor(resources, R.color.white, theme)
-            )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                 window.statusBarColor = ContextCompat.getColor(this, R.color.colorPrimary)
@@ -98,7 +100,7 @@ open class BaseActivity : AppCompatActivity() {
             mDrawer!!.addDrawerListener(toggle)
             toggle.isDrawerIndicatorEnabled = true
             toggle.syncState()
-            mNavigationView = findViewById(R.id.nav_view)
+            mNavigationView = findViewById(R.id.reusable_navigation)
             mNavigationView.setNavigationItemSelectedListener(NavigatorSelectHandler(this))
             // отображу бейджи в меню
             mNavigationView.menu.findItem(R.id.goToDownloadsList).actionView
@@ -157,6 +159,17 @@ open class BaseActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             }
+
+            if(PreferencesHandler.instance.isEInk){
+                bookAddedSnackbar?.setBackgroundTint(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.white,
+                        theme
+                    )
+                )
+            }
+
             if (anchorView != null) {
                 bookAddedSnackbar?.anchorView = anchorView!!
             }

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.CheckBox
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -99,12 +98,12 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
 
         binding.bookSearchView.setOnQueryTextFocusChangeListener { view, b ->
             if (b) {
-                (activity as BrowserActivity).binding.appBarLayout.visibility = View.GONE
-                (activity as BrowserActivity).binding.bottomNavView.visibility = View.GONE
+                (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility = View.GONE
+                (activity as BrowserActivity).binding.includedBnv.bottomNavView.visibility = View.GONE
                 showInputMethod(view.findFocus())
             } else {
-                (activity as BrowserActivity).binding.appBarLayout.visibility = View.VISIBLE
-                (activity as BrowserActivity).binding.bottomNavView.visibility = View.VISIBLE
+                (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility = View.VISIBLE
+                (activity as BrowserActivity).binding.includedBnv.bottomNavView.visibility = View.VISIBLE
                 binding.bookSearchView.visibility = View.GONE
             }
         }

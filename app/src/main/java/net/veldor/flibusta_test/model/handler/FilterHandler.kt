@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.model.handler
 
+import android.util.Log
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
@@ -264,6 +265,28 @@ object FilterHandler {
 
     fun addToBlacklist(item: FoundEntity, target: String): List<BlacklistItem> {
         val result = arrayListOf<BlacklistItem>()
+        if (target == "name") {
+            when (item.type) {
+                TYPE_AUTHOR, TYPE_AUTHORS -> {
+                        if (item.name != null) {
+                            BlacklistAuthors.instance.addValue(item.name!!)
+                            result.add(BlacklistItem(item.name!!, "author"))
+                        }
+                }
+                TYPE_GENRE -> {
+                        if (item.name != null) {
+                            BlacklistGenre.instance.addValue(item.name!!)
+                            result.add(BlacklistItem(item.name!!, "genre"))
+                    }
+                }
+                TYPE_SEQUENCE -> {
+                            val value = item.name!!.trim().lowercase()
+                            BlacklistSequences.instance.addValue(value)
+                            result.add(BlacklistItem(item.name!!, "sequence"))
+                }
+            }
+            return result
+        }
         when (target) {
             "author" -> {
                 item.authors.forEach {

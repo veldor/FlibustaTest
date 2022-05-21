@@ -7,6 +7,7 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -42,9 +43,11 @@ class BrowserActivity : BaseActivity() {
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.bottomNavView.setupWithNavController(navController)
+        binding.includedBnv.bottomNavView.setupWithNavController(navController)
+        binding.includedBnv.bottomNavView.menu.clear()
+        binding.includedBnv.bottomNavView.inflateMenu(R.menu.browser_bottom_nav_menu)
         // disable reselect
-        binding.bottomNavView.setOnItemReselectedListener {}
+        binding.includedBnv.bottomNavView.setOnItemReselectedListener {}
 
         if (intent.hasExtra("link")) {
             val link = intent.getStringExtra("link")
@@ -63,7 +66,7 @@ class BrowserActivity : BaseActivity() {
                         f.configureBackdrop()
                     }
                     PreferencesHandler.instance.lastWebViewLink = link
-                    binding.bottomNavView.selectedItemId = R.id.navigation_web_view
+                    binding.includedBnv.bottomNavView.selectedItemId = R.id.navigation_web_view
                 }
             }
         }
@@ -80,7 +83,7 @@ class BrowserActivity : BaseActivity() {
         val item = menuNav.findItem(R.id.goBrowse)
         item.isEnabled = false
         item.isChecked = true
-        anchorView = binding.bottomNavView
+        anchorView = binding.includedBnv.bottomNavView
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -108,14 +111,21 @@ class BrowserActivity : BaseActivity() {
     fun launchWebViewFromOpds() {
         Log.d("surprise", "BrowserActivity.kt 86: launching from OPDS")
         goFromOpds = true
-        binding.bottomNavView.selectedItemId =
+        binding.includedBnv.bottomNavView.selectedItemId =
             R.id.navigation_web_view
     }
 
     fun returnToOpds() {
         Log.d("surprise", "BrowserActivity.kt 93: return to OPDS")
         goFromOpds = false
-        binding.bottomNavView.selectedItemId =
+        binding.includedBnv.bottomNavView.selectedItemId =
             R.id.navigation_opds
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val inflater = binding.includedBnv.navHostFragment.findNavController().navInflater
+        val graph = inflater.inflate(R.navigation.browser_navigation)
+        binding.includedBnv.navHostFragment.findNavController().graph = graph
     }
 }

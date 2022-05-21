@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
+import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.DownloadScheduleErrorItemLayoutBinding
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
 
 class DownloadScheduleErrorAdapter(
@@ -51,6 +54,18 @@ class DownloadScheduleErrorAdapter(
         RecyclerView.ViewHolder(
             binding.root
         ) {
+        init {
+            if(PreferencesHandler.instance.isEInk){
+                binding.bookName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.black,
+                        context.theme
+                    )
+                )
+            }
+        }
+
         fun bind(item: BooksDownloadSchedule) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <resources>
-        <color name="colorPrimary">#000000</color>
-        <color name="colorPrimaryDark">#000000</color>
-        <color name="textColor">#C0C0C0</color>
-        <color name="background_color">#000000</color>
-        <color name="dropdownBackgroundColor">#434343</color>
-        <color name="sequences_background">#94000000</color>
-        <color name="sequences_text_color">#FFA5FC</color>
-        <color name="genre_text_color">#93FF9B</color>
-        <color name="author_text_color">#B2BBFF</color>
-        <color name="book_name_color">#f59214</color>
-        <color name="translator_text_color">#BFD3FF</color>
-        <color name="icon_text_color">#C0C0C0</color>
-        <color name="app_bar_icons_color">#AFAEAE</color>
-        <color name="bottomNavigationColor">#000000</color>
+<resources>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="textColor">#C0C0C0</color>
+    <color name="background_color">#000000</color>
+    <color name="dropdownBackgroundColor">#434343</color>
+    <color name="sequences_background">#94000000</color>
+    <color name="sequences_text_color">#FFA5FC</color>
+    <color name="genre_text_color">#93FF9B</color>
+    <color name="author_text_color">#B2BBFF</color>
+    <color name="book_name_color">#f59214</color>
+    <color name="translator_text_color">#BFD3FF</color>
+    <color name="icon_text_color">#C0C0C0</color>
+    <color name="app_bar_icons_color">#AFAEAE</color>
+    <color name="bottomNavigationColor">#000000</color>
+    <color name="dark_gray">#535353</color>
+    <color name="invertedTextColor">#C0C0C0</color>
 
     <color name="fb2_color">#F38F88</color>
     <color name="mobi_color">#F1AFC5</color>
@@ -31,4 +33,4 @@
 
     <color name="lightTextColor">#A1A1A1</color>
     <color name="fabColor">#373737</color>
-    </resources>
+</resources>

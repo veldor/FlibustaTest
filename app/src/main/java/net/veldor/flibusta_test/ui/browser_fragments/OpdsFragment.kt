@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -443,11 +444,119 @@ class OpdsFragment : Fragment(),
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
 
-        if(PreferencesHandler.instance.isEInk){
+        if (PreferencesHandler.instance.isEInk) {
             binding.searchOptionsContainer.setBackgroundColor(
                 ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme)
             )
             binding.bookSearchView.queryHint = ""
+        } else {
+            val myColorStateList = ColorStateList(
+                arrayOf(
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(android.R.attr.state_selected),
+                    intArrayOf(),
+                ), intArrayOf(
+                    ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme),
+                    ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme),
+                    ResourcesCompat.getColor(resources, R.color.light_gray, requireActivity().theme),
+                )
+            )
+
+            binding.searchBook.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            binding.searchBook.supportButtonTintList = myColorStateList
+            binding.searchAuthor.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            binding.searchAuthor.supportButtonTintList = myColorStateList
+            binding.searchGenre.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            binding.searchGenre.supportButtonTintList = myColorStateList
+            binding.searchSequence.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            binding.searchSequence.supportButtonTintList = myColorStateList
+
+            binding.showArrivalsBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+
+            binding.showEntitiesByAlphabetBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+
+            binding.resultsPagingSwitcher.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.resultsPagingSwitcher.buttonTintList = myColorStateList
+                binding.resultsPagingSwitcher.trackTintList = myColorStateList
+            }
+
+            binding.sortByTitle.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+
+            binding.useFiltersSwitch.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                binding.useFiltersSwitch.trackTintList = myColorStateList
+            }
+
+            binding.showFilterPreferencesBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+
+            binding.doOpdsSearchBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
         }
 
         binding.bookSearchView.isSubmitButtonEnabled = false
@@ -546,13 +655,17 @@ class OpdsFragment : Fragment(),
         binding.bookSearchView.setOnQueryTextFocusChangeListener { view, b ->
             Log.d("surprise", "setupUI: focus changed")
             if (b) {
-                (activity as BrowserActivity).binding.appBarLayout.visibility = View.GONE
-                (activity as BrowserActivity).binding.bottomNavView.visibility = View.GONE
+                (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility =
+                    View.GONE
+                (activity as BrowserActivity).binding.includedBnv.bottomNavView.visibility =
+                    View.GONE
                 binding.searchOptionsContainer.visibility = View.VISIBLE
                 showInputMethod(view.findFocus())
             } else {
-                (activity as BrowserActivity).binding.appBarLayout.visibility = View.VISIBLE
-                (activity as BrowserActivity).binding.bottomNavView.visibility = View.VISIBLE
+                (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility =
+                    View.VISIBLE
+                (activity as BrowserActivity).binding.includedBnv.bottomNavView.visibility =
+                    View.VISIBLE
                 binding.bookSearchView.visibility = View.GONE
                 binding.searchOptionsContainer.visibility = View.GONE
             }

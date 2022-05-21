@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
@@ -20,13 +21,13 @@ import net.veldor.flibusta_test.databinding.ActivityDownloadedBinding
 import net.veldor.flibusta_test.model.adapter.ExplorerAdapter
 import net.veldor.flibusta_test.model.delegate.FileItemClickedDelegate
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
-import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.BookActionsHelper
 import net.veldor.flibusta_test.model.selections.FileItem
 import net.veldor.flibusta_test.model.view_model.DirContentViewModel
 
-class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, SomeActionDelegate {
+class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, SomeActionDelegate,
+    SearchView.OnQueryTextListener {
     private var mConfirmExit: Long = 0
     private lateinit var recycler: RecyclerView
     private lateinit var viewModel: DirContentViewModel
@@ -53,7 +54,10 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
                 binding.showDirContent.adapter = adapter
             } else {
                 (binding.showDirContent.adapter as ExplorerAdapter).clearList()
-                (binding.showDirContent.adapter as ExplorerAdapter).appendContent(it)
+                (binding.showDirContent.adapter as ExplorerAdapter).appendContent(
+                    it,
+                    binding.filterListView.query.toString()
+                )
             }
         }
     }
@@ -65,6 +69,8 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
         val item = menuNav.findItem(R.id.goToFileList)
         item.isEnabled = false
         item.isChecked = true
+
+        binding.filterListView.setOnQueryTextListener(this)
         recycler = binding.showDirContent
         recycler.layoutManager = LinearLayoutManager(this)
         // получу список файлов из папки
@@ -218,6 +224,16 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
 
     override fun actionDone(item: Any, target: Any) {
         TODO("Not yet implemented")
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        (binding.showDirContent.adapter as ExplorerAdapter).filter.filter(query)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        (binding.showDirContent.adapter as ExplorerAdapter).filter.filter(newText)
+        return false
     }
 
 }

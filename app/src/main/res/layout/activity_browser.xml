@@ -15,67 +15,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.AppBarLayout
-                android:id="@+id/appBarLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true">
+            <include
+                android:id="@+id/included_toolbar"
+                layout="@layout/reusable_toolbar_view" />
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                </androidx.appcompat.widget.Toolbar>
-            </com.google.android.material.appbar.AppBarLayout>
-
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/appBarLayout">
-
-                <com.google.android.material.bottomnavigation.BottomNavigationView
-                    android:id="@+id/bottom_nav_view"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginEnd="0dp"
-                    android:background="@color/bottomNavigationColor"
-                    app:itemIconTint="@drawable/navigation_view_colored"
-                    app:itemTextColor="@drawable/navigation_view_colored"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:menu="@menu/browser_bottom_nav_menu" />
-
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/nav_host_fragment"
-                    android:name="androidx.navigation.fragment.NavHostFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    app:defaultNavHost="true"
-                    app:layout_constraintBottom_toTopOf="@+id/bottom_nav_view"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:navGraph="@navigation/browser_navigation" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            <include
+                android:id="@+id/included_bnv"
+                layout="@layout/reusable_bottom_navigation_view" />
         </RelativeLayout>
 
-
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/nav_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:layout_marginTop="?android:attr/actionBarSize"
-            android:fitsSystemWindows="false"
-            app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/side_navigation_menu" />
+        <include
+            android:id="@+id/reusable_navigation"
+            layout="@layout/reusable_navigation_view" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 
