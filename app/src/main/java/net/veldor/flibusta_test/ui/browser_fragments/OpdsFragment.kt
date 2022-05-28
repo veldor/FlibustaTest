@@ -14,11 +14,13 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.SearchAutoComplete
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -38,6 +40,8 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
 import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
 import net.veldor.flibusta_test.model.handler.*
+import net.veldor.flibusta_test.model.handler.PreferencesHandler.Companion.NIGHT_THEME_DAY
+import net.veldor.flibusta_test.model.handler.PreferencesHandler.Companion.NIGHT_THEME_NIGHT
 import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.interfaces.MyAdapterInterface
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
@@ -114,13 +118,7 @@ class OpdsFragment : Fragment(),
                 showSortDialog()
             }
             R.id.action_add_bookmark -> {
-                if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
-                    viewModel.removeBookmark()
-                    Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
-                    activity?.invalidateOptionsMenu()
-                } else {
-                    showAddBookmarkDialog()
-                }
+                handleBookmark()
             }
             R.id.action_search -> {
                 binding.bookSearchView.visibility = View.VISIBLE
@@ -132,6 +130,23 @@ class OpdsFragment : Fragment(),
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun handleBookmark() {
+        if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
+            viewModel.removeBookmark()
+            Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
+            activity?.invalidateOptionsMenu()
+            binding.addBookmarkBtn.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_bookmark_add_24,
+                    requireActivity().theme
+                )
+            )
+        } else {
+            showAddBookmarkDialog()
+        }
     }
 
     private fun showAddBookmarkDialog() {
@@ -162,6 +177,13 @@ class OpdsFragment : Fragment(),
                         category,
                         bookmarkNameTextView.text.toString(),
                         linkValueView.text.toString()
+                    )
+                    binding.addBookmarkBtn.setImageDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_baseline_bookmark_border_24,
+                            requireActivity().theme
+                        )
                     )
                     activity?.invalidateOptionsMenu()
                     if (category.id.isEmpty()) {
@@ -430,7 +452,7 @@ class OpdsFragment : Fragment(),
                     Log.d("surprise", "showErrorSnackbar: no request")
                 }
             }
-            if(PreferencesHandler.instance.isEInk){
+            if (PreferencesHandler.instance.isEInk) {
                 errorSnackbar.setBackgroundTint(
                     ResourcesCompat.getColor(
                         resources,
@@ -445,8 +467,7 @@ class OpdsFragment : Fragment(),
                         requireActivity().theme
                     )
                 )
-            }
-            else{
+            } else {
                 errorSnackbar.setActionTextColor(
                     ResourcesCompat.getColor(
                         resources,
@@ -469,10 +490,38 @@ class OpdsFragment : Fragment(),
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
 
-
         if (PreferencesHandler.instance.isEInk) {
-            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.always_white, requireActivity().theme))
-            binding.fab.supportImageTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme))
+            binding.fab.backgroundTintList = ColorStateList.valueOf(
+                ResourcesCompat.getColor(
+                    requireActivity().resources,
+                    R.color.always_white,
+                    requireActivity().theme
+                )
+            )
+            binding.fab.supportImageTintList = ColorStateList.valueOf(
+                ResourcesCompat.getColor(
+                    requireActivity().resources,
+                    R.color.black,
+                    requireActivity().theme
+                )
+            )
+            binding.massLoadFab.backgroundTintList = ColorStateList.valueOf(
+                ResourcesCompat.getColor(
+                    requireActivity().resources,
+                    R.color.always_white,
+                    requireActivity().theme
+                )
+            )
+            binding.massLoadFab.setTextColor(
+                ColorStateList.valueOf(
+                    ResourcesCompat.getColor(
+                        requireActivity().resources,
+                        R.color.black,
+                        requireActivity().theme
+                    )
+                )
+            )
+
             binding.searchOptionsContainer.setBackgroundColor(
                 ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme)
             )
@@ -484,16 +533,28 @@ class OpdsFragment : Fragment(),
                     intArrayOf(android.R.attr.state_selected),
                     intArrayOf(),
                 ), intArrayOf(
-                    ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme),
-                    ResourcesCompat.getColor(resources, R.color.white, requireActivity().theme),
-                    ResourcesCompat.getColor(resources, R.color.light_gray, requireActivity().theme),
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.text_light_color,
+                        requireActivity().theme
+                    ),
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.text_light_color,
+                        requireActivity().theme
+                    ),
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.light_gray,
+                        requireActivity().theme
+                    ),
                 )
             )
 
             binding.searchBook.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -501,7 +562,7 @@ class OpdsFragment : Fragment(),
             binding.searchAuthor.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -509,7 +570,7 @@ class OpdsFragment : Fragment(),
             binding.searchGenre.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -517,7 +578,7 @@ class OpdsFragment : Fragment(),
             binding.searchSequence.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -526,7 +587,7 @@ class OpdsFragment : Fragment(),
             binding.showArrivalsBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -534,7 +595,7 @@ class OpdsFragment : Fragment(),
             binding.showEntitiesByAlphabetBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -542,7 +603,7 @@ class OpdsFragment : Fragment(),
             binding.resultsPagingSwitcher.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -554,7 +615,7 @@ class OpdsFragment : Fragment(),
             binding.sortByTitle.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -562,7 +623,7 @@ class OpdsFragment : Fragment(),
             binding.useFiltersSwitch.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -573,7 +634,7 @@ class OpdsFragment : Fragment(),
             binding.showFilterPreferencesBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -581,7 +642,7 @@ class OpdsFragment : Fragment(),
             binding.doOpdsSearchBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.white,
+                    R.color.text_light_color,
                     requireActivity().theme
                 )
             )
@@ -961,7 +1022,13 @@ class OpdsFragment : Fragment(),
         // load results if exists
         loadPreviousResults(a, viewModel.getPreviousResults())
         binding.resultsList.adapter = a
-        binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
+        val rowsCount = PreferencesHandler.instance.opdsLayoutRowsCount
+        if (rowsCount == 0) {
+            binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
+        } else {
+            binding.resultsList.layoutManager =
+                GridLayoutManager(requireActivity(), rowsCount + 1)
+        }
 
         if (linkForLoad != null) {
             newRequestLaunched()
@@ -1017,22 +1084,71 @@ class OpdsFragment : Fragment(),
 
         binding.filterListView.isSubmitButtonEnabled = true
 
+        binding.addBookmarkBtn.setImageDrawable(
+            if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_bookmark_border_24,
+                    requireActivity().theme
+                )
+            } else {
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_bookmark_add_24,
+                    requireActivity().theme
+                )
+            }
+        )
+
+        binding.addBookmarkBtn.setOnClickListener {
+            handleBookmark()
+        }
+
+        binding.readerModeSwitcher.setOnClickListener {
+            PreferencesHandler.instance.isEInk = !PreferencesHandler.instance.isEInk
+            requireActivity().recreate()
+        }
+
+        binding.nightModeSwitcher.setOnClickListener {
+            if (PreferencesHandler.instance.nightMode == NIGHT_THEME_DAY) {
+                PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+            } else if (PreferencesHandler.instance.nightMode == NIGHT_THEME_NIGHT) {
+                PreferencesHandler.instance.nightMode = NIGHT_THEME_DAY
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+            } else {
+                PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+            }
+            requireActivity().recreate()
+        }
+
+        binding.switchResultsLayoutBtn.setOnClickListener {
+            showGridLayoutSwitchDialog()
+        }
+
         //setup filter list option
         binding.useFilterBtn.setOnClickListener {
             binding.filterListView.visibility = View.VISIBLE
             binding.filterByType.visibility = View.VISIBLE
-            it.visibility = View.GONE
+            binding.quickSettingsPanel.visibility = View.GONE
             binding.filterListView.isIconified = false
             binding.filterListView.requestFocus()
             (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(true)
         }
 
         binding.filterListView.setOnCloseListener {
-            lastScrolled = lastScrolled - 1
+            lastScrolled -= 1
             (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(false)
             binding.filterListView.visibility = View.GONE
             binding.filterByType.visibility = View.GONE
-            binding.useFilterBtn.visibility = View.VISIBLE
+            binding.quickSettingsPanel.visibility = View.VISIBLE
             return@setOnCloseListener true
         }
 
@@ -1042,6 +1158,37 @@ class OpdsFragment : Fragment(),
         }
 
         binding.filterListView.setOnQueryTextListener(this)
+    }
+
+    private fun showGridLayoutSwitchDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_switch_layout_grid, null)
+        view.findViewById<SeekBar>(R.id.seekBar).progress =
+            PreferencesHandler.instance.opdsLayoutRowsCount
+        view.findViewById<SeekBar>(R.id.seekBar)
+            .setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                    PreferencesHandler.instance.opdsLayoutRowsCount = p1
+                    if (p1 == 0) {
+                        binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
+                    } else {
+                        binding.resultsList.layoutManager =
+                            GridLayoutManager(requireActivity(), p1 + 1)
+                    }
+                }
+
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+
+                }
+
+            })
+        AlertDialog.Builder(requireActivity(), R.style.dialogTheme)
+            .setTitle(getString(R.string.select_result_layout_rows_title))
+            .setView(view)
+            .show()
     }
 
     private fun showCoversNotificationDialog() {
@@ -1090,6 +1237,7 @@ class OpdsFragment : Fragment(),
             binding.hintContainer.visibility = View.GONE
             viewModel.replacePreviousResults(previousResults)
             previousResults.forEach {
+                a?.reapplyFilters(it)
                 a?.appendContent(it.results)
             }
             binding.foundResultsQuantity.visibility = View.VISIBLE
@@ -1344,7 +1492,7 @@ class OpdsFragment : Fragment(),
         binding.filterListView.visibility = View.GONE
         binding.filterListView.setQuery("", false)
         binding.filterByType.visibility = View.GONE
-        binding.useFilterBtn.visibility = View.VISIBLE
+        binding.quickSettingsPanel.visibility = View.VISIBLE
 
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         binding.fab.show()
@@ -1431,6 +1579,40 @@ class OpdsFragment : Fragment(),
         if (item.link != null) {
             PreferencesHandler.instance.lastWebViewLink = item.link!!
             (requireActivity() as BrowserActivity).launchWebViewFromOpds()
+        }
+    }
+
+    override fun rightButtonPressed(item: FoundEntity) {
+        if (!item.downloaded) {
+            item.downloaded = !item.downloaded
+            Toast.makeText(requireContext(), R.string.mark_as_downloaded_title, Toast.LENGTH_SHORT)
+                .show()
+            viewModel.markDownloaded(item)
+            (binding.resultsList.adapter as MyAdapterInterface).markAsDownloaded(item)
+        } else {
+            item.downloaded = !item.downloaded
+            Toast.makeText(
+                requireContext(),
+                R.string.mark_as_no_downloaded_title,
+                Toast.LENGTH_SHORT
+            ).show()
+            viewModel.markNoDownloaded(item)
+            (binding.resultsList.adapter as MyAdapterInterface).markAsNoDownloaded(item)
+        }
+    }
+
+    override fun leftButtonPressed(item: FoundEntity) {
+        if (item.read) {
+            item.read = !item.read
+            Toast.makeText(requireContext(), R.string.mark_as_unread_title, Toast.LENGTH_SHORT)
+                .show()
+            viewModel.markUnread(item)
+            (binding.resultsList.adapter as MyAdapterInterface).markBookUnread(item)
+        } else {
+            item.read = !item.read
+            Toast.makeText(requireContext(), R.string.mark_as_read_title, Toast.LENGTH_SHORT).show()
+            viewModel.markRead(item)
+            (binding.resultsList.adapter as MyAdapterInterface).markBookRead(item)
         }
     }
 
@@ -1618,6 +1800,7 @@ class OpdsFragment : Fragment(),
                                 mLastRequest
                             )
                         }
+                        return true
                     }
                 }
             }

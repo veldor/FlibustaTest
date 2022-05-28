@@ -64,26 +64,17 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
             view?.setBackgroundColor(
                 ResourcesCompat.getColor(
                     context.resources,
-                    R.color.white,
+                    R.color.invertable_black,
                     context.theme
                 )
             )
         }
         val label = view!!.findViewById<TextView>(R.id.sortLabel)
-        if (!PreferencesHandler.instance.isEInk) {
+        if (PreferencesHandler.instance.isEInk) {
             label.setTextColor(
                 ResourcesCompat.getColor(
                     context.resources,
                     R.color.white,
-                    context.theme
-                )
-            )
-        }
-        else{
-            label.setTextColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.black,
                     context.theme
                 )
             )
@@ -111,20 +102,21 @@ class OpdsSortAdapter(list: List<SortOption?>?, context: Context) : SpinnerAdapt
         if (convertView == null) {
             view = inflater.inflate(R.layout.sort_dropdown_list_view, parent, false)
         }
-        if(PreferencesHandler.instance.isEInk){
-            view?.setBackgroundColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.black,
-                    context.theme
-                )
-            )
-        }
+
         if (itemList.isNullOrEmpty()) {
             view!!.findViewById<TextView>(R.id.itemName).text =
                 context.getString(R.string.no_options_title)
         } else {
             view!!.findViewById<TextView>(R.id.itemName).text = itemList!![position]!!.name
+        }
+        if(PreferencesHandler.instance.isEInk){
+            view.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
             view.findViewById<TextView>(R.id.itemName).setTextColor(
                 ResourcesCompat.getColor(
                     context.resources,

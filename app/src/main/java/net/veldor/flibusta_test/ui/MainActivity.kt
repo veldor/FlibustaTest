@@ -118,7 +118,8 @@ class MainActivity : AppCompatActivity() {
                 // tor client loaded
                 binding.clientProgressText.text = GrammarHandler.getColoredString(
                     getString(R.string.tor_loaded),
-                    Color.parseColor("#0c6126")
+                    Color.parseColor("#0c6126"),
+                    this
                 )
                 binding.clientRunningProgress.visibility = View.INVISIBLE
                 binding.testFlibustaIsUpText.visibility = View.VISIBLE
@@ -132,36 +133,39 @@ class MainActivity : AppCompatActivity() {
                 FlibustaChecker.STATE_PASSED -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.always_white, theme)
+                        ResourcesCompat.getColor(resources, R.color.white, theme)
                     )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
                             getString(R.string.cant_check_flibusta_message),
-                            Color.parseColor("#5403ad")
+                            Color.parseColor("#5403ad"),
+                            this
                         )
                     flibustaServerChecked()
                 }
                 FlibustaChecker.STATE_AVAILABLE -> {
                     binding.testFlibustaIsUpText.setTextColor(
-                    ResourcesCompat.getColor(resources, R.color.always_white, theme)
+                    ResourcesCompat.getColor(resources, R.color.white, theme)
                 )
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
                             getString(R.string.flibusta_server_is_up),
-                            Color.parseColor("#0c6126")
+                            Color.parseColor("#0c6126"),
+                            this
                         )
                     flibustaServerChecked()
                 }
                 FlibustaChecker.STATE_UNAVAILABLE -> {
                     binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
                     binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.always_white, theme)
+                        ResourcesCompat.getColor(resources, R.color.white, theme)
                     )
                     binding.testFlibustaIsUpText.text =
                         GrammarHandler.getColoredString(
                             getString(R.string.flibusta_server_is_down),
-                            Color.parseColor("#881515")
+                            Color.parseColor("#881515"),
+                            this
                         )
                     showFlibustaIsDownDialog()
                 }
@@ -183,11 +187,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun readyToGo() {
         binding.connectionTestText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.always_white, theme)
+            ResourcesCompat.getColor(resources, R.color.white, theme)
         )
         binding.connectionTestText.text = GrammarHandler.getColoredString(
             getString(R.string.connected_message),
-            Color.parseColor("#0c6126")
+            Color.parseColor("#0c6126"),
+            this
         )
         Handler().postDelayed({
             // проверю очередь скачивания. Если она не пуста- предложу продолжить закачку
@@ -522,9 +527,9 @@ class MainActivity : AppCompatActivity() {
             GrammarHandler.getColoredString(
                 getString(R.string.vpn_use),
                 Color.parseColor("#5403ad")
-            )
+            , this)
         binding.clientProgressText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.always_white, theme)
+            ResourcesCompat.getColor(resources, R.color.white, theme)
         )
         binding.clientRunningProgress.visibility = View.INVISIBLE
         binding.testFlibustaIsUpText.visibility = View.VISIBLE

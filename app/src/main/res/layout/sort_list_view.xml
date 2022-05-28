@@ -7,4 +7,4 @@
     android:ellipsize="end"
     android:maxLines="1"
     android:padding="3dp"
-    android:textColor="@color/white" />
+    android:textColor="@color/text_light_color" />

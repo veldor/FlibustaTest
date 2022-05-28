@@ -441,4 +441,8 @@ Later you can change this parameter in Catalog settings</string>
     <string name="filter_option_translator">Transl.</string>
     <string name="use_filter_button_desc">use filter button</string>
     <string name="filter_by_name_title">Name</string>
+    <string name="switch_layout_btn">Switch layout</string>
+    <string name="select_result_layout_rows_title">Select results layout rows</string>
+    <string name="mark_as_no_downloaded_title">Mark as no downloaded</string>
+    <string name="mark_as_downloaded_title">Book mark as downloaded</string>
 </resources>

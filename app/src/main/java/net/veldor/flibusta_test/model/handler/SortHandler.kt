@@ -148,10 +148,10 @@ class SortHandler {
 
     private fun compareStrings(lhs: String?, rhs: String?, invert: Boolean): Int {
         if (lhs == rhs) return 0
-        if (lhs == null) {
+        if (lhs.isNullOrEmpty()) {
             return 1
         }
-        if (rhs == null) {
+        if (rhs.isNullOrEmpty()) {
             return -1
         }
         if (invert)

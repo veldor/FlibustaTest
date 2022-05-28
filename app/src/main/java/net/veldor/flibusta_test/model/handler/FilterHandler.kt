@@ -319,25 +319,44 @@ object FilterHandler {
     }
 
     fun filterByRule(item: FoundEntity, rule: BlacklistItem): Boolean {
-        when (rule.type) {
-            "author" -> {
-                item.authors.forEach {
-                    if (it.name == rule.name) {
-                        return true
-                    }
+        when(item.type){
+            TYPE_AUTHOR, TYPE_AUTHORS -> {
+                if(rule.type == "author" && item.name == rule.name){
+                    return true
                 }
             }
-            "genre" -> {
-                item.genres.forEach {
-                    if (it.name == rule.name) {
-                        return true
-                    }
+            TYPE_GENRE -> {
+                if(rule.type == "genre" && item.name == rule.name){
+                    return true
                 }
             }
-            "sequence" -> {
-                item.sequences.forEach {
-                    if (it.name == rule.name) {
-                        return true
+            TYPE_SEQUENCE -> {
+                if(rule.type == "sequence" && item.name == rule.name){
+                    return true
+                }
+            }
+            TYPE_BOOK -> {
+                when (rule.type) {
+                    "author" -> {
+                        item.authors.forEach {
+                            if (it.name == rule.name) {
+                                return true
+                            }
+                        }
+                    }
+                    "genre" -> {
+                        item.genres.forEach {
+                            if (it.name == rule.name) {
+                                return true
+                            }
+                        }
+                    }
+                    "sequence" -> {
+                        item.sequences.forEach {
+                            if (it.name == rule.name) {
+                                return true
+                            }
+                        }
                     }
                 }
             }

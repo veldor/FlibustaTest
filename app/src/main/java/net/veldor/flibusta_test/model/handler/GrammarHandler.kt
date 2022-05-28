@@ -1,12 +1,15 @@
 package net.veldor.flibusta_test.model.handler
 
+import android.content.Context
 import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.format.Formatter
 import android.text.style.BackgroundColorSpan
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import net.veldor.flibusta_test.App
+import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import java.util.*
 
@@ -24,14 +27,29 @@ object GrammarHandler {
         return "Автор неизвестен"
     }
 
-    fun getColoredString(mString: String?, colorId: Int): Spannable {
+    fun getColoredString(mString: String?, colorId: Int, context: Context): Spannable {
         val spannable: Spannable = SpannableString(mString)
-        spannable.setSpan(
-            BackgroundColorSpan(colorId),
-            0,
-            spannable.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        if (PreferencesHandler.instance.isEInk) {
+            spannable.setSpan(
+                BackgroundColorSpan(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                ),
+                0,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        } else {
+            spannable.setSpan(
+                BackgroundColorSpan(colorId),
+                0,
+                spannable.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
         return spannable
     }
 
@@ -75,39 +93,39 @@ object GrammarHandler {
     fun getAvailableDownloadFormats(item: FoundEntity, view: TextView) {
         view.text = ""
         if (item.downloadLinks.isEmpty()) {
-            view.text = getColoredString("Не найдены ссылки для загрузки", Color.RED)
+            view.text = getColoredString("Не найдены ссылки для загрузки", Color.RED, view.context)
         }
         item.downloadLinks.forEach {
             if (it.mime != null) {
                 if (it.mime!!.contains("fb2")) {
-                    view.append(getColoredString(" FB2 ", Color.parseColor("#FFE91E63")))
+                    view.append(getColoredString(" FB2 ", Color.parseColor("#FFE91E63"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("mobi")) {
-                    view.append(getColoredString(" MOBI ", Color.parseColor("#FF9C27B0")))
+                    view.append(getColoredString(" MOBI ", Color.parseColor("#FF9C27B0"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("epub")) {
-                    view.append(getColoredString(" EPUB ", Color.parseColor("#FF673AB7")))
+                    view.append(getColoredString(" EPUB ", Color.parseColor("#FF673AB7"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("pdf")) {
-                    view.append(getColoredString(" PDF ", Color.parseColor("#FF3F51B5")))
+                    view.append(getColoredString(" PDF ", Color.parseColor("#FF3F51B5"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("txt")) {
-                    view.append(getColoredString(" TXT ", Color.parseColor("#FF2196F3")))
+                    view.append(getColoredString(" TXT ", Color.parseColor("#FF2196F3"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("html")) {
-                    view.append(getColoredString(" HTML ", Color.parseColor("#FF009688")))
+                    view.append(getColoredString(" HTML ", Color.parseColor("#FF009688"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("doc")) {
-                    view.append(getColoredString(" DOC ", Color.parseColor("#FF4CAF50")))
+                    view.append(getColoredString(" DOC ", Color.parseColor("#FF4CAF50"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("djvu")) {
-                    view.append(getColoredString(" DJVU ", Color.parseColor("#FFFF9800")))
+                    view.append(getColoredString(" DJVU ", Color.parseColor("#FFFF9800"), view.context))
                     view.append(" ")
                 } else if (it.mime!!.contains("rtf")) {
-                    view.append(getColoredString(" RTF ", Color.parseColor("#030303")))
+                    view.append(getColoredString(" RTF ", Color.parseColor("#030303"), view.context))
                     view.append(" ")
                 } else {
-                    view.append(getColoredString(it.mime!!, Color.parseColor("#030303")))
+                    view.append(getColoredString(it.mime!!, Color.parseColor("#030303"), view.context))
                     view.append(" ")
                 }
             }

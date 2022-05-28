@@ -2,6 +2,7 @@ package net.veldor.flibusta_test.ui
 
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
@@ -60,14 +61,17 @@ open class BaseActivity : AppCompatActivity() {
         toolbar?.let { setSupportActionBar(it) }
 
         if (PreferencesHandler.instance.isEInk) {
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (App.instance.resources.configuration.uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {
+                window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
             val myColorStateList = ColorStateList(
                 arrayOf(
                     intArrayOf(android.R.attr.state_checked),
                     intArrayOf(),
                 ), intArrayOf(
-                    ResourcesCompat.getColor(resources, R.color.black, theme),
-                    ResourcesCompat.getColor(resources, R.color.light_gray, theme),
+                    ResourcesCompat.getColor(resources, R.color.invertable_black, theme),
+                    ResourcesCompat.getColor(resources, R.color.dark_gray, theme),
                 )
             )
             val bottomMenu = findViewById<BottomNavigationView?>(R.id.bottom_nav_view)
@@ -160,7 +164,7 @@ open class BaseActivity : AppCompatActivity() {
                 }
             }
 
-            if(PreferencesHandler.instance.isEInk){
+            if (PreferencesHandler.instance.isEInk) {
                 bookAddedSnackbar?.setBackgroundTint(
                     ResourcesCompat.getColor(
                         resources,
@@ -219,7 +223,6 @@ open class BaseActivity : AppCompatActivity() {
     override fun getTheme(): Resources.Theme {
         if (PreferencesHandler.instance.isEInk) {
             val theme = super.getTheme()
-            Log.d("surprise", "getTheme: apply eink theme")
             theme.applyStyle(R.style.EInkAppTheme, true)
             return theme
         }

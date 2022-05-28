@@ -2,7 +2,6 @@ package net.veldor.flibusta_test.ui
 
 import android.os.Bundle
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -42,12 +41,6 @@ class FilterActivity : BaseActivity() {
         binding.includedBnv.bottomNavView.menu.clear()
         binding.includedBnv.bottomNavView.inflateMenu(R.menu.filter_bottom_nav_menu)
         binding.includedBnv.bottomNavView.setOnItemReselectedListener {}
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val inflater = binding.includedBnv.navHostFragment.findNavController().navInflater
-        val graph = inflater.inflate(R.navigation.filter_navigation)
-        binding.includedBnv.navHostFragment.findNavController().graph = graph
+        navController.graph = navController.navInflater.inflate(R.navigation.filter_navigation)
     }
 }

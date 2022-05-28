@@ -248,8 +248,8 @@
     <string name="genres_strict_filter_pref">Фильтрация жанров</string>
     <string name="sequences_strict_filter_pref">Фильтрация серий</string>
     <string name="show_filter_statistics_pref">Отображение статистики фильтрации</string>
-    <string name="filter_statistics_hidden_title">Статистика отображается</string>
-    <string name="filter_statistics_display_title">Статистика не отображается</string>
+    <string name="filter_statistics_hidden_title">Статистика не отображается</string>
+    <string name="filter_statistics_display_title">Статистика отображается</string>
     <string name="long_click_to_add_filter_enabled_title">Долгое нажатие на авторе, жанре или серии добавит её в чёрный список. Если значений несколько- будут добавлены все</string>
     <string name="long_click_to_add_filter_disabled_title">Выкл.</string>
     <string name="book_name_title">Название</string>
@@ -373,8 +373,8 @@
     <string name="mark_as_read_title">Прочитано</string>
     <string name="mark_as_unread_title">Непрочитано</string>
     <string name="opds_start_hint">Чтобы начать поиск- нажмите на значок вверху экрана</string>
-    <string name="no_translate_title">Оригинал</string>
-    <string name="no_sequence_title">Вне серий</string>
+    <string name="no_translate_title" />
+    <string name="no_sequence_title" />
     <string name="author_unknown_title">Автор неизвестен</string>
     <string name="file_type_title">Тип файла</string>
     <string name="items_inside_pattern">%d элементов</string>

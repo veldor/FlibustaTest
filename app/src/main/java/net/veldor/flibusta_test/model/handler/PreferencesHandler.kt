@@ -31,6 +31,12 @@ class PreferencesHandler private constructor() {
             preferences.edit().putInt(PREF_BROWSER_VIEW_MODE, state).apply()
         }
 
+    var opdsLayoutRowsCount: Int
+        get() = preferences.getInt(PREF_OPDS_ROWS, 0)
+        set(state) {
+            preferences.edit().putInt(PREF_OPDS_ROWS, state).apply()
+        }
+
     var showFilterStatistics: Boolean
         get() = preferences.getBoolean(PREF_SHOW_FILTER_STATISTICS, false)
         set(state) {
@@ -380,7 +386,7 @@ class PreferencesHandler private constructor() {
         private const val AUTH_COOKIE_VALUE_PREF = "auth cookie value"
 
         private const val HIDE_DIGESTS_PREF = "hide digests"
-        private const val HIDE_DOWNLOADED_PREF = "hide downloaded"
+        private const val HIDE_DOWNLOADED_PREF = "hide download"
         private const val PREF_OPDS_USE_FILTER = "use filter"
         private const val PREF_ONLY_RUSSIAN = "only russian"
         private const val PREF_HIDE_READ = "hide read"
@@ -407,6 +413,7 @@ class PreferencesHandler private constructor() {
         private const val PREF_SHOW_FILTER_STATISTICS = "show filter statistics"
         private const val PREF_OPDS_HISTORY = "enable opds history"
         private const val PREF_SHOW_COVERS_BY_REQUEST = "show covers by request"
+        private const val PREF_OPDS_ROWS = "opds rows"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

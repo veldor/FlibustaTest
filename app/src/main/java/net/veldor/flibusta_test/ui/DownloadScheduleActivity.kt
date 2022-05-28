@@ -50,6 +50,7 @@ class DownloadScheduleActivity : BaseActivity() {
         binding.includedBnv.bottomNavView.menu.clear()
         binding.includedBnv.bottomNavView.inflateMenu(R.menu.download_schedule_bottom_nav_menu)
         binding.includedBnv.bottomNavView.setOnItemReselectedListener {}
+        navController.graph = navController.navInflater.inflate(R.navigation.download_schedule_navigation)
     }
 
     override fun setupUI() {
@@ -92,9 +93,6 @@ class DownloadScheduleActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        val inflater = binding.includedBnv.navHostFragment.findNavController().navInflater
-        val graph = inflater.inflate(R.navigation.download_schedule_navigation)
-        binding.includedBnv.navHostFragment.findNavController().graph = graph
         // check target fragment
         if (intent.getStringExtra(EXTRA_TARGET_FRAGMENT) != null) {
             when (intent.getStringExtra(EXTRA_TARGET_FRAGMENT)) {

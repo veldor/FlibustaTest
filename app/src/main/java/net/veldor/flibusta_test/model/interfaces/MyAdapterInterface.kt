@@ -4,6 +4,7 @@ import android.widget.Filterable
 import androidx.lifecycle.LiveData
 import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selections.opds.SearchResult
 
 interface MyAdapterInterface: Filterable {
     val liveSize: LiveData<Int>
@@ -27,8 +28,11 @@ interface MyAdapterInterface: Filterable {
     fun markBookRead(item: FoundEntity)
     fun markBookUnread(item: FoundEntity)
     fun markAsDownloaded(item: DownloadedBooks?)
+    fun markAsDownloaded(item: FoundEntity)
+    fun markAsNoDownloaded(item: FoundEntity)
     fun itemFiltered(item: FoundEntity)
     fun setFilterEnabled(state: Boolean)
     fun setFilterSelection(selected: Int)
     fun filterEnabled(): Boolean
+    fun reapplyFilters(results: SearchResult)
 }

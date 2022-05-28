@@ -18,8 +18,7 @@
         android:id="@+id/rootView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:background="@color/colorPrimary">
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:id="@+id/previewImage"
@@ -40,6 +39,7 @@
             android:paddingLeft="30dp"
             android:paddingTop="10dp"
             android:paddingEnd="10dp"
+            android:maxLines="5"
             android:paddingRight="10dp"
             android:text="@{item.name}"
             android:textAlignment="center"
@@ -73,6 +73,7 @@
             android:gravity="center"
             android:minHeight="48dp"
             android:paddingTop="10dp"
+            android:maxLines="5"
             android:paddingBottom="5dp"
             android:textAlignment="center"
             android:textColor="@drawable/author_text_color"
@@ -91,6 +92,7 @@
             android:gravity="center"
             android:paddingTop="10dp"
             android:paddingBottom="5dp"
+            android:maxLines="5"
             android:textAlignment="center"
             android:textColor="@color/author_text_color"
             android:textSize="12sp"
@@ -115,6 +117,7 @@
             android:gravity="center"
             android:minHeight="48dp"
             android:paddingTop="10dp"
+            android:maxLines="5"
             android:paddingBottom="5dp"
             android:textAlignment="center"
             android:textColor="@color/sequences_text_color"
@@ -132,6 +135,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="10dp"
+            android:maxLines="5"
             android:paddingBottom="5dp"
             android:textAlignment="center"
             android:textColor="@color/genre_text_color"

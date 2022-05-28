@@ -56,8 +56,8 @@
         <SwitchPreferenceCompat
             app:key="show covers"
             android:defaultValue="true"
-            android:summary="@string/book_covers_hidden_title"
-            android:summaryOff="@string/book_covers_displayed_title"
+            android:summary="@string/book_covers_displayed_title"
+            android:summaryOff="@string/book_covers_hidden_title"
             android:title="@string/show_book_covers_title" />
         <SwitchPreferenceCompat
             app:key="show covers by request"

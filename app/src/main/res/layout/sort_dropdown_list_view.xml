@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:padding="5dp"
-        android:textColor="@color/textColor"
+        android:textColor="@color/text_light_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/checkedView"

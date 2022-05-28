@@ -14,4 +14,6 @@ interface FoundItemActionDelegate {
     fun authorClicked(item: FoundEntity)
     fun sequenceClicked(item: FoundEntity)
     fun nameClicked(item: FoundEntity)
+    fun rightButtonPressed(item: FoundEntity)
+    fun leftButtonPressed(item: FoundEntity)
 }

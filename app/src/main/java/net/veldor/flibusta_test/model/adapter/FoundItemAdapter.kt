@@ -3,6 +3,7 @@ package net.veldor.flibusta_test.model.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.PorterDuff
 import android.os.Build
 import android.os.CountDownTimer
 import android.util.Log
@@ -25,10 +26,7 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FoundItemBinding
 import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
-import net.veldor.flibusta_test.model.handler.CoverHandler
-import net.veldor.flibusta_test.model.handler.GrammarHandler
-import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.handler.SortHandler
+import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.interfaces.MyAdapterInterface
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
@@ -36,6 +34,7 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import kotlin.coroutines.CoroutineContext
 
 class FoundItemAdapter(
@@ -150,10 +149,8 @@ class FoundItemAdapter(
         resultValues.addAll(results)
         _size.postValue(resultValues.size)
         if (oldLength > 0) {
-            Log.d("surprise", "appendContent: add to old results")
             notifyItemRangeInserted(itemCount, results.size)
         } else {
-            Log.d("surprise", "appendContent: append new results")
             notifyDataSetChanged()
         }
     }
@@ -167,6 +164,79 @@ class FoundItemAdapter(
             binding.menuButton.setOnClickListener {
                 menuClicked = binding.item
                 delegate.menuItemPressed(item, binding.menuButton)
+            }
+
+            if (PreferencesHandler.instance.isEInk) {
+                binding.name.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.firstInfoBlockLeftParam.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.firstInfoBlockRightParam.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.secondInfoBlockLeftParam.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.secondInfoBlockRightParam.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.thirdBlockCenterElement.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.thirdBlocRightElement.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.thirdBlockLeftElement.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.centerActionBtn.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.rootView.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.white,
+                        context.theme
+                    )
+                )
             }
         }
 
@@ -196,17 +266,19 @@ class FoundItemAdapter(
                 itemInAction = binding.item
                 delegate.buttonPressed(item)
                 item.buttonPressed = true
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.dark_gray,
-                        context.theme
+                if (!PreferencesHandler.instance.isEInk)
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.dark_gray,
+                            context.theme
+                        )
                     )
-                )
             }
 
             // handle selected item
             if (item.selected) {
+                Log.d("surprise", "FoundItemAdapter.kt 284: mark selected")
                 binding.rootView.setBackgroundColor(
                     ResourcesCompat.getColor(
                         context.resources,
@@ -214,7 +286,7 @@ class FoundItemAdapter(
                         context.theme
                     )
                 )
-            } else if(!PreferencesHandler.instance.isEInk) {
+            } else if (!PreferencesHandler.instance.isEInk) {
                 binding.root.background =
                     ResourcesCompat.getDrawable(
                         context.resources,
@@ -224,45 +296,49 @@ class FoundItemAdapter(
             }
             // handle button pressed
             if (item.buttonPressed) {
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.book_name_color,
-                        context.theme
+                if (!PreferencesHandler.instance.isEInk)
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.book_name_color,
+                            context.theme
+                        )
                     )
-                )
             } else {
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.dark_gray,
-                        context.theme
+                if (!PreferencesHandler.instance.isEInk)
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.dark_gray,
+                            context.theme
+                        )
                     )
-                )
             }
             // setup main button
             binding.centerActionBtn.setOnClickListener {
                 itemInAction = binding.item
                 delegate.buttonPressed(item)
                 item.buttonPressed = true
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.dark_gray,
-                        context.theme
+                if (!PreferencesHandler.instance.isEInk)
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.dark_gray,
+                            context.theme
+                        )
                     )
-                )
             }
         }
 
         private fun drawBook() {
-            binding.root.setBackgroundColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.background_color,
-                    context.theme
+            if (!PreferencesHandler.instance.isEInk)
+                binding.root.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.background_color,
+                        context.theme
+                    )
                 )
-            )
             if (item.downloadLinks.isEmpty()) {
                 binding.centerActionBtn.visibility = View.INVISIBLE
             } else {
@@ -281,13 +357,15 @@ class FoundItemAdapter(
             }
             binding.rootView.setOnClickListener {}
             binding.name.visibility = View.VISIBLE
-            binding.name.setTextColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.book_name_color,
-                    context.theme
+            if (!PreferencesHandler.instance.isEInk) {
+                binding.name.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.book_name_color,
+                        context.theme
+                    )
                 )
-            )
+            }
             binding.name.isClickable = true
             makeSelectable(binding.name)
             binding.name.setOnClickListener {
@@ -482,17 +560,57 @@ class FoundItemAdapter(
             binding.thirdBlockCenterElement.visibility = View.VISIBLE
             binding.thirdBlocRightElement.text = item.size
             binding.thirdBlocRightElement.visibility = View.VISIBLE
-            binding.centerActionBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.book_name_color,
-                    null
+            if (!PreferencesHandler.instance.isEInk)
+                binding.centerActionBtn.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.book_name_color,
+                        context.theme
+                    )
                 )
-            )
-            binding.leftActionBtn.visibility =
-                if (item.read) View.VISIBLE else View.INVISIBLE
-            binding.rightActionBtn.visibility =
-                if (item.downloaded) View.VISIBLE else View.INVISIBLE
+            binding.leftActionBtn.visibility = View.VISIBLE
+            binding.rightActionBtn.visibility = View.VISIBLE
+            if (!item.read) {
+                binding.leftActionBtn.background.setColorFilter(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.dark_gray,
+                        context.theme
+                    ), PorterDuff.Mode.SRC_ATOP
+                )
+            } else {
+                binding.leftActionBtn.background.setColorFilter(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.genre_text_color,
+                        context.theme
+                    ), PorterDuff.Mode.SRC_ATOP
+                )
+            }
+            if (!item.downloaded) {
+                binding.rightActionBtn.background.setColorFilter(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.dark_gray,
+                        context.theme
+                    ), PorterDuff.Mode.SRC_ATOP
+                )
+            } else {
+                binding.rightActionBtn.background.setColorFilter(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.genre_text_color,
+                        context.theme
+                    ), PorterDuff.Mode.SRC_ATOP
+                )
+            }
+
+            binding.rightActionBtn.setOnClickListener {
+                delegate.rightButtonPressed(item)
+            }
+            binding.leftActionBtn.setOnClickListener {
+                delegate.leftButtonPressed(item)
+            }
 
             if (PreferencesHandler.instance.addFilterByLongClick) {
                 makeSelectable(binding.firstInfoBlockLeftParam)
@@ -535,47 +653,48 @@ class FoundItemAdapter(
             binding.name.visibility = View.VISIBLE
             binding.name.isClickable = false
             binding.name.isFocusable = false
-            if(PreferencesHandler.instance.addFilterByLongClick){
+            if (PreferencesHandler.instance.addFilterByLongClick) {
                 makeSelectable(binding.name)
                 binding.name.setOnLongClickListener {
                     delegate.buttonLongPressed(item, "name")
                     return@setOnLongClickListener true
                 }
                 binding.name.setOnClickListener { delegate.itemPressed(item) }
-            }
-            else{
+            } else {
                 makeNoSelectable(binding.name)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 binding.rootView.foreground = null
             }
-            when (item.type) {
-                TYPE_GENRE -> {
-                    binding.name.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.genre_text_color,
-                            context.theme
+            if (!PreferencesHandler.instance.isEInk) {
+                when (item.type) {
+                    TYPE_GENRE -> {
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.genre_text_color,
+                                context.theme
+                            )
                         )
-                    )
-                }
-                TYPE_SEQUENCE -> {
-                    binding.name.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.sequences_text_color,
-                            context.theme
+                    }
+                    TYPE_SEQUENCE -> {
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.sequences_text_color,
+                                context.theme
+                            )
                         )
-                    )
-                }
-                TYPE_AUTHOR, TYPE_AUTHORS -> {
-                    binding.name.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.author_text_color,
-                            context.theme
+                    }
+                    TYPE_AUTHOR, TYPE_AUTHORS -> {
+                        binding.name.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.author_text_color,
+                                context.theme
+                            )
                         )
-                    )
+                    }
                 }
             }
 
@@ -681,12 +800,31 @@ class FoundItemAdapter(
             }
         }
         if (position >= 0 && resultValues.size > position) {
-            if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideRead && item.read) {
+            if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideRead) {
                 resultValues.removeAt(position)
                 _size.postValue(resultValues.size)
                 notifyItemRemoved(position)
             } else {
                 resultValues[position].read = true
+                notifyItemChanged(position)
+            }
+        }
+    }
+
+    override fun markAsDownloaded(item: FoundEntity) {
+        var position: Int = -1
+        resultValues.forEach {
+            if (it.id == item.id) {
+                position = resultValues.lastIndexOf(it)
+            }
+        }
+        if (position >= 0 && resultValues.size > position) {
+            if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideDownloaded) {
+                resultValues.removeAt(position)
+                _size.postValue(resultValues.size)
+                notifyItemRemoved(position)
+            } else {
+                resultValues[position].downloaded = true
                 notifyItemChanged(position)
             }
         }
@@ -720,6 +858,19 @@ class FoundItemAdapter(
         }
         if (position >= 0 && resultValues.size > position) {
             resultValues[position].read = false
+            notifyItemChanged(position)
+        }
+    }
+
+    override fun markAsNoDownloaded(item: FoundEntity) {
+        var position: Int = -1
+        resultValues.forEach {
+            if (it.id == item.id) {
+                position = resultValues.lastIndexOf(it)
+            }
+        }
+        if (position >= 0 && resultValues.size > position) {
+            resultValues[position].downloaded = false
             notifyItemChanged(position)
         }
     }
@@ -841,6 +992,21 @@ class FoundItemAdapter(
 
     override fun filterEnabled(): Boolean {
         return useFilter
+    }
+
+    override fun reapplyFilters(r: SearchResult) {
+        val iterator = r.results.iterator()
+        var node: FoundEntity
+        while (iterator.hasNext()) {
+            node = iterator.next()
+            val checkResult = FilterHandler.check(node)
+            if (!checkResult.result) {
+                Log.d("surprise", "FoundItemAdapter.kt 1003: item filtered!!")
+                iterator.remove()
+                node.filterResult = checkResult
+                r.filteredList.add(node)
+            }
+        }
     }
 
     override fun getFilter(): Filter {

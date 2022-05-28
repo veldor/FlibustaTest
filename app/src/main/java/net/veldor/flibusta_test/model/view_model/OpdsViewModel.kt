@@ -12,6 +12,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.db.DatabaseInstance
+import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.db.entity.ReadedBooks
 import net.veldor.flibusta_test.model.delegate.BookInfoAddedDelegate
 import net.veldor.flibusta_test.model.delegate.FormatAvailabilityCheckDelegate
@@ -225,10 +226,28 @@ open class OpdsViewModel : ViewModel() {
         }
     }
 
+    fun markDownloaded(item: FoundEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (item.id != null && DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+                    .getBookById(item.id) == null
+            ) {
+                val newItem = DownloadedBooks()
+                newItem.bookId = item.id!!
+                DatabaseInstance.instance.mDatabase.downloadedBooksDao().insert(newItem)
+            }
+        }
+    }
+
     fun markUnread(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             DatabaseInstance.instance.mDatabase.readBooksDao()
                 .delete(DatabaseInstance.instance.mDatabase.readBooksDao().getBookById(item.id))
+        }
+    }
+    fun markNoDownloaded(item: FoundEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+                .delete(DatabaseInstance.instance.mDatabase.downloadedBooksDao().getBookById(item.id))
         }
     }
 

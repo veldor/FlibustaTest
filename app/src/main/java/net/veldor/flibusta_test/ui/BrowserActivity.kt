@@ -7,7 +7,6 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -70,6 +69,7 @@ class BrowserActivity : BaseActivity() {
                 }
             }
         }
+        navController.graph = navController.navInflater.inflate(R.navigation.browser_navigation)
     }
 
     companion object {
@@ -124,8 +124,5 @@ class BrowserActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        val inflater = binding.includedBnv.navHostFragment.findNavController().navInflater
-        val graph = inflater.inflate(R.navigation.browser_navigation)
-        binding.includedBnv.navHostFragment.findNavController().graph = graph
     }
 }

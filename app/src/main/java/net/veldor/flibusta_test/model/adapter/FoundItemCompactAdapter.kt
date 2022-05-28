@@ -27,13 +27,13 @@ import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.SelectedSortTypeHandler
 import net.veldor.flibusta_test.model.handler.SortHandler
 import net.veldor.flibusta_test.model.interfaces.MyAdapterInterface
-import net.veldor.flibusta_test.model.parser.OpdsParser
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import kotlin.coroutines.CoroutineContext
 
 class FoundItemCompactAdapter(
@@ -333,6 +333,14 @@ class FoundItemCompactAdapter(
     override fun markBookRead(item: FoundEntity) {}
     override fun markBookUnread(item: FoundEntity) {}
     override fun markAsDownloaded(item: DownloadedBooks?) {}
+    override fun markAsDownloaded(item: FoundEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun markAsNoDownloaded(item: FoundEntity) {
+        TODO("Not yet implemented")
+    }
+
     override fun itemFiltered(item: FoundEntity) {
         if (resultValues.contains(item)) {
             val num = resultValues.indexOf(item)
@@ -459,5 +467,9 @@ class FoundItemCompactAdapter(
 
     override fun filterEnabled(): Boolean {
         return useFilter
+    }
+
+    override fun reapplyFilters(results: SearchResult) {
+
     }
 }
