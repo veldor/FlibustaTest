@@ -29,4 +29,8 @@ interface BooksDownloadScheduleDao {
 
     @Delete
     fun delete(book: BooksDownloadSchedule?)
+
+
+    @Query("DELETE FROM BooksDownloadSchedule")
+    fun deleteTable(): Int
 }

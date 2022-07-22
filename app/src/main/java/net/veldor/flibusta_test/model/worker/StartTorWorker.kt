@@ -28,12 +28,17 @@ class StartTorWorker(context: Context, workerParams: WorkerParameters) :
             kotlin.run {
                 myTimer = object : CountDownTimer(60000, 100) {
                     override fun onTick(millisUntilFinished: Long) {
-                        if (TorHandler.instance.lastLog != null && lastLog != TorHandler.instance.lastLog) {
-                            if (TorHandler.instance.lastLog!!.contains("Proxy Client: unable to connect OR connection (handshaking (proxy)) with")) {
-                                NotificationHandler.instance.showBridgesError()
+                        if(!this@StartTorWorker.isStopped){
+                            if (TorHandler.instance.lastLog != null && lastLog != TorHandler.instance.lastLog) {
+                                if (TorHandler.instance.lastLog!!.contains("Proxy Client: unable to connect OR connection (handshaking (proxy)) with")) {
+                                    NotificationHandler.instance.showBridgesError()
+                                }
+                                NotificationHandler.instance.updateTorStarter(TorHandler.instance.lastLog!!)
+                                lastLog = TorHandler.instance.lastLog
                             }
-                            NotificationHandler.instance.updateTorStarter(TorHandler.instance.lastLog!!)
-                            lastLog = TorHandler.instance.lastLog
+                        }
+                        else{
+                            NotificationHandler.instance.cancelTorLoadNotification()
                         }
                     }
 
@@ -56,6 +61,9 @@ class StartTorWorker(context: Context, workerParams: WorkerParameters) :
         myTimer?.onFinish()
         myTimer?.cancel()
         NotificationHandler.instance.cancelTorLoadNotification()
+        if(isStopped){
+            return Result.failure()
+        }
         return Result.success()
     }
 

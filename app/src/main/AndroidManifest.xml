@@ -28,13 +28,20 @@
         tools:replace="android:allowBackup"
         tools:targetApi="q">
         <activity
-            android:label="@string/navigation_go_bookmarks"
-            android:name=".ui.BookmarksActivity"
+            android:name=".ui.SetTorBridgesActivity"
             android:exported="false" />
         <activity
-            android:label="@string/navigation_go_file_list"
+            android:name=".ui.BookmarksActivity"
+            android:exported="false"
+            android:label="@string/navigation_go_bookmarks" />
+        <activity
             android:name=".ui.DownloadDirContentActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/navigation_go_file_list" />
+        <activity
+            android:name=".ui.SubscribesActivity"
+            android:exported="false"
+            android:label="@string/navigation_go_subscriptions" />
 
         <receiver
             android:name=".model.receiver.DownloadBookProcessReceiver"
@@ -45,9 +52,9 @@
             android:name=".ui.DownloadedBooksActionsActivity"
             android:exported="true" />
         <activity
-            android:label="@string/navigation_go_downloads_list"
             android:name=".ui.DownloadScheduleActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/navigation_go_downloads_list" />
         <activity
             android:name=".ui.DownloadBookSetupActivity"
             android:exported="false" />
@@ -55,9 +62,9 @@
             android:name=".ui.FilterActivity"
             android:exported="false" />
         <activity
-            android:label="@string/navigation_go_settings"
             android:name=".ui.PreferencesActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/navigation_go_settings" />
         <activity
             android:name=".ui.BaseActivity"
             android:exported="false" />

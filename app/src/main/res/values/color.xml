@@ -48,6 +48,8 @@
     <color name="chm_color">#FF5722</color>
     <color name="htm_color">#FFEB3B</color>
     <color name="prc_color">#38C1BA</color>
+    <color name="eink_progress">#FFFFFF</color>
+    <color name="eink_progress_back">#000000</color>
 
     <color name="lightTextColor">#FFFFFF</color>
     <color name="fabColor">#3e5f75</color>

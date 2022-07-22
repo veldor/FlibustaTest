@@ -51,10 +51,10 @@ class OpdsParser(private val text: String) {
                 // Метод вызывается когда SAXParser "натыкается" на начало тэга
                 @Throws(SAXException::class)
                 override fun startElement(
-                        uri: String?,
-                        localName: String?,
-                        qName: String,
-                        attributes: Attributes?
+                    uri: String?,
+                    localName: String?,
+                    qName: String,
+                    attributes: Attributes?
                 ) {
                     if (qName.equals("entry", ignoreCase = true)) {
                         foundedEntity = FoundEntity()
@@ -108,8 +108,9 @@ class OpdsParser(private val text: String) {
                                     attributeIndex = attributes.getIndex("href")
                                     downloadLink = DownloadLink()
                                     downloadLink.url = attributes.getValue(attributeIndex)
-                                    if(foundedEntity != null && foundedEntity?.id == null){
-                                        foundedEntity?.id = downloadLink.url!!.replace("fb2", "").filter { it.isDigit() }
+                                    if (foundedEntity != null && foundedEntity?.id == null) {
+                                        foundedEntity?.id = downloadLink.url!!.replace("fb2", "")
+                                            .filter { it.isDigit() }
                                     }
                                     attributeIndex = attributes.getIndex("type")
                                     downloadLink.mime = attributes.getValue(attributeIndex)
@@ -120,8 +121,8 @@ class OpdsParser(private val text: String) {
                                 } else if (attributeValue == "http://opds-spec.org/image") {
                                     // найдена обложка
                                     foundedEntity!!.coverUrl =
-                                            attributes.getValue(attributes.getIndex("href"))
-                                }  else if (attributeValue == "alternate") {
+                                        attributes.getValue(attributes.getIndex("href"))
+                                } else if (attributeValue == "alternate") {
                                     // найдена обложка
                                     foundedEntity!!.link =
                                         attributes.getValue(attributes.getIndex("href"))
@@ -150,7 +151,7 @@ class OpdsParser(private val text: String) {
                     } else if (qName == "dc:issued" && foundedEntity != null) {
                         issued = true
                         foundedEntity!!.publicationYear = ""
-                    }else if (qName == "updated" && foundedEntity != null) {
+                    } else if (qName == "updated" && foundedEntity != null) {
                         updated = true
                         foundedEntity!!.publicationYear = ""
                     }
@@ -160,14 +161,18 @@ class OpdsParser(private val text: String) {
                     if (qName.equals("entry", ignoreCase = true)) {
                         foundedEntity!!.author = authorStringBuilder.removeSuffix("\n").toString()
                         foundedEntity!!.genreComplex =
-                                genreStringBuilder.removeSuffix("\n").toString()
+                            genreStringBuilder.removeSuffix("\n").toString()
                         genreStringBuilder.clear()
                         authorStringBuilder.clear()
 
                         foundedEntity!!.read =
-                                db.readBooksDao().getBookById(foundedEntity!!.id) != null
+                            db.readBooksDao()
+                                .getBookById(foundedEntity!!.id) != null || db.readBooksDao()
+                                .getBookById(foundedEntity!!.systemId) != null
                         foundedEntity!!.downloaded =
-                                db.downloadedBooksDao().getBookById(foundedEntity!!.id) != null
+                            db.downloadedBooksDao()
+                                .getBookById(foundedEntity!!.id) != null || db.downloadedBooksDao()
+                                .getBookById(foundedEntity!!.systemId) != null
 
                         var authorDirName: String = when (foundedEntity!!.authors.size) {
                             0 -> {
@@ -179,7 +184,7 @@ class OpdsParser(private val text: String) {
                             }
                             2 -> {
                                 GrammarHandler.createAuthorDirName(foundedEntity!!.authors[0]) + " " + GrammarHandler.createAuthorDirName(
-                                        foundedEntity!!.authors[1]
+                                    foundedEntity!!.authors[1]
                                 )
                             }
                             else -> {
@@ -202,12 +207,12 @@ class OpdsParser(private val text: String) {
                                     simpleStringBuilder.append(prefix)
                                     prefix = "$|$"
                                     simpleStringBuilder.append(
-                                            Regex("[^\\d\\w ]").replace(
-                                                    it.name!!.replace(
-                                                            "Все книги серии",
-                                                            ""
-                                                    ), ""
-                                            )
+                                        Regex("[^\\d\\w ]").replace(
+                                            it.name!!.replace(
+                                                "Все книги серии",
+                                                ""
+                                            ), ""
+                                        )
                                     )
                                 }
                                 link.sequenceDirName = simpleStringBuilder.toString().trim()
@@ -225,7 +230,7 @@ class OpdsParser(private val text: String) {
                             }
                         } else {
                             foundedEntity!!.filterResult = filterResult
-                            if(PreferencesHandler.instance.showFilterStatistics){
+                            if (PreferencesHandler.instance.showFilterStatistics) {
                                 filteredList.add(foundedEntity!!)
                                 filtered++
                             }
@@ -238,10 +243,9 @@ class OpdsParser(private val text: String) {
                         authorFound = false
                     } else if (qName.equals("title")) {
                         nameFound = false
-                    }else if (qName.equals("dc:issued")) {
+                    } else if (qName.equals("dc:issued")) {
                         issued = false
-                    }
-                    else if (qName.equals("dc:updated")) {
+                    } else if (qName.equals("dc:updated")) {
                         updated = false
                     }
                 }
@@ -253,6 +257,7 @@ class OpdsParser(private val text: String) {
                     if (idFound) {
                         idFound = false
                         textValue = String(ch!!, start, length)
+                        foundedEntity?.systemId = textValue
                         when {
                             textValue!!.contains(TYPE_BOOK) -> {
                                 contentType = TYPE_BOOK

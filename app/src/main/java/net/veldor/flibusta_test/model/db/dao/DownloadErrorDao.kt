@@ -30,4 +30,8 @@ interface DownloadErrorDao {
 
     @Delete
     fun delete(book: DownloadError?)
+
+
+    @Query("DELETE FROM DownloadError")
+    fun deleteTable(): Int
 }

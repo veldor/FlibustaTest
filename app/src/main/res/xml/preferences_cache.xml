@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:summaryOff="@string/cache_clear_off_title"
+        android:summaryOn="@string/cache_auto_clear_on_title"
+        app:key="auto clear cache"
+        app:title="@string/auto_clear_cache_title" />
+    <SeekBarPreference
+        android:dependency="auto clear cache"
+        app:key="max cache size"
+        android:title="@string/max_cache_size_title"
+        android:summary="1 mb"
+        app:min="1"
+        android:max="1001"/>
+    <Preference
+        android:key="clear cache now"
+        android:title="@string/clear_cache_now_title"/>
+
+</PreferenceScreen>

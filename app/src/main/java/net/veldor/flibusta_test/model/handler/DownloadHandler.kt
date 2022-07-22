@@ -147,6 +147,12 @@ class DownloadHandler private constructor() {
                         stream?.close()
                         // если файл загружен и всё ок- покажу уведомление о скачанной книге
                         if (destinationFile.isFile && destinationFile.length() > 100) {
+                            if (PreferencesHandler.instance.sendToKindle && destinationFile.name?.endsWith(
+                                    ".mobi"
+                                ) == true
+                            ) {
+                                SendToKindleHandler().send(destinationFile)
+                            }
                             if (DatabaseInstance.instance.mDatabase.downloadedBooksDao()
                                     .getBookById(book.bookId) == null
                             ) {

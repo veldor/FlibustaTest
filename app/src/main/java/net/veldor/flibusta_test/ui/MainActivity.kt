@@ -1,19 +1,21 @@
 package net.veldor.flibusta_test.ui
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -22,281 +24,96 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ViewModelProvider
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.snackbar.Snackbar
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityMainBinding
-import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.NetworkHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.utils.FlibustaChecker
+import net.veldor.flibusta_test.model.handler.TorHandler
 import net.veldor.flibusta_test.model.view_model.StartViewModel
-import net.veldor.flibusta_test.model.web.UniversalWebClient
-import net.veldor.flibusta_test.model.worker.StartTorWorker
 import net.veldor.flibusta_test.ui.different_fragments.TorLogFragment
 
 class MainActivity : AppCompatActivity() {
+    private var mCdt: CountDownTimer? = null
+    private var mProgressCounter: Int = 0
     private var mConfirmExit: Long = -1
     private var bottomSheetBehavior: BottomSheetBehavior<View>? = null
     private var backdropFragment: TorLogFragment? = null
     private var link: Uri? = null
     private lateinit var binding: ActivityMainBinding
-    private lateinit var errorSnackbar: Snackbar
     private lateinit var viewModel: StartViewModel
+
+    private var firstUseLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                viewModel.launchConnection()
+                resetTimer()
+            } else if (result.resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(this, getString(R.string.must_finish_setup_message), Toast.LENGTH_SHORT).show()
+                viewModel.launchConnection()
+                resetTimer()
+            }
+        }
+
+    private var connectionSettingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                viewModel.launchConnection()
+                resetTimer()
+            } else if (result.resultCode == Activity.RESULT_CANCELED) {
+                launchFirstRunSettings()
+            }
+        }
+
+    private fun launchFirstRunSettings() {
+        firstUseLauncher.launch(Intent(this, FirstUseGuideActivity::class.java))
+    }
+
+    private var setBridgesLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                viewModel.launchConnection()
+                resetTimer()
+            } else if (result.resultCode == Activity.RESULT_CANCELED) {
+                viewModel.launchConnection()
+                resetTimer()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         // проверю наличие ссылки для открытия страницы результатов
         if (intent.data != null) {
             link = intent.data
         }
+        viewModel = ViewModelProvider(this).get(StartViewModel::class.java)
+        //viewModel.startTor(this)
         // если приложение используется первый раз- запущу стартовый гайд
         if (PreferencesHandler.instance.firstUse) {
             val targetActivityIntent = Intent(this, FirstUseGuideActivity::class.java)
-            targetActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(targetActivityIntent)
-            finish()
+            firstUseLauncher.launch(targetActivityIntent)
         } else {
-            //init view model
-            viewModel = ViewModelProvider(this).get(StartViewModel::class.java)
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            configureBackdrop()
-            // check connection options
-            checkConnectionOptions()
-            setupUi()
-            setupObservers()
-            setContentView(binding.rootView)
+            viewModel.launchConnection()
         }
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.rootView)
+
+        setupInterface()
+        setupObservers()
     }
 
-    private fun setupObservers() {
-        UniversalWebClient.connectionError.observe(this) {
-            if (it != null) {
-                notifyConnectionError()
-            }
-        }
-        // observe loading staging
-        viewModel.liveStage.observe(this) {
-            when (it) {
-                StartViewModel.STAGE_AWAITING -> {}
-                StartViewModel.STAGE_FIRST -> {
-                    binding.clientRunningProgress.visibility = View.VISIBLE
-                }
-                StartViewModel.STAGE_SECOND -> {
-                    binding.clientRunningProgress.visibility = View.INVISIBLE
-                    binding.testFlibustaIsUpProgress.visibility = View.VISIBLE
-                }
-                StartViewModel.STAGE_THIRD -> {
-                    binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
-                    binding.connectionTestProgress.visibility = View.VISIBLE
-                }
-                StartViewModel.STAGE_READY -> {
-                    binding.connectionTestProgress.visibility = View.INVISIBLE
-                    readyToGo()
-                }
-            }
+    private fun setupInterface() {
+
+        //force start
+        binding.testStartApp.setOnClickListener {
+            readyToGo()
         }
 
-        // буду отслеживать завершение работы запуска TOR
-        val info =
-            WorkManager.getInstance(this).getWorkInfosForUniqueWorkLiveData(StartTorWorker.TAG)
-        info.observe(this) { list ->
-            list.forEach {
-                if (it.state == WorkInfo.State.SUCCEEDED) {
-                    viewModel.checkTor()
-                }
-            }
-        }
-
-        viewModel.liveTorWorks.observe(this) {
-            if (it) {
-                binding.clientProgressText.setTextColor(
-                    ResourcesCompat.getColor(resources, R.color.white, theme)
-                )
-                // tor client loaded
-                binding.clientProgressText.text = GrammarHandler.getColoredString(
-                    getString(R.string.tor_loaded),
-                    Color.parseColor("#0c6126"),
-                    this
-                )
-                binding.clientRunningProgress.visibility = View.INVISIBLE
-                binding.testFlibustaIsUpText.visibility = View.VISIBLE
-                binding.testFlibustaIsUpProgress.visibility = View.VISIBLE
-                viewModel.checkServer()
-            }
-        }
-
-        viewModel.flibustaServerCheckState.observe(this) {
-            when (it) {
-                FlibustaChecker.STATE_PASSED -> {
-                    binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
-                    binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.white, theme)
-                    )
-                    binding.testFlibustaIsUpText.text =
-                        GrammarHandler.getColoredString(
-                            getString(R.string.cant_check_flibusta_message),
-                            Color.parseColor("#5403ad"),
-                            this
-                        )
-                    flibustaServerChecked()
-                }
-                FlibustaChecker.STATE_AVAILABLE -> {
-                    binding.testFlibustaIsUpText.setTextColor(
-                    ResourcesCompat.getColor(resources, R.color.white, theme)
-                )
-                    binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
-                    binding.testFlibustaIsUpText.text =
-                        GrammarHandler.getColoredString(
-                            getString(R.string.flibusta_server_is_up),
-                            Color.parseColor("#0c6126"),
-                            this
-                        )
-                    flibustaServerChecked()
-                }
-                FlibustaChecker.STATE_UNAVAILABLE -> {
-                    binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
-                    binding.testFlibustaIsUpText.setTextColor(
-                        ResourcesCompat.getColor(resources, R.color.white, theme)
-                    )
-                    binding.testFlibustaIsUpText.text =
-                        GrammarHandler.getColoredString(
-                            getString(R.string.flibusta_server_is_down),
-                            Color.parseColor("#881515"),
-                            this
-                        )
-                    showFlibustaIsDownDialog()
-                }
-            }
-        }
-        viewModel.flibustaCheckState.observe(this) {
-            when (it) {
-                StartViewModel.RESULT_SUCCESS -> {
-                    // ready to go
-                    readyToGo()
-                }
-                StartViewModel.RESULT_FAILED -> {
-                    // show error
-                    notifyConnectionError()
-                }
-            }
-        }
-    }
-
-    private fun readyToGo() {
-        binding.connectionTestText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.white, theme)
-        )
-        binding.connectionTestText.text = GrammarHandler.getColoredString(
-            getString(R.string.connected_message),
-            Color.parseColor("#0c6126"),
-            this
-        )
-        Handler().postDelayed({
-            // проверю очередь скачивания. Если она не пуста- предложу продолжить закачку
-            // проверю, не запущено ли приложение с помощью интента. Если да- запущу программу в webView режиме
-            val targetActivityIntent = Intent(this, BrowserActivity::class.java)
-            if (link != null) {
-                targetActivityIntent.putExtra(BrowserActivity.EXTERNAL_LINK, link.toString())
-            }
-            targetActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(targetActivityIntent)
-            finish()
-        }, 500)
-    }
-
-    private fun notifyConnectionError() {
-        if (!this::errorSnackbar.isInitialized) {
-            errorSnackbar = Snackbar.make(
-                binding.rootView,
-                getString(R.string.connection_error_message),
-                Snackbar.LENGTH_INDEFINITE
-            )
-            errorSnackbar.setAction(getString(R.string.retry_request_title)) {
-                binding.connectionTestText.text = getString(R.string.client_progress)
-                binding.connectionTestProgress.visibility = View.GONE
-                binding.testFlibustaIsUpText.text = getString(R.string.test_flibusta_is_up)
-                binding.testFlibustaIsUpProgress.visibility = View.GONE
-                binding.clientRunningProgress.visibility = View.VISIBLE
-                launchConnection()
-            }
-            if(PreferencesHandler.instance.isEInk){
-                errorSnackbar.setBackgroundTint(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.always_white,
-                        theme
-                    )
-                )
-                errorSnackbar.setActionTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.black,
-                        theme
-                    )
-                )
-            }
-            else{
-                errorSnackbar.setActionTextColor(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.genre_text_color,
-                        null
-                    )
-                )
-            }
-            errorSnackbar.show()
-        }
-    }
-
-    private fun showFlibustaIsDownDialog() {
-        val dialogBuilder = AlertDialog.Builder(this, R.style.dialogTheme)
-        dialogBuilder.setTitle(getString(R.string.flibusta_server_is_down))
-            .setMessage(getString(R.string.flibusta_down_message))
-            .setCancelable(false)
-            .setPositiveButton(getString(R.string.skip_inspection_item)) { _, _ ->
-                flibustaServerChecked()
-            }
-            .setNegativeButton(getString(R.string.try_again_message)) { _, _ ->
-                binding.testFlibustaIsUpProgress.visibility = View.VISIBLE
-                viewModel.checkServer()
-            }
-            .show()
-    }
-
-    private fun flibustaServerChecked() {
-        binding.testFlibustaIsUpProgress.visibility = View.INVISIBLE
-        binding.connectionTestText.visibility = View.VISIBLE
-        binding.connectionTestProgress.visibility = View.VISIBLE
-        viewModel.checkFlibustaAvailability()
-    }
-
-    private fun setupUi() {
-        binding.isEbook.isChecked =
-            PreferencesHandler.instance.isEInk
-        binding.isEbook.setOnCheckedChangeListener { _, state ->
-            PreferencesHandler.instance.isEInk = state
-            recreate()
-        }
-        binding.useHardwareAccelerationSwitcher.isChecked =
-            PreferencesHandler.instance.hardwareAcceleration
-        binding.useHardwareAccelerationSwitcher.setOnCheckedChangeListener { _, state ->
-            PreferencesHandler.instance.hardwareAcceleration = state
-            if (state) {
-                window.setFlags(
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                )
-            } else {
-                window.clearFlags(
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-                )
-            }
-        }
-
+        // app version
         binding.appVersion.text = PreferencesHandler.instance.appVersion
+
+        // hardware acceleration
         if (PreferencesHandler.instance.hardwareAcceleration) {
             // проверю аппаратное ускорение
             window.setFlags(
@@ -305,11 +122,16 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        binding.showTorLogBtn?.setOnClickListener {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
         // setup theme
         if (PreferencesHandler.instance.isEInk) {
+
+            binding.currentStateProgress.rotation = 0F
+            binding.currentStateProgress.background =
+                ResourcesCompat.getDrawable(resources, R.drawable.eink_progressbar_background, null)
+            binding.currentStateProgress.progressDrawable =
+                ResourcesCompat.getDrawable(resources, R.drawable.eink_progressbar, null)
+
+
             // prepare window for eInk
             checkWiFiEnabled()
             binding.appVersion.setTextColor(
@@ -330,69 +152,15 @@ class MainActivity : AppCompatActivity() {
             )
             binding.testStartApp.setShadowLayer(0F, 0F, 0F, R.color.transparent)
 
-            binding.isEbook.setTextColor(
+
+            binding.showTorLogBtn.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
                     R.color.e_ink_text_color,
                     theme
                 )
             )
-            binding.isEbook.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.useHardwareAccelerationSwitcher.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.useHardwareAccelerationSwitcher.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.startConnectionTestBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.startConnectionTestBtn.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.showTorLogBtn?.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.showTorLogBtn?.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.clientProgressText.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.clientProgressText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.connectionTestText.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.connectionTestText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
-            binding.testFlibustaIsUpText.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.e_ink_text_color,
-                    theme
-                )
-            )
-            binding.testFlibustaIsUpText.setShadowLayer(0F, 0F, 0F, R.color.transparent)
-
+            binding.showTorLogBtn.setShadowLayer(0F, 0F, 0F, R.color.transparent)
         } else {
             if (!PreferencesHandler.instance.isPicHide()) {
                 // назначу фон
@@ -404,27 +172,150 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.startConnectionTestBtn.setOnClickListener {
-            val targetActivityIntent = Intent(this, ConnectivityGuideActivity::class.java)
+
+        binding.showTorLogBtn.setOnClickListener {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        if (!PreferencesHandler.instance.useTor) {
+            binding.connectionTypeSwitcher.isChecked = true
+            binding.showTorLogBtn.visibility = View.VISIBLE
+        } else {
+            binding.showTorLogBtn.visibility = View.GONE
+        }
+        binding.connectionTypeSwitcher.setOnCheckedChangeListener { _, b ->
+            PreferencesHandler.instance.useTor = !b
+            viewModel.relaunchConnection(this)
+            resetTimer()
+        }
+        configureBackdrop()
+    }
+
+    private fun setupObservers() {
+        // check launch state
+        viewModel.launchState.observe(this) {
+            when (it) {
+                StartViewModel.STAGE_AWAITING -> {
+                    binding.currentState.text = getString(R.string.prepare_connection)
+                }
+                StartViewModel.STAGE_PING_LIBRARY -> {
+                    binding.currentState.text = getString(R.string.state_ping_library)
+                }
+                StartViewModel.STAGE_CHECK_LIBRARY_CONNECTION -> {
+                    binding.currentState.text = getString(R.string.state_check_library_connection)
+                }
+                StartViewModel.STATE_LIBRARY_SERVER_UNAVAILABLE -> {
+                    binding.currentState.text = getString(R.string.server_check_error)
+                    showServerCheckErrorDialog()
+                }
+                StartViewModel.STATE_LIBRARY_SERVER_AVAILABLE -> {
+                    binding.currentState.text = getString(R.string.state_flibusta_ping_success)
+                }
+                StartViewModel.STAGE_LAUCH_CLIENT -> {
+                    binding.currentState.text = getString(R.string.state_launch_tor)
+                }
+                StartViewModel.STATE_LIBRARY_CONNECTION_CHECK_FAILED -> {
+                    binding.currentState.text = getString(R.string.state_library_connection_falied)
+                    showLibraryConnectionErrorDialog()
+                }
+                StartViewModel.STATE_TOR_NOT_STARTS -> {
+                    binding.currentState.text = getString(R.string.state_tor_launch_error)
+                    showTorLaunchErrorDialog()
+                }
+                StartViewModel.STATE_LAUNCH_SUCCESSFUL -> {
+                    binding.currentState.text = getString(R.string.success_message)
+                    readyToGo()
+                }
+            }
+        }
+    }
+
+    private fun showTorLaunchErrorDialog() {
+        AlertDialog.Builder(this, R.style.dialogTheme)
+            .setTitle(getString(R.string.state_tor_launch_error))
+            .setMessage(getString(R.string.tor_launch_error_message))
+            .setPositiveButton(getString(R.string.retry_launch_title)) { _, _ ->
+                viewModel.launchConnection()
+                resetTimer()
+            }
+            .setNegativeButton(getString(R.string.go_to_connection_settings_message)) { _, _ ->
+                connectionSettingsLauncher.launch(
+                    Intent(
+                        this,
+                        ConnectivityGuideActivity::class.java
+                    )
+                )
+            }
+            .setNeutralButton(getString(R.string.setup_tor_custom_bridges)) { _, _ ->
+                setBridgesLauncher.launch(Intent(this, SetTorBridgesActivity::class.java))
+            }
+            .show()
+    }
+
+    private fun showLibraryConnectionErrorDialog() {
+        val message = if (PreferencesHandler.instance.useTor) {
+            getString(R.string.tor_error_library_connection_message)
+        } else {
+            getString(R.string.vpn_error_library_connection_message)
+        }
+        AlertDialog.Builder(this, R.style.dialogTheme)
+            .setTitle(getString(R.string.no_library_connection_title))
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.retry_launch_title)) { _, _ ->
+                viewModel.launchConnection()
+                resetTimer()
+            }
+            .setNegativeButton(getString(R.string.go_to_connection_settings_message)) { _, _ ->
+                connectionSettingsLauncher.launch(
+                    Intent(
+                        this,
+                        ConnectivityGuideActivity::class.java
+                    )
+                )
+            }
+            .show()
+    }
+
+    private fun showServerCheckErrorDialog() {
+        AlertDialog.Builder(this, R.style.dialogTheme)
+            .setTitle(getString(R.string.server_check_error))
+            .setMessage(getString(R.string.server_check_error_text))
+            .setPositiveButton(getString(R.string.retry_launch_title)) { _, _ ->
+                viewModel.launchConnection()
+                resetTimer()
+            }
+            .setNegativeButton(getString(R.string.skip_test_btn_text)) { _, _ ->
+                viewModel.launchConnection(
+                    true
+                )
+                resetTimer()
+            }
+            .show()
+    }
+
+    private fun readyToGo() {
+        Handler().postDelayed({
+            // проверю очередь скачивания. Если она не пуста- предложу продолжить закачку
+            // проверю, не запущено ли приложение с помощью интента. Если да- запущу программу в webView режиме
+            val targetActivityIntent = Intent(this, BrowserActivity::class.java)
+            if (link != null) {
+                targetActivityIntent.putExtra(BrowserActivity.EXTERNAL_LINK, link.toString())
+            }
             targetActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(targetActivityIntent)
             finish()
-        }
-
-        binding.testStartApp.setOnClickListener {
-            readyToGo()
-        }
+        }, 500)
     }
 
     override fun onResume() {
         super.onResume()
-        if (PreferencesHandler.instance.firstUse) {
-            val targetActivityIntent = Intent(this, FirstUseGuideActivity::class.java)
-            targetActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(targetActivityIntent)
-            finish()
-        }
         checkConnectionOptions()
+        startTimer()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mCdt?.cancel()
     }
 
     private fun checkWiFiEnabled() {
@@ -465,44 +356,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkConnectionOptions() {
         if (PreferencesHandler.instance.showConnectionOptions) {
-            Log.d("surprise", "MainActivity.kt 344: test connection")
             if (NetworkHandler().isVpnConnected()) {
                 if (PreferencesHandler.instance.useTor) {
                     showDisableTorDialog()
-                } else {
-                    launchConnection()
                 }
             } else if (!PreferencesHandler.instance.useTor) {
                 showEnableTorDialog()
-            } else {
-                launchConnection()
             }
-        } else {
-            launchConnection()
         }
     }
 
-    private fun launchConnection() {
-        if (PreferencesHandler.instance.useTor) {
-            launchTor()
-            binding.showTorLogBtn?.visibility = View.VISIBLE
-        } else {
-            notifyVpnUse()
-            binding.showTorLogBtn?.visibility = View.GONE
-        }
-    }
 
     private fun showDisableTorDialog() {
         AlertDialog.Builder(this, R.style.dialogTheme)
             .setMessage(getString(R.string.disable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = false
-                launchConnection()
+                binding.connectionTypeSwitcher.performClick()
             }
-            .setNegativeButton(android.R.string.cancel) { _, _ -> launchConnection() }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->
                 PreferencesHandler.instance.showConnectionOptions = false
-                launchConnection()
             }
             .show()
     }
@@ -512,34 +386,15 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.enable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = true
-                launchConnection()
+                binding.connectionTypeSwitcher.performClick()
             }
-            .setNegativeButton(android.R.string.cancel) { _, _ -> launchConnection() }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->
                 PreferencesHandler.instance.showConnectionOptions = false
-                launchConnection()
             }
             .show()
     }
 
-    private fun notifyVpnUse() {
-        binding.clientProgressText.text =
-            GrammarHandler.getColoredString(
-                getString(R.string.vpn_use),
-                Color.parseColor("#5403ad")
-            , this)
-        binding.clientProgressText.setTextColor(
-            ResourcesCompat.getColor(resources, R.color.white, theme)
-        )
-        binding.clientRunningProgress.visibility = View.INVISIBLE
-        binding.testFlibustaIsUpText.visibility = View.VISIBLE
-        binding.testFlibustaIsUpProgress.visibility = View.VISIBLE
-        viewModel.checkServer()
-    }
-
-    private fun launchTor() {
-        viewModel.startTor(this)
-    }
 
     private fun configureBackdrop() {
 // Get the download state fragment reference
@@ -587,5 +442,62 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mCdt?.cancel()
+    }
+
+    // таймер отсчёта прогресса запуска
+    private fun startTimer() {
+        val timeLeft = viewModel.getTimeFromLastLaunch()
+        binding.currentStateProgress.max = TorHandler.TOTAL_SECONDS_PER_TOR_STARTUP
+        mProgressCounter = if (timeLeft > 0) {
+            timeLeft / 1000
+        } else {
+            0
+        }
+        val waitingTime =
+            TorHandler.TOTAL_SECONDS_PER_TOR_STARTUP * 1000 - timeLeft // 3 minute in milli seconds
+        if (mProgressCounter < TorHandler.TOTAL_SECONDS_PER_TOR_STARTUP) {
+            mCdt = object : CountDownTimer(waitingTime.toLong(), 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    mProgressCounter++
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        binding.currentStateProgress.progress = mProgressCounter
+                    }
+                }
+
+                override fun onFinish() {
+                    // tor не загрузился, покажу сообщение с предложением подождать или перезапустить процесс
+                    showTooLongConnectionDialog()
+                }
+            }
+            mCdt?.start()
+        } else {
+            showTooLongConnectionDialog()
+        }
+    }
+
+    private fun showTooLongConnectionDialog() {
+        AlertDialog.Builder(this, R.style.dialogTheme)
+            .setTitle(getString(R.string.too_long_launch_title))
+            .setMessage(getString(R.string.too_long_launch_message))
+            .setPositiveButton(R.string.wait_more_title) { _, _ ->
+                viewModel.clearTimeFromLastLaunch()
+                resetTimer()
+            }
+            .setNegativeButton(getString(R.string.retry_launch_title)) { _, _ ->
+                viewModel.relaunchConnection(this)
+                resetTimer()
+            }
+            .show()
+    }
+
+    private fun resetTimer(){
+        mCdt?.cancel()
+        mProgressCounter = 0
+        startTimer()
     }
 }

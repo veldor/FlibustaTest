@@ -18,4 +18,8 @@ interface ReadedBooksDao {
     fun insert(book: ReadedBooks?)
     @Delete
     fun delete(book: ReadedBooks?)
+
+
+    @Query("DELETE FROM ReadedBooks")
+    fun deleteTable(): Int
 }

@@ -1356,11 +1356,16 @@ class OpdsFragment : Fragment(),
                 }
             }
             TYPE_BOOK -> {
-                // show window for book download prepare
-                val goDownloadIntent =
-                    Intent(requireContext(), DownloadBookSetupActivity::class.java)
-                goDownloadIntent.putExtra("EXTRA_BOOK", item)
-                startActivity(goDownloadIntent)
+                if(PreferencesHandler.instance.skipDownloadSetup && PreferencesHandler.instance.rememberFavoriteFormat && PreferencesHandler.instance.favoriteFormat != null){
+                    viewModel.addToDownloadQueue(item.getFavoriteLink())
+                }
+                else{
+                    // show window for book download prepare
+                    val goDownloadIntent =
+                        Intent(requireContext(), DownloadBookSetupActivity::class.java)
+                    goDownloadIntent.putExtra("EXTRA_BOOK", item)
+                    startActivity(goDownloadIntent)
+                }
             }
             else -> {
                 bookmarkReservedName = item.name
@@ -1828,7 +1833,7 @@ class OpdsFragment : Fragment(),
                 mConfirmExit = System.currentTimeMillis()
             }
         }
-        return true
+        return false
     }
 
     private fun loadFromHistory(lastResults: HistoryItem) {

@@ -52,7 +52,9 @@ class TorHandler private constructor() {
                     tor = AndroidOnionProxyManager(App.instance, TOR_FILES_LOCATION)
                 }
                 // get bridges
-                BridgesHandler().getBridges()
+                if(!PreferencesHandler.instance.useCustomBridges){
+                    BridgesHandler().getBridges()
+                }
                 tor!!.startWithRepeat(
                     TOTAL_SECONDS_PER_TOR_STARTUP,
                     TOTAL_TRIES_PER_TOR_STARTUP
@@ -87,11 +89,23 @@ class TorHandler private constructor() {
         return true
     }
 
+    fun stop() {
+        tor?.stop()
+        tor = null
+    }
+
+    fun cancelLaunch(context: Context) {
+        if(tor != null){
+            tor!!.interruptLaunch()
+        }
+        WorkManager.getInstance(context).cancelAllWorkByTag(StartTorWorker.TAG)
+    }
+
 
     companion object {
         const val TOR_FILES_LOCATION = "torfiles"
         const val TOTAL_TRIES_PER_TOR_STARTUP = 3
-        val TOTAL_SECONDS_PER_TOR_STARTUP = TimeUnit.MINUTES.toSeconds(1).toInt()
+        public val TOTAL_SECONDS_PER_TOR_STARTUP = TimeUnit.MINUTES.toSeconds(1).toInt()
         var instance: TorHandler = TorHandler()
             private set
     }

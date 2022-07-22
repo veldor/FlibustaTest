@@ -129,7 +129,13 @@ class ConnectivityGuideViewModel : ViewModel() {
         }
     }
 
-    fun cancelTorLaunch() {
+    fun cancelTorLaunch(context: Context) {
+        try{
+            TorHandler.instance.cancelLaunch(context)
+        }
+        catch (t: Throwable){
+            t.printStackTrace()
+        }
         initTorJob?.cancel()
         _testTorInit.value = null
     }

@@ -68,6 +68,10 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
     }
 
     private fun setupObservers() {
+        DownloadHandler.instance.liveBookDownloadProgress.observe(viewLifecycleOwner) {
+            (binding.resultsList.adapter as DownloadScheduleAdapter).setProgress(it)
+        }
+
         DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().allBooksLive?.observe(
             viewLifecycleOwner
         ) {

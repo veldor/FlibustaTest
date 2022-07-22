@@ -147,4 +147,8 @@ object GrammarHandler {
     fun clearBookName(name: String): String {
         return name.replace("_", " ")
     }
+
+    fun isValidBridges(newValue: String): Boolean {
+        return true
+    }
 }

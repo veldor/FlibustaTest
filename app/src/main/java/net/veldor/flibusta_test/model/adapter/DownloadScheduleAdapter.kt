@@ -3,7 +3,9 @@ package net.veldor.flibusta_test.model.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PorterDuff
+import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +16,7 @@ import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
+import net.veldor.flibusta_test.model.selections.BooksDownloadProgress
 
 class DownloadScheduleAdapter(
     arrayList: List<BooksDownloadSchedule>?,
@@ -22,6 +25,8 @@ class DownloadScheduleAdapter(
 ) :
     RecyclerView.Adapter<DownloadScheduleAdapter.ViewHolder>() {
 
+    private var loadedBookProgress: Double = 0.0
+    private var loadedBookName: String? = null
     private var values: List<BooksDownloadSchedule> = arrayListOf()
 
 
@@ -49,6 +54,24 @@ class DownloadScheduleAdapter(
     fun setList(it: List<BooksDownloadSchedule>?) {
         values = it ?: listOf()
         notifyDataSetChanged()
+    }
+
+    fun setProgress(progress: BooksDownloadProgress?) {
+        if (progress != null) {
+            var pos = -1
+            values.forEach {
+                if (it.name == progress.currentlyLoadedBookName) {
+                    pos = values.indexOf(it)
+                    return@forEach
+                }
+            }
+            if (pos >= 0) {
+                loadedBookName = progress.currentlyLoadedBookName
+                val percentDone: Double = progress.bookLoadedSize.toDouble() / progress.bookFullSize.toDouble() * 100
+                loadedBookProgress = percentDone
+                notifyItemChanged(pos)
+            }
+        }
     }
 
     inner class ViewHolder(private val binding: DownloadScheduleItemLayoutBinding) :
@@ -79,6 +102,18 @@ class DownloadScheduleAdapter(
             binding.pathToFile.text = UrlHelper.getDownloadedBookPath(item)
             binding.actionBtn.setOnClickListener {
                 delegate.buttonPressed(item)
+            }
+            if (item.name == loadedBookName) {
+                binding.bookDownloadProgress.visibility = View.VISIBLE
+                binding.bookDownloadProgress.isIndeterminate = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    binding.bookDownloadProgress.setProgress(loadedBookProgress.toInt(), true)
+                } else {
+                    binding.bookDownloadProgress.progress = loadedBookProgress.toInt()
+                }
+            }
+            else{
+                binding.bookDownloadProgress.visibility = View.GONE
             }
         }
 

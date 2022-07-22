@@ -33,6 +33,11 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
+            R.id.goToSubscriptions -> {
+                val intent = Intent(mContext, SubscribesActivity::class.java)
+                mContext.startActivity(intent)
+                tryCloseDrawer()
+            }
             R.id.goToBlacklist -> {
                 val intent = Intent(mContext, FilterActivity::class.java)
                 mContext.startActivity(intent)

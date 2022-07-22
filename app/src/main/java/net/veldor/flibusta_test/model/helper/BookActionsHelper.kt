@@ -94,7 +94,7 @@ object BookActionsHelper {
             }
         }
     }
-    private fun getFileFromDocumentFile(df: DocumentFile): File? {
+    fun getFileFromDocumentFile(df: DocumentFile): File? {
         val docId: String
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             docId = DocumentsContract.getDocumentId(df.uri)
@@ -104,5 +104,9 @@ object BookActionsHelper {
             return File(path)
         }
         return null
+    }
+
+    fun shareBook(file: File) {
+        TODO("Not yet implemented")
     }
 }

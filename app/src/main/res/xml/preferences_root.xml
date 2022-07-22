@@ -33,4 +33,24 @@
         app:icon="@drawable/ic_baseline_filter_alt_24"
         app:fragment="net.veldor.flibusta_test.ui.filter_fragments.FilterPrefsFragment"/>
 
+    <Preference
+        app:title="@string/cache_preferences"
+        app:icon="@drawable/ic_baseline_sd_storage_24"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$CachePreferencesFragment"/>
+
+    <Preference
+        app:title="@string/reserve_preferences_title"
+        app:icon="@drawable/ic_baseline_settings_backup_restore_24"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$ReservePreferencesFragment"/>
+
+    <Preference
+        app:title="@string/connection_preferences"
+        app:icon="@drawable/ic_baseline_perm_data_setting_24"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$ConnectionPreferencesFragment"/>
+
+    <Preference
+        app:title="@string/testing_preferences"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$TestPreferencesFragment"/>
+
+
 </PreferenceScreen>

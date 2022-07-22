@@ -1,7 +1,6 @@
 package net.veldor.flibusta_test.model.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
@@ -11,6 +10,7 @@ import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.databinding.BlacklistItemBinding
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
 import net.veldor.flibusta_test.model.selections.blacklist.BlacklistItem
+import net.veldor.flibusta_test.model.selections.subscribe.SubscribeItem
 
 class BlacklistAdapter(
     private var mItems: ArrayList<BlacklistItem>,
@@ -45,26 +45,34 @@ class BlacklistAdapter(
     }
 
     fun itemAdded(item: BlacklistItem?) {
-        Log.d("surprise", "BlacklistAdapter.kt 48: added")
         if (item != null) {
             // add item to top of list
-            mItems.add(0, item)
+            filteredValues.add(0, item)
             notifyItemInserted(0)
+            mItems.add(0, item)
         }
     }
 
     fun itemRemoved(item: BlacklistItem?) {
         if (item != null) {
             var foundedItem: BlacklistItem? = null
+            var foundedMItem: BlacklistItem? = null
             filteredValues.forEach {
                 if (it.name == item.name && it.type == item.type) {
                     foundedItem = it
                 }
             }
             if (foundedItem != null) {
-                mItems.remove(foundedItem)
                 notifyItemRemoved(filteredValues.indexOf(foundedItem))
                 filteredValues.remove(foundedItem)
+            }
+            mItems.forEach {
+                if (it.name == item.name && it.type == item.type) {
+                    foundedMItem = it
+                }
+            }
+            if (foundedMItem != null) {
+                mItems.remove(foundedMItem)
             }
         }
     }

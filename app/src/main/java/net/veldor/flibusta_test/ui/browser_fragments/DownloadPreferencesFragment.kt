@@ -1,17 +1,16 @@
 package net.veldor.flibusta_test.ui.browser_fragments
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceScreen
+import androidx.preference.*
 import lib.folderpicker.FolderPicker
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
@@ -30,15 +29,56 @@ class DownloadPreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
+
+        val skipBookSetupPref = findPreference<SwitchPreferenceCompat>("skip download setup")
+        val rememberFavoriteMimePref =
+            findPreference<SwitchPreferenceCompat>("remember favorite format")
+        skipBookSetupPref?.setOnPreferenceChangeListener { _, newValue ->
+            if (newValue == true) {
+                rememberFavoriteMimePref?.isChecked = true
+            }
+            return@setOnPreferenceChangeListener true
+        }
+
+        val sendToKindlePref = findPreference<SwitchPreferenceCompat>("send to kindle")
+        sendToKindlePref?.setOnPreferenceChangeListener { _, newValue ->
+            if (newValue == true) {
+                try {
+                    App.instance.packageManager.getPackageInfo("com.amazon.kindle", 0)
+                } catch (e: PackageManager.NameNotFoundException) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Install Amazon Kindle app",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    try {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("market://details?id=com.amazon.kindle")
+                            )
+                        )
+                    } catch (e: ActivityNotFoundException) {
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://play.google.com/store/apps/details?id=com.amazon.kindle")
+                            )
+                        )
+                    }
+                }
+            }
+            return@setOnPreferenceChangeListener true
+        }
+
         if (prefChangedDelegate != null) {
             val prefScreen: PreferenceScreen = preferenceScreen
             val prefCount: Int = prefScreen.preferenceCount
             for (i in 0 until prefCount) {
                 val pref: Preference = prefScreen.getPreference(i)
-                if(pref is PreferenceCategory){
+                if (pref is PreferenceCategory) {
                     recursiveAddListener(pref)
-                }
-                else{
+                } else {
                     pref.onPreferenceChangeListener = prefChangedDelegate
                 }
             }
@@ -91,10 +131,9 @@ class DownloadPreferencesFragment : PreferenceFragmentCompat() {
         val prefCount: Int = (pref as PreferenceCategory).preferenceCount
         for (i in 0 until prefCount) {
             val innerPref: Preference = pref.getPreference(i)
-            if(innerPref is PreferenceCategory){
+            if (innerPref is PreferenceCategory) {
                 recursiveAddListener(innerPref)
-            }
-            else{
+            } else {
                 innerPref.onPreferenceChangeListener = prefChangedDelegate
             }
         }

@@ -13,6 +13,77 @@ import java.io.File
 
 class PreferencesHandler private constructor() {
 
+    var autoDownloadSubscriptions: Boolean
+        get() = preferences.getBoolean(PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS, state).apply()
+        }
+
+    var useCustomBridges: Boolean
+        get() = preferences.getBoolean(PREF_USE_CUSTOM_BRIDGES, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_USE_CUSTOM_BRIDGES, state).apply()
+        }
+
+    var autoCheckSubscriptions: Boolean
+        get() = preferences.getBoolean(PREF_AUTO_CHECK_SUBSCRIPTIONS, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_AUTO_CHECK_SUBSCRIPTIONS, state).apply()
+        }
+
+    var lastCheckedForSubscription: String?
+        get() = preferences.getString(PREF_LAST_CHECKED_FOR_SUBSCRIPTION, null)
+        set(state) {
+            preferences.edit().putString(PREF_LAST_CHECKED_FOR_SUBSCRIPTION, state).apply()
+        }
+
+    var customBridges: String?
+        get() = preferences.getString(PREF_CUSTOM_BRIDGES, null)
+        set(state) {
+            preferences.edit().putString(PREF_CUSTOM_BRIDGES, state).apply()
+        }
+
+    var isClearCache: Boolean
+        get() = preferences.getBoolean("auto clear cache", false)
+        set(state) {
+            preferences.edit().putBoolean("auto clear cache", state).apply()
+        }
+
+    var skipDownloadSetup: Boolean
+        get() = preferences.getBoolean(PREF_SKIP_DOWNLOAD_SETUP, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SKIP_DOWNLOAD_SETUP, state).apply()
+        }
+
+    var checkServerOnStart: Boolean
+        get() = preferences.getBoolean(PREF_SERVER_CHECK, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SERVER_CHECK, state).apply()
+        }
+
+    var skipLoadScreen: Boolean
+        get() = preferences.getBoolean(PREF_SKIP_LOAD_SCREEN, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SKIP_LOAD_SCREEN, state).apply()
+        }
+
+
+    val sendToKindle: Boolean
+        get() = preferences.getBoolean(PREF_SEND_TO_KINDLE, false)
+
+    val savingLogs: Boolean
+        get() = preferences.getBoolean(PREF_SAVING_LOGS, false)
+
+    val longMaxCacheSize: Long
+        get() = maxCacheSize.toLong() * 1000 * 1000
+
+    var maxCacheSize: Int
+        get() = preferences.getInt("max cache size", 1)
+        set(state) {
+            preferences.edit().putInt("max cache size", state).apply()
+        }
+
+
     var disableHistoryMessageViewed: Boolean
         get() = preferences.getBoolean("disable catalog history message", false)
         set(state) {
@@ -300,9 +371,9 @@ class PreferencesHandler private constructor() {
         androidx.preference.PreferenceManager.getDefaultSharedPreferences(App.instance)
 
     var useTor: Boolean
-        get() = preferences.getBoolean(PREF_USE_TOR, true)
+        get() = !preferences.getBoolean(PREF_USE_TOR, true)
         set(state) {
-            preferences.edit().putBoolean(PREF_USE_TOR, state).apply()
+            preferences.edit().putBoolean(PREF_USE_TOR, !state).apply()
         }
 
     var showConnectionOptions: Boolean
@@ -372,7 +443,7 @@ class PreferencesHandler private constructor() {
         const val BASE_URL = "http://flibusta.is"
 
         const val PREF_DOWNLOAD_LOCATION = "download_location"
-        private const val PREF_USE_TOR = "use tor"
+        private const val PREF_USE_TOR = "external vpn"
         private const val PREF_FIRST_USE = "first use"
         private const val PREF_SHOW_CONNECTION_OPTIONS = "show connection options"
         private const val PREF_OPDS_SHOW_PAGING = "opds show paging"
@@ -381,8 +452,8 @@ class PreferencesHandler private constructor() {
         private const val HW_ACCELERATION_PREF = "hardware acceleration"
         private const val EINK_PREF = "is eInk"
         private const val HIDE_PICS_PREF = "hide pics"
-        private const val IS_CUSTOM_MIRROR_PREF = "is custom mirror"
-        private const val CUSTOM_MIRROR_PREF = "custom mirror"
+        private const val IS_CUSTOM_MIRROR_PREF = "use custom mirror"
+        private const val CUSTOM_MIRROR_PREF = "custom flibusta mirror"
         private const val AUTH_COOKIE_VALUE_PREF = "auth cookie value"
 
         private const val HIDE_DIGESTS_PREF = "hide digests"
@@ -414,6 +485,16 @@ class PreferencesHandler private constructor() {
         private const val PREF_OPDS_HISTORY = "enable opds history"
         private const val PREF_SHOW_COVERS_BY_REQUEST = "show covers by request"
         private const val PREF_OPDS_ROWS = "opds rows"
+        private const val PREF_SEND_TO_KINDLE = "send to kindle"
+        private const val PREF_LAST_CHECKED_FOR_SUBSCRIPTION = "last checked for subscription"
+        private const val PREF_SKIP_DOWNLOAD_SETUP = "skip download setup"
+        private const val PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS = "auto download subscriptions"
+        private const val PREF_AUTO_CHECK_SUBSCRIPTIONS = "auto check subscriptions"
+        private const val PREF_SERVER_CHECK = "check availability"
+        private const val PREF_SKIP_LOAD_SCREEN = "skip load screen"
+        private const val PREF_CUSTOM_BRIDGES = "custom bridges"
+        private const val PREF_USE_CUSTOM_BRIDGES = "use custom bridges"
+        private const val PREF_SAVING_LOGS = "saving logs"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

@@ -47,6 +47,8 @@ import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.util.Log;
+
 import net.freehaven.tor.control.ConfigEntry;
 import net.freehaven.tor.control.TorControlConnection;
 
@@ -79,6 +81,7 @@ public abstract class OnionProxyManager {
     // the connection fails.
     private volatile TorControlConnection controlConnection = null;
     private volatile int control_port;
+    private boolean interrupted = false;
 
     public OnionProxyManager(OnionProxyContext onionProxyContext) {
         this.onionProxyContext = onionProxyContext;
@@ -98,6 +101,7 @@ public abstract class OnionProxyManager {
      */
     public synchronized boolean startWithRepeat(int secondsBeforeTimeOut, int numberOfRetries) throws
             InterruptedException, IOException {
+        interrupted = false;
         if (secondsBeforeTimeOut <= 0 || numberOfRetries < 0) {
             throw new IllegalArgumentException("secondsBeforeTimeOut >= 0 & numberOfRetries > 0");
         }
@@ -112,6 +116,10 @@ public abstract class OnionProxyManager {
                 // We will check every second to see if boot strapping has finally finished
                 for(int secondsWaited = 0; secondsWaited < secondsBeforeTimeOut; ++secondsWaited) {
                     if (!isBootstrapped()) {
+                        if(interrupted){
+                            interrupted = false;
+                            throw new InterruptedException();
+                        }
                         Thread.sleep(1000,0);
                     } else {
                         return true;
@@ -504,4 +512,8 @@ public abstract class OnionProxyManager {
      * @return True if it worked, otherwise false.
      */
     protected abstract boolean setExecutable(File f);
+
+    public void interruptLaunch() {
+        this.interrupted = true;
+    }
 }

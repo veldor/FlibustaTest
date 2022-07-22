@@ -28,6 +28,7 @@ import net.veldor.flibusta_test.model.selections.HistoryItem
 import net.veldor.flibusta_test.model.selections.RequestItem
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
+import net.veldor.flibusta_test.model.utils.CacheUtils
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
@@ -51,6 +52,8 @@ open class OpdsViewModel : ViewModel() {
         }
         if (request.addToHistory) {
             lastRequestedUrl = request.request
+        } else {
+            CacheUtils.requestClearCache()
         }
         var appendResult = request.append
         CoverHandler.dropPreviousLoading()
@@ -244,10 +247,13 @@ open class OpdsViewModel : ViewModel() {
                 .delete(DatabaseInstance.instance.mDatabase.readBooksDao().getBookById(item.id))
         }
     }
+
     fun markNoDownloaded(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             DatabaseInstance.instance.mDatabase.downloadedBooksDao()
-                .delete(DatabaseInstance.instance.mDatabase.downloadedBooksDao().getBookById(item.id))
+                .delete(
+                    DatabaseInstance.instance.mDatabase.downloadedBooksDao().getBookById(item.id)
+                )
         }
     }
 

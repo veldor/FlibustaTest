@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:summaryOff="@string/download_setup_shown"
+        android:summaryOn="@string/download_setup_skipped"
+        android:title="@string/skip_download_setup_pref"
+        app:key="skip download setup" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:summaryOff="@string/remember_favorite_format_disabled_title"
+        android:summaryOn="@string/remember_favorite_format_enabled_title"
+        android:title="@string/remember_favorite_title"
+        app:key="remember favorite format" />
+
+    <DropDownPreference
+        android:entries="@array/favorite_mime_names"
+        android:entryValues="@array/favorite_mime_types"
+        android:summary="@string/books_download_in_favorite_mime_title"
+        android:title="@string/title_favorite_format_preference"
+        app:key="favorite format"
+        app:useSimpleSummaryProvider="true" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:summaryOff="При недоступности книги в выбранном формате- она будет загружена в доступном"
+        android:summaryOn="Книги загружаются строго в выбранном формате"
+        android:title="@string/only_favorite_mime_title"
+        app:key="strict download format" />
+
     <PreferenceCategory android:title="@string/download_path_settings">
         <Preference
             app:key="download dir location"
@@ -78,34 +108,19 @@
             android:summaryOff="@string/re_download_disabled_title"
             android:summaryOn="@string/re_download_enabled_title"
             android:title="@string/re_download_title"
-            app:key="re download"/>
+            app:key="re download" />
 
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:summaryOff="@string/remember_favorite_format_disabled_title"
-            android:summaryOn="@string/remember_favorite_format_enabled_title"
-            android:title="@string/remember_favorite_title"
-            app:key="remember favorite format"/>
-
-        <DropDownPreference
-            android:entries="@array/favorite_mime_names"
-            android:entryValues="@array/favorite_mime_types"
-            android:summary="@string/books_download_in_favorite_mime_title"
-            android:title="@string/title_favorite_format_preference"
-            app:key="favorite format"
-            app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:summaryOff="При недоступности книги в выбранном формате- она будет загружена в доступном"
-            android:summaryOn="Книги загружаются строго в выбранном формате"
-            android:title="@string/only_favorite_mime_title"
-            app:key="strict download format" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:summaryOff="@string/no_unzip_title"
             android:summaryOn="@string/unzip_title"
             android:title="@string/unzip_loaded_title"
             app:key="unzip loaded" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:summaryOff="@string/no_send_to_kindle_title"
+            android:summaryOn="@string/send_to_kindle_enabled_title"
+            android:title="@string/send_to_kindle_title"
+            app:key="send to kindle" />
     </PreferenceCategory>
 </PreferenceScreen>

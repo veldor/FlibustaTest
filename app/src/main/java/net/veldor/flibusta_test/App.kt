@@ -2,8 +2,11 @@ package net.veldor.flibusta_test
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
+import net.veldor.flibusta_test.model.handler.LogHandler
 import net.veldor.flibusta_test.model.handler.OpdsResultsHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
+import net.veldor.flibusta_test.model.handler.SubscribesHandler
+import net.veldor.flibusta_test.model.utils.CacheUtils
 
 
 class App : MultiDexApplication() {
@@ -12,6 +15,11 @@ class App : MultiDexApplication() {
         super.onCreate()
         // got instance
         instance = this
+
+        if(PreferencesHandler.instance.savingLogs){
+            LogHandler.getInstance()!!.initLog()
+        }
+
         // set night mode
         when (PreferencesHandler.instance.nightMode) {
             PreferencesHandler.NIGHT_THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
@@ -24,6 +32,11 @@ class App : MultiDexApplication() {
                 AppCompatDelegate.MODE_NIGHT_YES
             )
         }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        CacheUtils.requestClearCache()
     }
 
     override fun onLowMemory() {

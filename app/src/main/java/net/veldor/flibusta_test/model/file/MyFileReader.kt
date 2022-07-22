@@ -322,17 +322,97 @@ object MyFileReader {
         }
     }
 
-    fun saveSubscription(fileName: String, content: String) {
-        when (fileName) {
+    fun saveBookmarksList(content: String) {
+        val file = File(App.instance.filesDir, BOOKMARKS_OPDS_FILE)
+        makeFile(file, content)
+    }
+
+    fun getSubscribeList(subscribeName: String): String {
+        return when (subscribeName) {
+            BOOKS_SUBSCRIBE_FILE -> getBookSubscribeList()
+            AUTHORS_SUBSCRIBE_FILE -> getAuthorSubscribeList()
+            SEQUENCES_SUBSCRIBE_FILE -> getSequenceSubscribeList()
+            else -> getGenreSubscribeList()
+        }
+    }
+
+    private fun getBookSubscribeList(): String {
+        val booksBlacklistFile = File(App.instance.filesDir, BOOKS_SUBSCRIBE_FILE)
+        if (!booksBlacklistFile.exists()) {
+            makeFile(booksBlacklistFile, SUBSCRIBE_NEW)
+        }
+        val text = StringBuilder()
+        try {
+            val br = BufferedReader(FileReader(booksBlacklistFile))
+            var line: String?
+            while (br.readLine().also { line = it } != null) {
+                text.append(line)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return text.toString()
+    }
+
+    private fun getAuthorSubscribeList(): String {
+        val authorsSubscribeFile = File(App.instance.filesDir, AUTHORS_SUBSCRIBE_FILE)
+        if (!authorsSubscribeFile.exists()) {
+            makeFile(authorsSubscribeFile, SUBSCRIBE_NEW)
+        }
+        val text = StringBuilder()
+        try {
+            val br = BufferedReader(FileReader(authorsSubscribeFile))
+            var line: String?
+            while (br.readLine().also { line = it } != null) {
+                text.append(line)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return text.toString()
+    }
+
+    private fun getGenreSubscribeList(): String {
+        val sequencesSubscribeFile = File(App.instance.filesDir, GENRES_SUBSCRIBE_FILE)
+        if (!sequencesSubscribeFile.exists()) {
+            makeFile(sequencesSubscribeFile, SUBSCRIBE_NEW)
+        }
+        val text = StringBuilder()
+        try {
+            val br = BufferedReader(FileReader(sequencesSubscribeFile))
+            var line: String?
+            while (br.readLine().also { line = it } != null) {
+                text.append(line)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return text.toString()
+    }
+    private fun getSequenceSubscribeList(): String {
+        val sequencesSubscribeFile = File(App.instance.filesDir, SEQUENCES_SUBSCRIBE_FILE)
+        if (!sequencesSubscribeFile.exists()) {
+            makeFile(sequencesSubscribeFile, SUBSCRIBE_NEW)
+        }
+        val text = StringBuilder()
+        try {
+            val br = BufferedReader(FileReader(sequencesSubscribeFile))
+            var line: String?
+            while (br.readLine().also { line = it } != null) {
+                text.append(line)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return text.toString()
+    }
+
+    fun saveSubscribeList(fileName: String, content: String) {
+        when(fileName){
             BOOKS_SUBSCRIBE_FILE -> saveBooksSubscription(content)
             AUTHORS_SUBSCRIBE_FILE -> saveAuthorsSubscription(content)
             SEQUENCES_SUBSCRIBE_FILE -> saveSequencesSubscription(content)
             GENRES_SUBSCRIBE_FILE -> saveGenresSubscription(content)
         }
-    }
-
-    fun saveBookmarksList(content: String) {
-        val file = File(App.instance.filesDir, BOOKMARKS_OPDS_FILE)
-        makeFile(file, content)
     }
 }

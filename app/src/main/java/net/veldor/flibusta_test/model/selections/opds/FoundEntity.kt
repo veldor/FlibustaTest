@@ -1,5 +1,10 @@
 package net.veldor.flibusta_test.model.selections.opds
 
+import android.util.Log
+import androidx.room.Ignore
+import net.veldor.flibusta_test.model.handler.FormatHandler
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
+import net.veldor.flibusta_test.model.helper.MimeHelper
 import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.blacklist.FilteringResult
 import java.io.File
@@ -7,6 +12,25 @@ import java.io.Serializable
 import kotlin.random.Random
 
 class FoundEntity : Serializable {
+    fun getFavoriteLink(): DownloadLink? {
+        if (downloadLinks.isNotEmpty()) {
+            val favorite = PreferencesHandler.instance.favoriteFormat
+            Log.d("surprise", "FoundEntity.kt 14: $favorite")
+            if (favorite != null) {
+                downloadLinks.forEach {
+                    Log.d("surprise", "FoundEntity.kt 18: ${it.mime}")
+                    if (FormatHandler.isSame(it.mime, favorite)) {
+                        return it
+                    }
+                }
+            }
+            return downloadLinks[0]
+        }
+        return null
+    }
+
+    @Ignore
+    var systemId: String? = null
     val itemId: Long = Random.nextLong(1, Long.MAX_VALUE)
     var filterResult: FilteringResult? = null
     var content: String = ""

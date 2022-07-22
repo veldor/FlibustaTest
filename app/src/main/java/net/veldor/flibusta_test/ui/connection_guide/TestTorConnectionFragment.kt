@@ -1,6 +1,8 @@
 package net.veldor.flibusta_test.ui.connection_guide
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -18,10 +21,20 @@ import net.veldor.flibusta_test.model.handler.FilesHandler
 import net.veldor.flibusta_test.model.view_model.ConnectivityGuideViewModel
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 import net.veldor.flibusta_test.ui.ConnectivityGuideActivity
+import net.veldor.flibusta_test.ui.SetTorBridgesActivity
 import java.util.*
 
 @Suppress("DEPRECATION")
 class TestTorConnectionFragment : Fragment() {
+
+    private var setTorBridgesLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                viewModel.initTor()
+            } else if (result.resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(requireContext(), "You must finish setup", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     private var mTorFixDialog: AlertDialog? = null
     private lateinit var binding: FragmentTestTorConnectionBinding
@@ -55,31 +68,45 @@ class TestTorConnectionFragment : Fragment() {
             navController.navigate(R.id.check_flibusta_via_tor_action)
         }
         binding.cancelLaunchTorBtn.setOnClickListener {
-            viewModel.cancelTorLaunch()
+            viewModel.cancelTorLaunch(requireContext())
             binding.launchTorBtn.isEnabled = true
             binding.launchTorBtn.text = getString(R.string.launch_message)
             binding.checkProgress.visibility = View.INVISIBLE
             binding.cancelLaunchTorBtn.visibility = View.INVISIBLE
             binding.cancelLaunchTorBtn.visibility = View.GONE
             binding.testStatusText.text = "Отменено"
+            binding.torFixActions.visibility = View.VISIBLE
         }
 
         binding.torFixActions.setOnClickListener {
             val view = layoutInflater.inflate(R.layout.dialog_tor_fix_options, null, false)
             view.findViewById<Button>(R.id.dropTorCache).setOnClickListener {
                 FilesHandler.dropTorCache()
-                Toast.makeText(requireContext(), getString(R.string.tor_cache_dropped_message), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.tor_cache_dropped_message),
+                    Toast.LENGTH_LONG
+                ).show()
                 mTorFixDialog?.dismiss()
             }
             view.findViewById<Button>(R.id.downloadTorBridges).setOnClickListener {
-                Toast.makeText(requireContext(), getString(R.string.start_load_bridges_title), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.start_load_bridges_title),
+                    Toast.LENGTH_LONG
+                ).show()
                 viewModel.loadTorBridges()
 
                 mTorFixDialog?.dismiss()
             }
             view.findViewById<Button>(R.id.useCustomTorBridges).setOnClickListener {
-                showCustomBridgesDialog()
                 mTorFixDialog?.dismiss()
+                setTorBridgesLauncher.launch(
+                    Intent(
+                        requireContext(),
+                        SetTorBridgesActivity::class.java
+                    )
+                )
             }
             mTorFixDialog = AlertDialog.Builder(requireContext())
                 .setView(view)
@@ -98,7 +125,11 @@ class TestTorConnectionFragment : Fragment() {
             .setTitle(getString(R.string.tor_fix_options_title))
             .setPositiveButton(getString(R.string.save_message)) { _, _ ->
                 viewModel.saveBridges(view.findViewById<TextInputEditText>(R.id.bridgesInput).text)
-                Toast.makeText(requireContext(), getString(R.string.custom_bridges_saved_message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.custom_bridges_saved_message),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
@@ -110,9 +141,13 @@ class TestTorConnectionFragment : Fragment() {
             if (it != null) {
                 if (it == ConnectivityGuideViewModel.STATE_PASSED) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        binding.testStatusText.setTextColor(resources.getColor(R.color.genre_text_color, null))
-                    }
-                    else{
+                        binding.testStatusText.setTextColor(
+                            resources.getColor(
+                                R.color.genre_text_color,
+                                null
+                            )
+                        )
+                    } else {
                         binding.testStatusText.setTextColor(resources.getColor(R.color.genre_text_color))
                     }
                     binding.checkProgress.visibility = View.GONE
@@ -122,12 +157,15 @@ class TestTorConnectionFragment : Fragment() {
                     binding.launchTorBtn.text = getString(R.string.launched_message)
                     binding.testStatusText.text = getString(R.string.check_passed)
                     binding.cancelLaunchTorBtn.visibility = View.GONE
-                }
-                else if (it == ConnectivityGuideViewModel.STATE_FAILED) {
+                } else if (it == ConnectivityGuideViewModel.STATE_FAILED) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color, null))
-                    }
-                    else{
+                        binding.testStatusText.setTextColor(
+                            resources.getColor(
+                                R.color.book_name_color,
+                                null
+                            )
+                        )
+                    } else {
                         binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color))
                     }
                     binding.torFixActions.isEnabled = true
@@ -136,7 +174,11 @@ class TestTorConnectionFragment : Fragment() {
                     binding.cancelLaunchTorBtn.visibility = View.GONE
                     binding.checkProgress.visibility = View.GONE
                     binding.torFixActions.visibility = View.VISIBLE
-                    binding.testStatusText.text = String.format(Locale.ENGLISH, getString(R.string.fail_tor_message), UniversalWebClient.connectionError.value?.message)
+                    binding.testStatusText.text = String.format(
+                        Locale.ENGLISH,
+                        getString(R.string.fail_tor_message),
+                        UniversalWebClient.connectionError.value?.message
+                    )
                     binding.errorDescriptionBtn.visibility = View.VISIBLE
                     binding.errorDescriptionBtn.setOnClickListener {
                         Toast.makeText(
@@ -148,9 +190,13 @@ class TestTorConnectionFragment : Fragment() {
                     }
                 } else if (it == ConnectivityGuideViewModel.STATE_CHECK_ERROR) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color, null))
-                    }
-                    else{
+                        binding.testStatusText.setTextColor(
+                            resources.getColor(
+                                R.color.book_name_color,
+                                null
+                            )
+                        )
+                    } else {
                         binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color))
                     }
                     binding.launchTorBtn.text = getString(R.string.try_again_message)

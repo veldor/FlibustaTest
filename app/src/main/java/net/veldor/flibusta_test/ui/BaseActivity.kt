@@ -62,7 +62,8 @@ open class BaseActivity : AppCompatActivity() {
 
         if (PreferencesHandler.instance.isEInk) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (App.instance.resources.configuration.uiMode and
-                        Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO) {
+                        Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO
+            ) {
                 window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
             }
             val myColorStateList = ColorStateList(
@@ -172,6 +173,21 @@ open class BaseActivity : AppCompatActivity() {
                         theme
                     )
                 )
+                bookAddedSnackbar?.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.invertable_black,
+                        theme
+                    )
+                )
+            } else {
+                bookAddedSnackbar?.setActionTextColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.always_white,
+                        theme
+                    )
+                )
             }
 
             if (anchorView != null) {
@@ -227,5 +243,14 @@ open class BaseActivity : AppCompatActivity() {
             return theme
         }
         return super.getTheme()
+    }
+
+    class ResetApp : Runnable {
+        override fun run() {
+            val intent = Intent(App.instance, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            App.instance.startActivity(intent)
+            Runtime.getRuntime().exit(0)
+        }
     }
 }

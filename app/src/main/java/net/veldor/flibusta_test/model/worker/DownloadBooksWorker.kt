@@ -8,6 +8,7 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.handler.DownloadHandler
 import net.veldor.flibusta_test.model.handler.NotificationHandler
 import net.veldor.flibusta_test.model.selections.BooksDownloadProgress
+import net.veldor.flibusta_test.model.utils.CacheUtils
 
 class DownloadBooksWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
@@ -48,6 +49,7 @@ class DownloadBooksWorker(context: Context, workerParams: WorkerParameters) :
         catch (e:Throwable){e.printStackTrace()}
         DownloadHandler.instance.downloadFinished()
         NotificationHandler.instance.showDownloadFinishedNotification(currentProgress)
+        CacheUtils.requestClearCache()
         return Result.success()
     }
 

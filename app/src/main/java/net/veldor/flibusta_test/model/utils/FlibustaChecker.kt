@@ -1,6 +1,7 @@
 package net.veldor.flibusta_test.model.utils
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import cz.msebera.android.httpclient.client.methods.HttpGet
 import cz.msebera.android.httpclient.impl.client.CloseableHttpClient
 import cz.msebera.android.httpclient.impl.client.HttpClients
@@ -8,6 +9,7 @@ import cz.msebera.android.httpclient.util.EntityUtils
 import org.json.JSONObject
 
 class FlibustaChecker {
+
 
     companion object {
         private const val apiRequest =
@@ -19,14 +21,18 @@ class FlibustaChecker {
         const val STATE_AVAILABLE = 2
         const val STATE_UNAVAILABLE = 3
         const val STATE_PASSED = 4
+
+        public val liveRequestState = MutableLiveData<String>()
     }
 
     fun isAlive(): Int {
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
         var httpget = HttpGet(apiRequest)
         Log.d("surprise", "FlibustaChecker.kt 27 isAlive ping flibusta on $httpget")
+        liveRequestState.postValue("Start ping flibusta.is")
         httpget.addHeader("Accept", "application/json")
         var response = httpclient.execute(httpget)
+        liveRequestState.postValue("Server request code is ${response.statusLine.statusCode}")
         if (response.statusLine.statusCode == 200) {
             // parse json response
             var body: String = EntityUtils.toString(response.entity)
@@ -36,13 +42,18 @@ class FlibustaChecker {
                 if (result == 1) {
                     if (info.has("request_id")) {
                         val requestId = info.getString("request_id")
+                        liveRequestState.postValue("requestId id $requestId")
                         if (requestId.isNotEmpty()) {
+                            var tryCounter = 0;
                             while (true) {
-                                Thread.sleep(500)
+                                tryCounter++
+                                Thread.sleep(1000)
+                                liveRequestState.postValue("request check results")
                                 // запрошу результаты
                                 httpget = HttpGet(apiResultRequest.plus(requestId))
                                 httpget.addHeader("Accept", "application/json")
                                 response = httpclient.execute(httpget)
+                                liveRequestState.postValue("Server check response code is ${response.statusLine.statusCode}")
                                 if (response.statusLine.statusCode == 200) {
                                     body = EntityUtils.toString(response.entity)
                                     info = JSONObject(body)
@@ -56,8 +67,10 @@ class FlibustaChecker {
                                                 if (availability != null) {
                                                     val state = availability.getInt(0)
                                                     if (state == 1) {
+                                                        liveRequestState.postValue("Server available")
                                                         return STATE_AVAILABLE
                                                     } else if (state == 0) {
+                                                        liveRequestState.postValue("Server unavailable from source")
                                                         Log.d(
                                                             "surprise",
                                                             "FlibustaChecker.kt 55 isAlive looks like it's dead"
@@ -68,7 +81,7 @@ class FlibustaChecker {
                                             }
                                         }
                                     }
-                                    if (failed > 0) {
+                                    if (failed > 0 || tryCounter > 30) {
                                         return STATE_UNAVAILABLE
                                     }
                                 } else {

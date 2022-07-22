@@ -1,6 +1,7 @@
 package net.veldor.flibusta_test.model.web
 
 import android.os.Build
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
@@ -15,6 +16,7 @@ class UniversalWebClient {
     }
 
     fun rawRequest(mirror: String, request: String, dropConnectionAfterResponse: Boolean): WebResponse {
+        Log.d("surprise", "UniversalWebClient.kt 18: $mirror")
         try {
             val requestString = mirror + request
             if (!PreferencesHandler.instance.useTor) {

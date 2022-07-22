@@ -25,12 +25,6 @@ abstract class BlacklistType {
     open val blacklistName = "empty"
     open var blacklistFileName = "empty"
 
-    @kotlin.jvm.JvmField
-    val liveBlacklistAdd = MutableLiveData<BlacklistItem>()
-
-    @kotlin.jvm.JvmField
-    val liveBlacklistRemove = MutableLiveData<BlacklistItem>()
-
     private var mDom: Document? = null
     private var mBlacklistValues: ArrayList<BlacklistItem> = arrayListOf()
     private val mExistentValues = ArrayList<String>()

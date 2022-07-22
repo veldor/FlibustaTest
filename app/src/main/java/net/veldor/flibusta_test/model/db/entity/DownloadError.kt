@@ -10,11 +10,11 @@ import net.veldor.flibusta_test.model.selections.CurrentBookDownloadProgress
 class DownloadError: BooksDownloadSchedule() {
     fun copyDataFrom(book: BooksDownloadSchedule) {
         bookId = book.bookId
+        link = book.link
         name = book.name
         author = book.author
         authorDirName = book.authorDirName
         format = book.format
-        link = book.link
         reservedSequenceName = book.reservedSequenceName
         sequenceDirName = book.sequenceDirName
         size = book.size

@@ -24,6 +24,7 @@ import net.veldor.flibusta_test.ui.DownloadDirContentActivity
 import net.veldor.flibusta_test.ui.DownloadScheduleActivity
 import net.veldor.flibusta_test.ui.DownloadedBooksActionsActivity
 import net.veldor.flibusta_test.ui.DownloadedBooksActionsActivity.Companion.EXTRA_NOTIFICATION_ID
+import net.veldor.flibusta_test.ui.SubscribesActivity
 import java.util.*
 
 class NotificationHandler private constructor(val context: Context) {
@@ -34,6 +35,7 @@ class NotificationHandler private constructor(val context: Context) {
         private const val FOREGROUND_CHANNEL_ID = "foreground"
         private const val MISC_CHANNEL_ID = "misc"
         private const val BOOK_DOWNLOADS_CHANNEL_ID = "book downloads"
+        private const val SUBSCRIBE_CHECK_SERVICE_CHANNEL_ID = "subscribes check"
 
         private const val DOWNLOADED_BOOKS_GROUP = "net.veldor.downloadedBooksGroup"
         private const val BOOKS_ERRORS_GROUP = "download errors"
@@ -43,6 +45,7 @@ class NotificationHandler private constructor(val context: Context) {
         private const val BOOK_DOWNLOAD_PROGRESS = 11
         const val START_TOR_WORKER_NOTIFICATION = 19
         const val TOR_BRIDGES_ERROR_NOTIFICATION = 23
+        const val CHECK_SUBSCRIBES_WORKER_NOTIFICATION = 10
 
 
         private const val START_APP_CODE = 1
@@ -113,8 +116,33 @@ class NotificationHandler private constructor(val context: Context) {
             nc.description =
                 context.getString(R.string.books_download_channel_description)
             mNotificationManager.createNotificationChannel(nc)
+
+            // создам канал уведомления о проверке подписок
+            nc = NotificationChannel(
+                SUBSCRIBE_CHECK_SERVICE_CHANNEL_ID,
+                context.getString(R.string.subscribes_check_channel),
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            nc.enableVibration(false)
+            nc.enableLights(false)
+            nc.setSound(null, null)
+            nc.description = context.getString(R.string.subscribes_check_channel_description)
+            mNotificationManager.createNotificationChannel(nc)
         }
     }
+
+    val checkSubscribesNotification: Notification
+        get() {
+            val notificationBuilder =
+                NotificationCompat.Builder(context, SUBSCRIBE_CHECK_SERVICE_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_book_black_24dp)
+                    .setContentTitle(
+                        App.instance.getString(R.string.check_flibusta_subscriptions_message)
+                    )
+                    .setProgress(0, 0, true)
+                    .setOngoing(true)
+            return notificationBuilder.build()
+        }
 
     val startTorNotification: Notification
         get() {
@@ -250,7 +278,7 @@ class NotificationHandler private constructor(val context: Context) {
 
     @SuppressLint("UnspecifiedImmutableFlag")
     fun createSuccessBookLoadNotification(destinationFile: DocumentFile?) {
-        if(destinationFile == null){
+        if (destinationFile == null) {
             // something wrong
             Log.d("surprise", "createSuccessBookLoadNotification: can't find destination file")
             return
@@ -692,6 +720,56 @@ class NotificationHandler private constructor(val context: Context) {
                 openErrorsPending
             )
         }
+
+        mNotificationManager.notify(bookLoadedId, downloadScheduleBuilder.build())
+        ++bookLoadedId
+    }
+
+    fun notifySubscriptionsCheck(resultsSize: Int) {
+        val openFileBrowserIntent =
+            Intent(context, SubscribesActivity::class.java)
+        openFileBrowserIntent.putExtra("tab", "results")
+        openFileBrowserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val openBrowserPending = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getActivity(
+                context,
+                myActionId,
+                openFileBrowserIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            getActivity(
+                context,
+                myActionId,
+                openFileBrowserIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+        myActionId++
+
+        val downloadScheduleBuilder =
+            NotificationCompat.Builder(context, BOOK_DOWNLOADS_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_app_logo)
+                .setContentTitle(context.getString(R.string.subscriptions_check_finished_title))
+                .setOngoing(false)
+                .setContentText(resultsSize.toString())
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(
+                            String.format(
+                                Locale.ENGLISH,
+                                context.getString(R.string.subscriptions_check_pattern),
+                                resultsSize
+                            )
+                        )
+                )
+                .setContentIntent(openBrowserPending)
+                .addAction(
+                    R.drawable.ic_baseline_view_list_24,
+                    context.getString(R.string.show_browser_title),
+                    openBrowserPending
+                )
+                .setAutoCancel(true)
 
         mNotificationManager.notify(bookLoadedId, downloadScheduleBuilder.build())
         ++bookLoadedId
