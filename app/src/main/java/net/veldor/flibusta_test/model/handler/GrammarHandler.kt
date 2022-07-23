@@ -11,7 +11,10 @@ import androidx.core.content.res.ResourcesCompat
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import java.text.CharacterIterator
+import java.text.StringCharacterIterator
 import java.util.*
+import kotlin.math.abs
 
 object GrammarHandler {
 
@@ -25,6 +28,23 @@ object GrammarHandler {
             }
         }
         return "Автор неизвестен"
+    }
+
+    fun humanReadableByteCountBin(bytes: Long): String {
+        val absB = if (bytes == Long.MIN_VALUE) Long.MAX_VALUE else abs(bytes)
+        if (absB < 1024) {
+            return "$bytes b"
+        }
+        var value = absB
+        val ci: CharacterIterator = StringCharacterIterator("KMGTPE")
+        var i = 40
+        while (i >= 0 && absB > 0xfffccccccccccccL shr i) {
+            value = value shr 10
+            ci.next()
+            i -= 10
+        }
+        value *= java.lang.Long.signum(bytes).toLong()
+        return String.format("%.1f %cb", value / 1024.0, ci.current())
     }
 
     fun getColoredString(mString: String?, colorId: Int, context: Context): Spannable {

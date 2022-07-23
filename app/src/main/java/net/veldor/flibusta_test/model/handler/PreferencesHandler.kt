@@ -13,6 +13,12 @@ import java.io.File
 
 class PreferencesHandler private constructor() {
 
+    var checkUpdateAfter: Int
+        get() = preferences.getInt(PREF_CHECK_UPDATE_AFTER, -1)
+        set(state) {
+            preferences.edit().putInt(PREF_CHECK_UPDATE_AFTER, state).apply()
+        }
+
     var autoDownloadSubscriptions: Boolean
         get() = preferences.getBoolean(PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS, false)
         set(state) {
@@ -495,6 +501,7 @@ class PreferencesHandler private constructor() {
         private const val PREF_CUSTOM_BRIDGES = "custom bridges"
         private const val PREF_USE_CUSTOM_BRIDGES = "use custom bridges"
         private const val PREF_SAVING_LOGS = "saving logs"
+        private const val PREF_CHECK_UPDATE_AFTER = "check update after"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

@@ -11,8 +11,9 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/always_white"
             android:layout_marginTop="50dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -77,6 +78,8 @@
             android:shadowDx="3"
             android:shadowDy="3"
             android:shadowRadius="3"
+            android:textSize="20sp"
+            android:textStyle="bold"
             android:text="@string/start_connection_test_btn"
             android:gravity="center"
             android:textColor="@color/always_white"
@@ -88,39 +91,25 @@
 
         <ProgressBar
             android:id="@+id/currentStateProgress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@drawable/drawable_circle_dark_blue"
+            android:indeterminate="false"
+            android:max="300"
+            android:progressDrawable="@drawable/drawable_circle_yellow"
+            android:rotation="-90"
+            android:shadowColor="#000000"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:textColor="@color/background_color"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentState" />
-
-        <TextSwitcher
-            android:id="@+id/statusWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:gravity="center_horizontal"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentStateProgress">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:textAlignment="center" />
-        </TextSwitcher>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/app_version"

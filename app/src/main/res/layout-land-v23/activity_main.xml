@@ -88,14 +88,25 @@
 
         <ProgressBar
             android:id="@+id/currentStateProgress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="@drawable/drawable_circle_dark_blue"
+            android:indeterminate="false"
+            android:max="300"
+            android:progressDrawable="@drawable/drawable_circle_yellow"
+            android:rotation="-90"
+            android:shadowColor="#000000"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:textColor="@color/background_color"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/currentState" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextSwitcher
             android:id="@+id/statusWrapper"

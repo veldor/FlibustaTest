@@ -533,4 +533,12 @@ Later you can change this parameter in Catalog settings</string>
     <string name="saving_logs_pref">Saving log files</string>
     <string name="send_email">Send email</string>
     <string name="update_file_name">Flibusta books beta</string>
+    <string name="state_wait_for_check_update">Preparing check update</string>
+    <string name="state_update_check_in_progress">Update check in progress</string>
+    <string name="state_update_available">Update available</string>
+    <string name="state_no_update">You use last version</string>
+    <string name="download_update_title">Download</string>
+    <string name="not_now_title">Not now</string>
+    <string name="ingrore_this_update_title">Ignore this update</string>
+    <string name="downloading_update_dialog">Downloading update</string>
 </resources>

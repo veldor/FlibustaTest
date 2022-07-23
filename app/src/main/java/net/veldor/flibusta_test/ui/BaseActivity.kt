@@ -7,7 +7,6 @@ import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
@@ -118,7 +117,7 @@ open class BaseActivity : AppCompatActivity() {
                 getString(R.string.application_version_message),
                 PreferencesHandler.instance.appVersion
             )
-            if (!App.isTestVersion) {
+            if (!PreferencesHandler.instance.savingLogs) {
                 mNavigationView.menu.findItem(R.id.sendLog).isVisible = false
             }
             // метод для счетчиков

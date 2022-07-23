@@ -13,17 +13,11 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.lifecycle.MutableLiveData
-import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.BuildConfig
 import java.io.File
 
 class UpdateWaitService : Service() {
-    private var mDownloadId: Long? = null
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        // получу идентификатор загрузки
-        val identification: MutableLiveData<Long> = Updater.updateDownloadIdentification
-        mDownloadId = identification.value
         // Регистрирую сервис для приёма статуса загрузки обновления
         val downloadObserver = DownloadReceiver()
         this.registerReceiver(
@@ -41,7 +35,8 @@ class UpdateWaitService : Service() {
         override fun onReceive(context: Context, intent: Intent) {
             val finishedDownloadId: Long =
                 intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-            if (finishedDownloadId == mDownloadId) {
+            Log.d("surprise", "UpdateWaitService.kt 37: download finished, id is $finishedDownloadId")
+            if (finishedDownloadId == Updater.updateDownloadIdentification) {
                 val query: DownloadManager.Query = DownloadManager.Query()
                 query.setFilterById(finishedDownloadId)
                 val manager: DownloadManager = application.getSystemService(
@@ -64,7 +59,7 @@ class UpdateWaitService : Service() {
                         }
                         install.setDataAndType(
                             downloadUri,
-                            manager.getMimeTypeForDownloadedFile(mDownloadId!!)
+                            manager.getMimeTypeForDownloadedFile(Updater.updateDownloadIdentification)
                         )
                         Log.d("surprise", "DownloadReceiver onReceive: trying install update")
                         context.startActivity(install)

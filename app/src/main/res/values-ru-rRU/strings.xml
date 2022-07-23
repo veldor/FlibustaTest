@@ -521,4 +521,18 @@
     <string name="tor_error_library_connection_message">Невозможно соединиться с библиотекой. Возможно, проблемы с подключением к TOR. Вы можете повторить попытку или проверить настройки соединения</string>
     <string name="vpn_error_library_connection_message">Невозможно соединиться с библиотекой. Проверьте, работоспособен ли клиент VPN . Вы можете повторить попытку или проверить настройки соединения</string>
     <string name="tor_launch_error_message">Не удалось запустить клиент  TOR. Возможно, проблема в отсутствии интернет-соединения, или технология TOR блокируется в вашем регионе. Вы можете повторить попытку соединения, проверить настройки соединения, или назначить свои мосты TOR для обхода блокировки</string>
+    <string name="testing_preferences">Настройки тестирования</string>
+    <string name="not_save_log">Логи приложения не сохраняются</string>
+    <string name="logs_saving">Логи приложения сохраняются на карту памяти</string>
+    <string name="saving_logs_pref">Сохранять логи</string>
+    <string name="send_email">Отправить почтой</string>
+    <string name="update_file_name">Флибуста.книги Бета</string>
+    <string name="state_wait_for_check_update">Подготовка проверки обновления</string>
+    <string name="state_update_check_in_progress">Проверка наличия обновления</string>
+    <string name="state_update_available">Доступно обновление</string>
+    <string name="state_no_update">Вы используете последнюю версию приложения</string>
+    <string name="download_update_title">Загрузить</string>
+    <string name="not_now_title">Не сейчас</string>
+    <string name="ingrore_this_update_title">Пропустить это обновление</string>
+    <string name="downloading_update_dialog">Загрузка обновления</string>
 </resources>

@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -27,13 +28,18 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityMainBinding
+import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.NetworkHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.TorHandler
+import net.veldor.flibusta_test.model.utils.Updater
 import net.veldor.flibusta_test.model.view_model.StartViewModel
 import net.veldor.flibusta_test.ui.different_fragments.TorLogFragment
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    private var mUpdateDownloadProgressView: ProgressBar? = null
+    private var mUpdateDownloadProgressDialog: AlertDialog? = null
     private var mCdt: CountDownTimer? = null
     private var mProgressCounter: Int = 0
     private var mConfirmExit: Long = -1
@@ -49,7 +55,11 @@ class MainActivity : AppCompatActivity() {
                 viewModel.launchConnection()
                 resetTimer()
             } else if (result.resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(this, getString(R.string.must_finish_setup_message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.must_finish_setup_message),
+                    Toast.LENGTH_SHORT
+                ).show()
                 viewModel.launchConnection()
                 resetTimer()
             }
@@ -88,13 +98,13 @@ class MainActivity : AppCompatActivity() {
             link = intent.data
         }
         viewModel = ViewModelProvider(this).get(StartViewModel::class.java)
-        //viewModel.startTor(this)
         // если приложение используется первый раз- запущу стартовый гайд
         if (PreferencesHandler.instance.firstUse) {
             val targetActivityIntent = Intent(this, FirstUseGuideActivity::class.java)
             firstUseLauncher.launch(targetActivityIntent)
         } else {
-            viewModel.launchConnection()
+            // check for updates
+            viewModel.checkForUpdates()
         }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.rootView)
@@ -124,7 +134,6 @@ class MainActivity : AppCompatActivity() {
 
         // setup theme
         if (PreferencesHandler.instance.isEInk) {
-
             binding.currentStateProgress.rotation = 0F
             binding.currentStateProgress.background =
                 ResourcesCompat.getDrawable(resources, R.drawable.eink_progressbar_background, null)
@@ -192,6 +201,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
+
+        Updater.liveCurrentDownloadProgress.observe(this) {
+            if (it >= 0) {
+                updateUpdateDownloadProgress(it)
+            } else {
+                hideUpdateDownloadProgressDialog()
+            }
+        }
+
+        viewModel.updateState.observe(this) {
+            when (it) {
+                StartViewModel.STATE_UPDATE_CHECK_AWAITING -> {
+                    binding.currentState.text = getString(R.string.state_wait_for_check_update)
+                }
+                StartViewModel.STATE_UPDATE_CHECK_IN_PROGRESS -> {
+                    binding.currentState.text = getString(R.string.state_update_check_in_progress)
+                }
+                StartViewModel.STATE_UPDATE_AVAILABLE -> {
+                    binding.currentState.text = getString(R.string.state_update_available)
+                    showUpdateAvailableDialog()
+                }
+                StartViewModel.STATE_UPDATE_NOT_REQUIRED -> {
+                    binding.currentState.text = getString(R.string.state_no_update)
+                    viewModel.updateState.value = StartViewModel.STATE_UPDATE_CHECK_AWAITING
+                    viewModel.launchConnection()
+                }
+
+            }
+        }
+
         // check launch state
         viewModel.launchState.observe(this) {
             when (it) {
@@ -211,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                 StartViewModel.STATE_LIBRARY_SERVER_AVAILABLE -> {
                     binding.currentState.text = getString(R.string.state_flibusta_ping_success)
                 }
-                StartViewModel.STAGE_LAUCH_CLIENT -> {
+                StartViewModel.STAGE_LAUNCH_CLIENT -> {
                     binding.currentState.text = getString(R.string.state_launch_tor)
                 }
                 StartViewModel.STATE_LIBRARY_CONNECTION_CHECK_FAILED -> {
@@ -227,6 +266,75 @@ class MainActivity : AppCompatActivity() {
                     readyToGo()
                 }
             }
+        }
+    }
+
+    private fun hideUpdateDownloadProgressDialog() {
+        if (mUpdateDownloadProgressDialog != null) {
+            mUpdateDownloadProgressDialog?.dismiss()
+            viewModel.launchConnection()
+            resetTimer()
+        }
+    }
+
+    private fun updateUpdateDownloadProgress(progress: Int?) {
+        if (progress != null && progress > 0 && Updater.updateInfo != null) {
+            if (mUpdateDownloadProgressDialog == null) {
+                val view =
+                    layoutInflater.inflate(R.layout.update_download_progress_layout, null, false)
+                mUpdateDownloadProgressView = view.findViewById(R.id.progressBar)
+                mUpdateDownloadProgressDialog = AlertDialog.Builder(this, R.style.dialogTheme)
+                    .setTitle(getString(R.string.downloading_update_dialog))
+                    .setView(view)
+                    .setCancelable(false)
+                    .setNegativeButton(getString(R.string.cancel)) { _, _ ->
+                        Updater.cancelUpdate()
+                    }
+                    .create()
+            }
+            mUpdateDownloadProgressDialog?.show()
+            val currentProgress = (progress / Updater.updateInfo!!.size) * 100
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mUpdateDownloadProgressView?.setProgress(currentProgress.toInt(), true)
+            } else {
+                mUpdateDownloadProgressView?.progress = currentProgress.toInt()
+            }
+        } else {
+            hideUpdateDownloadProgressDialog()
+        }
+    }
+
+    private fun showUpdateAvailableDialog() {
+        val updateInfo = viewModel.getUpdateInfo()
+        if (updateInfo?.link != null) {
+            AlertDialog.Builder(this, R.style.dialogTheme)
+                .setTitle(getString(R.string.state_update_available))
+                .setMessage(
+                    String.format(
+                        Locale.ENGLISH,
+                        "%s\n%s\nSize: %s",
+                        updateInfo.title,
+                        updateInfo.body,
+                        GrammarHandler.humanReadableByteCountBin(updateInfo.size)
+                    )
+                )
+                .setPositiveButton(getString(R.string.download_update_title)) { _, _ ->
+                    viewModel.getUpdate(updateInfo, this)
+                }
+                .setNegativeButton(getString(R.string.not_now_title)) { _, _ ->
+                    viewModel.launchConnection()
+                    resetTimer()
+                }
+                .setNeutralButton(getString(R.string.ingrore_this_update_title)) { _, _ ->
+                    viewModel.ignoreUpdate(updateInfo)
+                    viewModel.launchConnection()
+                    resetTimer()
+                }
+                .setCancelable(false)
+                .show()
+        } else {
+            viewModel.launchConnection()
+            startTimer()
         }
     }
 
@@ -310,7 +418,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkConnectionOptions()
-        startTimer()
     }
 
     override fun onPause() {
@@ -495,7 +602,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun resetTimer(){
+    private fun resetTimer() {
         mCdt?.cancel()
         mProgressCounter = 0
         startTimer()

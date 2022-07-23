@@ -98,7 +98,6 @@
             android:background="@drawable/drawable_circle_dark_blue"
             android:indeterminate="false"
             android:max="300"
-            android:progress="100"
             android:progressDrawable="@drawable/drawable_circle_yellow"
             android:rotation="-90"
             android:shadowColor="#000000"
