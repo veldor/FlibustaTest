@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.model.handler
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
@@ -10,6 +11,7 @@ class OpdsResultsHandler private constructor() {
     }
 
     fun add(roundResult: SearchResult) {
+        Log.d("surprise", "OpdsResultsHandler.kt 14: adding to previously loaded results")
         _requestResult.add(roundResult)
         // count all results, if it is too much- notify about it
         if (PreferencesHandler.instance.saveOpdsHistory && !PreferencesHandler.instance.disableHistoryMessageViewed) {
@@ -27,11 +29,19 @@ class OpdsResultsHandler private constructor() {
     }
 
     fun getResults(): java.util.ArrayList<SearchResult> {
+        Log.d("surprise", "OpdsResultsHandler.kt 30: get previously loaded results")
         return _requestResult
     }
 
     fun set(previousResults: java.util.ArrayList<SearchResult>) {
+        Log.d("surprise", "OpdsResultsHandler.kt 36: set previously loaded results")
         _requestResult = previousResults
+    }
+
+    fun addClickedItemId(clickedItemId: Long) {
+        _requestResult.forEach {
+            it.clickedElementIndex = clickedItemId
+        }
     }
 
     private val _livePossibleMemoryOverflow: MutableLiveData<Boolean> = MutableLiveData()

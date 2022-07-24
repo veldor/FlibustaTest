@@ -21,7 +21,6 @@ object TorClient {
             Log.d("surprise", "rawRequest: no connect")
             return null
         }
-        Log.d("surprise", "rawRequest: go next")
         val port = TorHandler.instance.getPort()
         val proxy = Proxy(
             Proxy.Type.SOCKS,
@@ -45,7 +44,6 @@ object TorClient {
         }
         val code = connection.responseCode
         if (code < 400) {
-            Log.d("surprise", "rawRequest: tor connect success")
             // success connection, return input stream
             return connection
         }

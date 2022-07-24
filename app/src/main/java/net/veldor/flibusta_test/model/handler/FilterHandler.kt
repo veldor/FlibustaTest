@@ -15,6 +15,21 @@ object FilterHandler {
             var list: ArrayList<BlacklistItem>
             var lowerName: String
             if (foundedEntity.type == TYPE_BOOK) {
+                if (PreferencesHandler.instance.isHideRead) {
+                    if (foundedEntity.read) {
+                        return FilteringResult(false, null, null, "hideRead")
+                    }
+                }
+                if (PreferencesHandler.instance.isHideDownloaded) {
+                    if (foundedEntity.downloaded) {
+                        return FilteringResult(false, null, null, "hideDownloaded")
+                    }
+                }
+                if (PreferencesHandler.instance.isHideDigests) {
+                    if (foundedEntity.authors.size > 2) {
+                        return FilteringResult(false, foundedEntity.author, null, "hideDigests")
+                    }
+                }
                 // check for all of blacklists
                 if (PreferencesHandler.instance.isOnlyRussian && !foundedEntity.language.contains("ru")) {
                     return FilteringResult(false, null, null, "hideNonRussian")
@@ -242,21 +257,6 @@ object FilterHandler {
                             }
                         }
                     }
-                }
-            }
-            if (PreferencesHandler.instance.isHideRead) {
-                if (foundedEntity.read) {
-                    return FilteringResult(false, null, null, "hideRead")
-                }
-            }
-            if (PreferencesHandler.instance.isHideDownloaded) {
-                if (foundedEntity.downloaded) {
-                    return FilteringResult(false, null, null, "hideDownloaded")
-                }
-            }
-            if (PreferencesHandler.instance.isHideDigests) {
-                if (foundedEntity.authors.size > 2) {
-                    return FilteringResult(false, foundedEntity.author, null, "hideDigests")
                 }
             }
         }

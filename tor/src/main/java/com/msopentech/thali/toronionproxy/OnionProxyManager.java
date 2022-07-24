@@ -117,6 +117,7 @@ public abstract class OnionProxyManager {
                 for(int secondsWaited = 0; secondsWaited < secondsBeforeTimeOut; ++secondsWaited) {
                     if (!isBootstrapped()) {
                         if(interrupted){
+                            numberOfRetries = 0;
                             interrupted = false;
                             throw new InterruptedException();
                         }

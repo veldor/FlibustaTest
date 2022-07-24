@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Toast
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
@@ -35,6 +36,7 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
+import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class FoundItemAdapter(
@@ -279,7 +281,7 @@ class FoundItemAdapter(
             // handle selected item
             if (item.selected) {
                 Log.d("surprise", "FoundItemAdapter.kt 284: mark selected")
-                binding.rootView.setBackgroundColor(
+                binding.mainView.setBackgroundColor(
                     ResourcesCompat.getColor(
                         context.resources,
                         R.color.selected_item_background,
@@ -287,7 +289,7 @@ class FoundItemAdapter(
                     )
                 )
             } else if (!PreferencesHandler.instance.isEInk) {
-                binding.root.background =
+                binding.mainView.background =
                     ResourcesCompat.getDrawable(
                         context.resources,
                         R.drawable.genre_layout,
@@ -369,6 +371,8 @@ class FoundItemAdapter(
             binding.name.isClickable = true
             makeSelectable(binding.name)
             binding.name.setOnClickListener {
+                itemInAction = binding.item
+                Log.d("surprise", "FoundItemAdapter.kt 373: clicked ${binding.item?.itemId}")
                 delegate.nameClicked(item)
             }
             binding.menuButton.visibility = View.GONE

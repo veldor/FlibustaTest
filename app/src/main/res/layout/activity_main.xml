@@ -121,6 +121,22 @@
             android:shadowRadius="3"
             android:text="@string/default_app_version"
             android:textColor="@color/always_white"
+            app:layout_constraintBottom_toTopOf="@+id/relaunchBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/relaunchBtn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:shadowColor="#000000"
+            android:shadowDx="3"
+            android:shadowDy="3"
+            android:shadowRadius="3"
+            android:text="@string/retry_launch_title"
+            android:textColor="@color/always_white"
             app:layout_constraintBottom_toTopOf="@+id/showTorLogBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

@@ -118,24 +118,6 @@ class TestTorConnectionFragment : Fragment() {
         return binding.root
     }
 
-    private fun showCustomBridgesDialog() {
-        val view = layoutInflater.inflate(R.layout.dialog_tor_custom_bridges, null, false)
-        AlertDialog.Builder(requireContext())
-            .setView(view)
-            .setTitle(getString(R.string.tor_fix_options_title))
-            .setPositiveButton(getString(R.string.save_message)) { _, _ ->
-                viewModel.saveBridges(view.findViewById<TextInputEditText>(R.id.bridgesInput).text)
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.custom_bridges_saved_message),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-            .show()
-    }
-
     private fun setupObservers() {
         viewModel.testTorInit.observe(viewLifecycleOwner) {
             if (it != null) {

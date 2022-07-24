@@ -353,6 +353,11 @@ open class OpdsViewModel : ViewModel() {
         BookmarkHandler.instance.deleteBookmark(lastRequestedUrl)
     }
 
+    fun saveClickedElement(clickedItemId: Long) {
+        Log.d("surprise", "OpdsViewModel.kt 357: save clicked $clickedItemId")
+        OpdsResultsHandler.instance.addClickedItemId(clickedItemId)
+    }
+
 
     companion object {
         const val STATUS_WAIT = "wait"

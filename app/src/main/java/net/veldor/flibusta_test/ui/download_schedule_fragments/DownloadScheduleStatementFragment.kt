@@ -117,7 +117,6 @@ class DownloadScheduleStatementFragment : Fragment() {
                 binding.currentBookLoadProgress.isIndeterminate = true
                 binding.currentLoadProgressText.text = getString(R.string.waiting)
             }
-
         }
 
         DownloadHandler.instance.downloadInProgress.observe(viewLifecycleOwner) {

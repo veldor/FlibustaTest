@@ -69,6 +69,7 @@ class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
     SearchResultActionDelegate, SearchView.OnQueryTextListener {
 
+    private var totallyBlocked: Int = 0
     private var linkForLoad: String? = null
     private var bookmarkReservedName: String? = null
     private var mDisableHistoryDialog: AlertDialog? = null
@@ -357,6 +358,17 @@ class OpdsFragment : Fragment(),
     }
 
     private fun setupObservers() {
+
+        DownloadHandler.instance.liveBookDownloadProgress.observe(viewLifecycleOwner) {
+            val booksLeft = it.booksInQueue - it.successLoads - it.loadErrors
+            if (booksLeft > 0) {
+                binding.downloadStateBtn.visibility = View.VISIBLE
+                binding.downloadStateBtn.text = booksLeft.toString()
+            } else {
+                binding.downloadStateBtn.visibility = View.GONE
+            }
+        }
+
         (binding.resultsList.adapter as MyAdapterInterface?)?.liveSize?.observe(viewLifecycleOwner) {
             binding.foundResultsQuantity.text = String.format(
                 Locale.ENGLISH,
@@ -1020,7 +1032,6 @@ class OpdsFragment : Fragment(),
         // recycler setup
         a.setHasStableIds(true)
         // load results if exists
-        loadPreviousResults(a, viewModel.getPreviousResults())
         binding.resultsList.adapter = a
         val rowsCount = PreferencesHandler.instance.opdsLayoutRowsCount
         if (rowsCount == 0) {
@@ -1029,6 +1040,7 @@ class OpdsFragment : Fragment(),
             binding.resultsList.layoutManager =
                 GridLayoutManager(requireActivity(), rowsCount + 1)
         }
+        loadPreviousResults(a, viewModel.getPreviousResults())
 
         if (linkForLoad != null) {
             newRequestLaunched()
@@ -1078,7 +1090,16 @@ class OpdsFragment : Fragment(),
                         lastScrolled = position
                     }
                 }
+            }
 
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if ((binding.resultsList.adapter as MyAdapterInterface?)?.containsBooks() == true) {
+                    if (dy > 0)
+                        binding.massLoadFab.hide();
+                    else if (dy < 0)
+                        binding.massLoadFab.show();
+                }
             }
         })
 
@@ -1104,9 +1125,21 @@ class OpdsFragment : Fragment(),
             handleBookmark()
         }
 
+        binding.showBlockedStateBtn.setOnClickListener {
+            bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
         binding.readerModeSwitcher.setOnClickListener {
             PreferencesHandler.instance.isEInk = !PreferencesHandler.instance.isEInk
             requireActivity().recreate()
+        }
+
+        binding.sortBtn.setOnClickListener {
+            showSortDialog()
+        }
+
+        binding.downloadStateBtn.setOnClickListener {
+            showDownloadState()
         }
 
         binding.nightModeSwitcher.setOnClickListener {
@@ -1245,10 +1278,8 @@ class OpdsFragment : Fragment(),
                 a?.setNextPageLink(previousResults.lastOrNull()?.nextPageLink)
             }
             val clickedElementIndex = previousResults.lastOrNull()?.clickedElementIndex
-            Log.d("surprise", "loadPreviousResults: go to clicked $clickedElementIndex")
             if (clickedElementIndex != null) {
                 if (clickedElementIndex >= 0) {
-                    Log.d("surprise", "loadFromHistory: clicked item id is $clickedElementIndex")
                     val position =
                         (binding.resultsList.adapter as MyAdapterInterface?)?.getItemPositionById(
                             clickedElementIndex
@@ -1356,10 +1387,9 @@ class OpdsFragment : Fragment(),
                 }
             }
             TYPE_BOOK -> {
-                if(PreferencesHandler.instance.skipDownloadSetup && PreferencesHandler.instance.rememberFavoriteFormat && PreferencesHandler.instance.favoriteFormat != null){
+                if (PreferencesHandler.instance.skipDownloadSetup && PreferencesHandler.instance.rememberFavoriteFormat && PreferencesHandler.instance.favoriteFormat != null) {
                     viewModel.addToDownloadQueue(item.getFavoriteLink())
-                }
-                else{
+                } else {
                     // show window for book download prepare
                     val goDownloadIntent =
                         Intent(requireContext(), DownloadBookSetupActivity::class.java)
@@ -1582,6 +1612,7 @@ class OpdsFragment : Fragment(),
     override fun nameClicked(item: FoundEntity) {
         // load info about book in backdrop
         if (item.link != null) {
+            viewModel.saveClickedElement((binding.resultsList.adapter as MyAdapterInterface).getClickedItemId())
             PreferencesHandler.instance.lastWebViewLink = item.link!!
             (requireActivity() as BrowserActivity).launchWebViewFromOpds()
         }
@@ -1629,6 +1660,7 @@ class OpdsFragment : Fragment(),
         requireActivity().runOnUiThread {
             binding.hintContainer.visibility = View.GONE
             if (!searchResult.appended) {
+                totallyBlocked = 0
                 backdropFilterFragment?.clearResults()
                 scrollToTop()
                 (binding.resultsList.adapter as MyAdapterInterface).clearList()
@@ -1653,6 +1685,13 @@ class OpdsFragment : Fragment(),
             }
             setupSortView()
             if (PreferencesHandler.instance.showFilterStatistics) {
+                totallyBlocked += searchResult.filtered
+                if (totallyBlocked > 0) {
+                    binding.showBlockedStateBtn.visibility = View.VISIBLE
+                    binding.showBlockedStateBtn.text = totallyBlocked.toString()
+                } else {
+                    binding.showBlockedStateBtn.visibility = View.GONE
+                }
                 backdropFilterFragment?.appendResults(searchResult.filteredList)
             }
         }

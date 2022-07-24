@@ -55,6 +55,7 @@ class TorHandler private constructor() {
                 if(!PreferencesHandler.instance.useCustomBridges){
                     BridgesHandler().getBridges()
                 }
+                tor!!.interruptLaunch()
                 tor!!.startWithRepeat(
                     TOTAL_SECONDS_PER_TOR_STARTUP,
                     TOTAL_TRIES_PER_TOR_STARTUP

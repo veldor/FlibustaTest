@@ -60,8 +60,8 @@
         android:label="@string/test_vpn_connection_fragment"
         tools:layout="@layout/fragment_test_vpn_connection">
         <action
-            android:id="@+id/finish_test_action"
-            app:destination="@id/test_finish_guide"
+            android:id="@+id/action_test_flibusta_download_via_vpn"
+            app:destination="@id/test_download_book_guide"
             app:enterAnim="@anim/fab_slide_in_from_right"
             app:exitAnim="@anim/fab_slide_out_to_left"
             app:popEnterAnim="@anim/fab_slide_in_from_left"
@@ -86,6 +86,20 @@
         android:name="net.veldor.flibusta_test.ui.connection_guide.TestFlibustaViaTorFragment"
         android:label="@string/test_flibusta_via_tor_fragment"
         tools:layout="@layout/fragment_connect_flibusta_via_tor">
+        <action
+            android:id="@+id/action_test_flibusta_download_via_tor"
+            app:destination="@id/test_download_book_guide"
+            app:enterAnim="@anim/fab_slide_in_from_right"
+            app:exitAnim="@anim/fab_slide_out_to_left"
+            app:popEnterAnim="@anim/fab_slide_in_from_left"
+            app:popExitAnim="@anim/fab_slide_out_to_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/test_download_book_guide"
+        android:name="net.veldor.flibusta_test.ui.connection_guide.TestFlibustaDownloadBookFragment"
+        android:label="@string/test_finished_fragment"
+        tools:layout="@layout/fragment_test_flibusta_download_book">
         <action
             android:id="@+id/finish_test_action"
             app:destination="@id/test_finish_guide"

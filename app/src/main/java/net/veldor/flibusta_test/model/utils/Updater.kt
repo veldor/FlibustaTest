@@ -98,7 +98,16 @@ object Updater {
 
     @JvmStatic
     fun update(updateInfo: UpdateInfo) {
+        liveCurrentDownloadProgress.postValue(0)
         this.updateInfo = updateInfo
+        val target = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            updateInfo.fileName
+        )
+        if (target.isFile) {
+            target.delete()
+        }
+
         val request = DownloadManager.Request(Uri.parse(updateInfo.link))
             .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             .setTitle(updateInfo.fileName)
@@ -211,6 +220,7 @@ object Updater {
     fun cancelUpdate() {
         downloading = false
         if (mReceiver != null) {
+            mReceiver?.cancelDownload()
             App.instance.unregisterReceiver(mReceiver)
             mReceiver = null
         }

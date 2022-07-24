@@ -10,7 +10,6 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
 import net.veldor.flibusta_test.BuildConfig
-import net.veldor.flibusta_test.model.selections.UpdateInfo
 import net.veldor.flibusta_test.model.utils.Updater
 import java.io.File
 
@@ -29,16 +28,18 @@ class DownloadManagerReceiver(private val downloadManager: DownloadManager, priv
             Log.d("surprise", "DownloadManagerReceiver.kt 27: it's same download")
             val extras = intent.extras
             if (extras != null) {
+                Log.d("surprise", "DownloadManagerReceiver.kt 31: here")
                 val q = DownloadManager.Query()
                 q.setFilterById(extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID))
                 val c: Cursor = downloadManager.query(q)
                 if (c.moveToFirst()) {
+                    Log.d("surprise", "DownloadManagerReceiver.kt 36: here1")
                     val columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS)
                     val status = c.getInt(columnIndex)
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
-
-                        var fullPath: String? = null
-                        var source: File? = null
+                        Log.d("surprise", "DownloadManagerReceiver.kt 40: here2")
+                        val fullPath: String?
+                        val source: File?
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             fullPath = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
                             source = File(Uri.parse(fullPath).getPath())
@@ -67,9 +68,19 @@ class DownloadManagerReceiver(private val downloadManager: DownloadManager, priv
                         context.startActivity(install)
                         context.unregisterReceiver(this)
                     }
+                    else{
+                        Updater.liveCurrentDownloadProgress.postValue(-2)
+                    }
+                }
+                else{
+                    Updater.liveCurrentDownloadProgress.postValue(-2)
                 }
                 c.close()
             }
         }
+    }
+
+    fun cancelDownload() {
+        downloadManager.remove(downloadID)
     }
 }

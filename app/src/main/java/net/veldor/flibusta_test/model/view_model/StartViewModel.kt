@@ -118,7 +118,6 @@ open class StartViewModel : ViewModel() {
                 }
                 launchState.postValue(STAGE_CHECK_LIBRARY_CONNECTION)
                 val response = UniversalWebClient().rawRequest("/opds", false)
-                Log.d("surprise", "launchConnection: ${response.statusCode}")
                 val answer = StringHelper.streamToString(response.inputStream)
                 if (answer != null && answer.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>")) {
                     // connected successful
@@ -187,7 +186,8 @@ open class StartViewModel : ViewModel() {
         Updater.ignoreUpdate(updateInfo)
     }
 
-    fun getUpdate(updateInfo: UpdateInfo, context: Context) {
+    fun getUpdate(updateInfo: UpdateInfo) {
+        updateState.value = STATE_UPDATE_CHECK_AWAITING
         viewModelScope.launch(Dispatchers.IO) {
             Updater.update(updateInfo)
         }

@@ -96,7 +96,7 @@ class SetTorBridgesActivity : AppCompatActivity() {
 
         binding.getBridgesLinkBtn.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://www.google.com/search?q=получить+мосты+tor&ie=UTF-8")
+            intent.data = Uri.parse("https://bridges.torproject.org/bridges?transport=obfs4")
             startActivity(intent)
         }
 

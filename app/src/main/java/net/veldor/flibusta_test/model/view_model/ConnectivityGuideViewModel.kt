@@ -12,11 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.veldor.flibusta_test.App
-import net.veldor.flibusta_test.model.handler.BridgesHandler
-import net.veldor.flibusta_test.model.handler.GrammarHandler
-import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.handler.TorHandler
+import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.helper.StringHelper
+import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.selections.web.WebResponse
 import net.veldor.flibusta_test.model.utils.FlibustaChecker
 import net.veldor.flibusta_test.model.utils.FlibustaChecker.Companion.STATE_AVAILABLE
@@ -117,8 +115,6 @@ class ConnectivityGuideViewModel : ViewModel() {
 
     fun initTor() {
         initTorJob = viewModelScope.launch(Dispatchers.IO) {
-            // load bridges
-            BridgesHandler().getBridges()
             _testTorInit.postValue(STATE_WAIT)
             TorHandler.instance.start()
             if (TorHandler.instance.isTorWorks()) {
@@ -149,6 +145,23 @@ class ConnectivityGuideViewModel : ViewModel() {
     fun saveBridges(text: Editable?) {
         if (text != null && text.isNotEmpty()) {
             BridgesHandler().saveBridgesToFile(text.toString())
+        }
+    }
+
+    fun downloadTestBook() {
+        val downloadLink = DownloadLink()
+        downloadLink.id = "229751"
+        downloadLink.author = "Оруэлл Джордж"
+        downloadLink.authorDirName = "Оруэлл Джордж"
+        downloadLink.name = "1984 [ru]"
+        downloadLink.size = "Размер: 948 Kb"
+        downloadLink.mime = "application/fb2+zip"
+        downloadLink.reservedSequenceName = ""
+        downloadLink.sequenceDirName = "1984  ru версии"
+        downloadLink.url = "/b/229751/fb2"
+        DownloadLinkHandler.addDownloadLink(downloadLink)
+        if (PreferencesHandler.instance.downloadAutostart) {
+            DownloadHandler.instance.startDownload()
         }
     }
 

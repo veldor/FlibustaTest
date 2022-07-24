@@ -552,4 +552,15 @@ Later you can change this parameter in Catalog settings</string>
     <string name="show_updates_list_pref">Show list of all stable releases</string>
     <string name="you_use_latest_version_label">You use latest version</string>
     <string name="update_check_failed">Update check failed, try later</string>
+    <string name="show_connection_options_message">Switch connection hint</string>
+    <string name="show_connection_options_disabled_title">Do not offer switch connection type on start</string>
+    <string name="show_connection_options_enabled_title">On start- offer change connection type when VPN or TOR connection active</string>
+    <string name="step_final_text">Final step</string>
+    <string name="try_download_book_text">Excellent! Now you can download book for test connection!</string>
+    <string name="download__test_book_label">Download test book</string>
+    <string name="success_book_load_title">Looks like book success load, enjoy!</string>
+    <string name="failed_book_load_title">Looks like book load with error</string>
+    <string name="sort_list_btn_desc">Sort results list</string>
+    <string name="download_state_btn_desc">Show download state</string>
+    <string name="show_blocked_state_btn_description">Show blocked entities state</string>
 </resources>

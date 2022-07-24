@@ -107,7 +107,10 @@ class MainActivity : AppCompatActivity() {
                 firstUseLauncher.launch(targetActivityIntent)
             } else {
                 // check for updates
-                if (PreferencesHandler.instance.checkUpdateOnStart) {
+                if (Updater.liveCurrentDownloadProgress.value != null && Updater.liveCurrentDownloadProgress.value!! > 0) {
+                    Log.d("surprise", "MainActivity.kt 110: download in progress")
+                    updateUpdateDownloadProgress(Updater.liveCurrentDownloadProgress.value)
+                } else if (PreferencesHandler.instance.checkUpdateOnStart) {
                     viewModel.checkForUpdates()
                 } else {
                     viewModel.launchConnection()
@@ -140,6 +143,11 @@ class MainActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
             )
+        }
+
+        binding.relaunchBtn.setOnClickListener {
+            viewModel.launchConnection()
+            resetTimer()
         }
 
         // setup theme
@@ -215,12 +223,17 @@ class MainActivity : AppCompatActivity() {
         Updater.liveCurrentDownloadProgress.observe(this) {
             if (it >= 0) {
                 updateUpdateDownloadProgress(it)
+            } else if (it == -2) {
+                hideUpdateDownloadProgressDialog()
+                viewModel.launchConnection()
+                resetTimer()
             } else {
                 hideUpdateDownloadProgressDialog()
             }
         }
 
         viewModel.updateState.observe(this) {
+            Log.d("surprise", "MainActivity.kt 239: update state is $it")
             when (it) {
                 StartViewModel.STATE_UPDATE_CHECK_AWAITING -> {
                     binding.currentState.text = getString(R.string.state_wait_for_check_update)
@@ -287,8 +300,7 @@ class MainActivity : AppCompatActivity() {
     private fun hideUpdateDownloadProgressDialog() {
         if (mUpdateDownloadProgressDialog != null) {
             mUpdateDownloadProgressDialog?.dismiss()
-            viewModel.launchConnection()
-            resetTimer()
+            mUpdateDownloadProgressView?.isIndeterminate = true
         }
     }
 
@@ -304,11 +316,14 @@ class MainActivity : AppCompatActivity() {
                     .setCancelable(false)
                     .setNegativeButton(getString(R.string.cancel)) { _, _ ->
                         Updater.cancelUpdate()
+                        viewModel.launchConnection()
+                        resetTimer()
                     }
                     .create()
             }
             mUpdateDownloadProgressDialog?.show()
-            val currentProgress = (progress / Updater.updateInfo!!.size) * 100
+            val currentProgress = (progress.toDouble() / Updater.updateInfo!!.size.toDouble()) * 100
+            mUpdateDownloadProgressView?.isIndeterminate = false
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 mUpdateDownloadProgressView?.setProgress(currentProgress.toInt(), true)
             } else {
@@ -320,6 +335,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showUpdateAvailableDialog() {
+        Log.d("surprise", "MainActivity.kt 338: showing update available dialog")
         val updateInfo = viewModel.getUpdateInfo()
         if (updateInfo?.link != null) {
             AlertDialog.Builder(this, R.style.dialogTheme)
@@ -334,7 +350,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 .setPositiveButton(getString(R.string.download_update_title)) { _, _ ->
-                    viewModel.getUpdate(updateInfo, this)
+                    viewModel.getUpdate(updateInfo)
                 }
                 .setNegativeButton(getString(R.string.not_now_title)) { _, _ ->
                     viewModel.launchConnection()
@@ -411,6 +427,11 @@ class MainActivity : AppCompatActivity() {
                 viewModel.launchConnection(
                     true
                 )
+                resetTimer()
+            }
+            .setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->
+                PreferencesHandler.instance.checkServerOnStart = false
+                viewModel.launchConnection(true)
                 resetTimer()
             }
             .show()
@@ -496,7 +517,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.disable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = false
-                binding.connectionTypeSwitcher.performClick()
+                binding.connectionTypeSwitcher.isChecked = true
             }
             .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->
@@ -510,7 +531,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.enable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = true
-                binding.connectionTypeSwitcher.performClick()
+                binding.connectionTypeSwitcher.isChecked = false
             }
             .setNegativeButton(android.R.string.cancel) { _, _ -> }
             .setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->

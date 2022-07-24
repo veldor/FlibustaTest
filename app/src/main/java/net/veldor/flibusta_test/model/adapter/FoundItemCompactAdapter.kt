@@ -451,6 +451,7 @@ class FoundItemCompactAdapter(
     }
 
     override fun getItemPositionById(clickedItemId: Long): Int {
+        Log.d("surprise", "FoundItemCompactAdapter.kt 454: found here")
         if (resultValues.isNotEmpty()) {
             resultValues.forEach {
                 if (it.itemId == clickedItemId) {

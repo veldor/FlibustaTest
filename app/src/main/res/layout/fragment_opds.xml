@@ -71,12 +71,29 @@
                 android:src="@drawable/ic_baseline_filter_alt_24" />
 
             <ImageButton
+                android:id="@+id/sortBtn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/sort_list_btn_desc"
+                android:src="@drawable/ic_sort_white_24dp" />
+
+            <ImageButton
                 android:id="@+id/nightModeSwitcher"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/night_view_mode_title"
                 android:src="@drawable/ic_baseline_brightness_6_24" />
+
+            <Button
+                android:id="@+id/downloadStateBtn"
+                android:visibility="gone"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/download_state_btn_desc"
+                android:drawableLeft="@drawable/ic_baseline_arrow_downward_24" />
 
             <ImageButton
                 android:id="@+id/readerModeSwitcher"
@@ -101,6 +118,15 @@
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/switch_layout_btn"
                 android:src="@drawable/ic_baseline_grid_on_24" />
+
+            <Button
+                android:id="@+id/show_blocked_state_btn"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/show_blocked_state_btn_description"
+                android:drawableLeft="@drawable/ic_baseline_block_24"
+                android:visibility="gone" />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </HorizontalScrollView>
 

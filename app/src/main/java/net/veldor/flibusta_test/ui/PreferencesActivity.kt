@@ -224,8 +224,7 @@ class PreferencesActivity : BaseActivity() {
                     )
                     .setPositiveButton(getString(R.string.download_update_title)) { _, _ ->
                         (requireActivity() as PreferencesActivity).viewModel.getUpdate(
-                            updateInfo,
-                            requireContext()
+                            updateInfo
                         )
                     }
                     .setNegativeButton(getString(R.string.not_now_title)) { _, _ ->

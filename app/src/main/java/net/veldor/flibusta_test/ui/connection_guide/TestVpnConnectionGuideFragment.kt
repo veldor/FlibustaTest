@@ -44,7 +44,7 @@ class TestVpnConnectionGuideFragment : Fragment() {
                 requireActivity() as ConnectivityGuideActivity,
                 R.id.nav_host_fragment
             )
-        navController.navigate(R.id.finish_test_action)
+        navController.navigate(R.id.action_test_flibusta_download_via_vpn)
     }
 
     private fun setupObservers() {
