@@ -8,9 +8,13 @@ import android.os.Build
 import android.view.MenuItem
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.material.navigation.NavigationView
+import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.dialog.DonationDialog
+import net.veldor.flibusta_test.model.worker.SendLogWorker
 import net.veldor.flibusta_test.ui.*
 
 class NavigatorSelectHandler(private val mContext: Activity) :
@@ -62,11 +66,15 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 intent.data = Uri.parse("https://t.me/flibusta_downloader_beta")
                 mContext.startActivity(intent)
             }
+            R.id.sendLog -> {
+                val work = OneTimeWorkRequest.Builder(SendLogWorker::class.java).build()
+                WorkManager.getInstance(App.instance).enqueue(work)
+                tryCloseDrawer()
+            }
             R.id.exitApp -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     mContext.finishAndRemoveTask()
-                }
-                else{
+                } else {
                     mContext.finishAffinity()
                 }
                 Runtime.getRuntime().exit(0)

@@ -50,7 +50,12 @@
 
     <Preference
         app:title="@string/testing_preferences"
+        app:icon="@drawable/ic_test_black_24"
         app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$TestPreferencesFragment"/>
+    <Preference
+        app:title="@string/update_preferences"
+        app:icon="@drawable/ic_baseline_system_update_24"
+        app:fragment="net.veldor.flibusta_test.ui.PreferencesActivity$UpdatePreferencesFragment"/>
 
 
 </PreferenceScreen>

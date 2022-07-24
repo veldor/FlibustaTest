@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:summaryOff="@string/update_on_start_disabled"
+        android:summaryOn="@string/update_on_start_enabled"
+        android:title="@string/check_update_on_start_pref"
+        app:key="check update on start" />
+
+    <Preference
+        android:key="check update now"
+        android:title="@string/check_update_now_pref"/>
+
+    <Preference
+        android:key="show all beta updates"
+        android:summary="@string/show_beta_updates_list_title"
+        android:title="@string/show_beta_updates_list_pref"/>
+
+    <Preference
+        android:key="show all stable updates"
+        android:summary="@string/show_updates_list_title"
+        android:title="@string/show_updates_list_pref"/>
+</PreferenceScreen>

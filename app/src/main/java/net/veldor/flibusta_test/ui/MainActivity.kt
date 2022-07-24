@@ -97,20 +97,30 @@ class MainActivity : AppCompatActivity() {
         if (intent.data != null) {
             link = intent.data
         }
-        viewModel = ViewModelProvider(this).get(StartViewModel::class.java)
-        // если приложение используется первый раз- запущу стартовый гайд
-        if (PreferencesHandler.instance.firstUse) {
-            val targetActivityIntent = Intent(this, FirstUseGuideActivity::class.java)
-            firstUseLauncher.launch(targetActivityIntent)
+        if (PreferencesHandler.instance.skipLoadScreen) {
+            readyToGo()
         } else {
-            // check for updates
-            viewModel.checkForUpdates()
-        }
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.rootView)
+            viewModel = ViewModelProvider(this).get(StartViewModel::class.java)
+            // если приложение используется первый раз- запущу стартовый гайд
+            if (PreferencesHandler.instance.firstUse) {
+                val targetActivityIntent = Intent(this, FirstUseGuideActivity::class.java)
+                firstUseLauncher.launch(targetActivityIntent)
+            } else {
+                // check for updates
+                if (PreferencesHandler.instance.checkUpdateOnStart) {
+                    viewModel.checkForUpdates()
+                } else {
+                    viewModel.launchConnection()
+                    resetTimer()
+                }
+            }
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.rootView)
 
-        setupInterface()
-        setupObservers()
+            setupInterface()
+            setupObservers()
+        }
+
     }
 
     private fun setupInterface() {
@@ -226,6 +236,11 @@ class MainActivity : AppCompatActivity() {
                     binding.currentState.text = getString(R.string.state_no_update)
                     viewModel.updateState.value = StartViewModel.STATE_UPDATE_CHECK_AWAITING
                     viewModel.launchConnection()
+                    resetTimer()
+                }
+                StartViewModel.STATE_UPDATE_CHECK_FAILED -> {
+                    viewModel.launchConnection()
+                    resetTimer()
                 }
 
             }
@@ -334,7 +349,7 @@ class MainActivity : AppCompatActivity() {
                 .show()
         } else {
             viewModel.launchConnection()
-            startTimer()
+            resetTimer()
         }
     }
 
@@ -417,7 +432,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        checkConnectionOptions()
+        if (!PreferencesHandler.instance.skipLoadScreen) {
+            checkConnectionOptions()
+        }
     }
 
     override fun onPause() {

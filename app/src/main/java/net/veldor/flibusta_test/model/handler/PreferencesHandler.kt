@@ -19,11 +19,15 @@ class PreferencesHandler private constructor() {
             preferences.edit().putInt(PREF_CHECK_UPDATE_AFTER, state).apply()
         }
 
+
     var autoDownloadSubscriptions: Boolean
         get() = preferences.getBoolean(PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS, false)
         set(state) {
             preferences.edit().putBoolean(PREF_AUTO_DOWNLOAD_SUBSCRIPTIONS, state).apply()
         }
+
+    val checkUpdateOnStart: Boolean
+        get() = preferences.getBoolean(PREF_CHECK_UPDATE_ON_START, true)
 
     var useCustomBridges: Boolean
         get() = preferences.getBoolean(PREF_USE_CUSTOM_BRIDGES, false)
@@ -500,8 +504,9 @@ class PreferencesHandler private constructor() {
         private const val PREF_SKIP_LOAD_SCREEN = "skip load screen"
         private const val PREF_CUSTOM_BRIDGES = "custom bridges"
         private const val PREF_USE_CUSTOM_BRIDGES = "use custom bridges"
-        private const val PREF_SAVING_LOGS = "saving logs"
+        private const val PREF_SAVING_LOGS = "saving log files"
         private const val PREF_CHECK_UPDATE_AFTER = "check update after"
+        private const val PREF_CHECK_UPDATE_ON_START = "check update on start"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

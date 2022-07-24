@@ -541,4 +541,15 @@ Later you can change this parameter in Catalog settings</string>
     <string name="not_now_title">Not now</string>
     <string name="ingrore_this_update_title">Ignore this update</string>
     <string name="downloading_update_dialog">Downloading update</string>
+    <string name="update_preferences">Update preferences</string>
+    <string name="update_on_start_disabled">Do not check update on start</string>
+    <string name="update_on_start_enabled">Check update on start enabled</string>
+    <string name="check_update_on_start_pref">Check update on start</string>
+    <string name="check_update_now_pref">Check update now</string>
+    <string name="show_beta_updates_list_pref">Show beta releases list</string>
+    <string name="show_beta_updates_list_title">Show list of all beta update releases</string>
+    <string name="show_updates_list_title">Show stable releases list</string>
+    <string name="show_updates_list_pref">Show list of all stable releases</string>
+    <string name="you_use_latest_version_label">You use latest version</string>
+    <string name="update_check_failed">Update check failed, try later</string>
 </resources>

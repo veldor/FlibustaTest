@@ -1,12 +1,15 @@
 package net.veldor.flibusta_test.ui
 
 import android.app.Activity
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -16,6 +19,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.*
+import com.google.android.material.snackbar.Snackbar
 import lib.folderpicker.FolderPicker
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
@@ -25,8 +29,11 @@ import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.BookActionsHelper
 import net.veldor.flibusta_test.model.utils.CacheUtils
 import net.veldor.flibusta_test.model.utils.TransportUtils
+import net.veldor.flibusta_test.model.utils.Updater
 import net.veldor.flibusta_test.model.view_model.PreferencesViewModel
+import net.veldor.flibusta_test.model.view_model.StartViewModel
 import java.io.File
+import java.util.*
 
 
 @Suppress("unused")
@@ -73,18 +80,185 @@ class PreferencesActivity : BaseActivity() {
             setPreferencesFromResource(R.xml.preferences_root, rootKey)
         }
     }
+
     class TestPreferencesFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences_test, rootKey)
         }
     }
 
+    class UpdatePreferencesFragment : PreferenceFragmentCompat() {
+        private var mUpdateCheckSnackbar: Snackbar? = null
+        private var mUpdateDownloadProgressView: ProgressBar? = null
+        private var mUpdateDownloadProgressDialog: AlertDialog? = null
+
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.preferences_update, rootKey)
+
+
+            val checkUpdateNowPref =
+                findPreference<Preference>("check update now")
+            checkUpdateNowPref?.setOnPreferenceClickListener {
+                (requireActivity() as PreferencesActivity).viewModel.checkForUpdates()
+                return@setOnPreferenceClickListener true
+            }
+
+            val showBetaReleasesPref =
+                findPreference<Preference>("show all beta updates")
+            showBetaReleasesPref?.setOnPreferenceClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://github.com/veldor/FlibustaTest/releases")
+                startActivity(intent)
+                return@setOnPreferenceClickListener true
+            }
+            val showStableReleasesPref =
+                findPreference<Preference>("show all stable updates")
+            showStableReleasesPref?.setOnPreferenceClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://github.com/veldor/FlibustaBookLoader/releases")
+                startActivity(intent)
+                return@setOnPreferenceClickListener true
+            }
+
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+
+            (requireActivity() as PreferencesActivity).viewModel.updateState.observe(
+                viewLifecycleOwner
+            ) {
+                when (it) {
+                    StartViewModel.STATE_UPDATE_CHECK_AWAITING -> {
+                    }
+                    StartViewModel.STATE_UPDATE_CHECK_IN_PROGRESS -> {
+                        showUpdateCheckSnackbar()
+                    }
+                    StartViewModel.STATE_UPDATE_AVAILABLE -> {
+                        hideUpdateCheckSnackbar()
+                        showUpdateAvailableDialog()
+                    }
+                    StartViewModel.STATE_UPDATE_NOT_REQUIRED -> {
+                        hideUpdateCheckSnackbar()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.you_use_latest_version_label),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    StartViewModel.STATE_UPDATE_CHECK_FAILED -> {
+                        hideUpdateCheckSnackbar()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.update_check_failed),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+
+            Updater.liveCurrentDownloadProgress.observe(viewLifecycleOwner) {
+                if (it >= 0) {
+                    updateUpdateDownloadProgress(it)
+                } else {
+                    hideUpdateDownloadProgressDialog()
+                }
+            }
+            return super.onCreateView(inflater, container, savedInstanceState)
+        }
+
+        private fun updateUpdateDownloadProgress(progress: Int?) {
+            if (progress != null && progress > 0 && Updater.updateInfo != null) {
+                if (mUpdateDownloadProgressDialog == null) {
+                    val view =
+                        layoutInflater.inflate(
+                            R.layout.update_download_progress_layout,
+                            null,
+                            false
+                        )
+                    mUpdateDownloadProgressView = view.findViewById(R.id.progressBar)
+                    mUpdateDownloadProgressDialog =
+                        AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+                            .setTitle(getString(R.string.downloading_update_dialog))
+                            .setView(view)
+                            .setCancelable(false)
+                            .setNegativeButton(getString(R.string.cancel)) { _, _ ->
+                                Updater.cancelUpdate()
+                            }
+                            .create()
+                }
+                mUpdateDownloadProgressDialog?.show()
+                val currentProgress = (progress / Updater.updateInfo!!.size) * 100
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    mUpdateDownloadProgressView?.setProgress(currentProgress.toInt(), true)
+                } else {
+                    mUpdateDownloadProgressView?.progress = currentProgress.toInt()
+                }
+            } else {
+                hideUpdateDownloadProgressDialog()
+            }
+        }
+
+        private fun hideUpdateDownloadProgressDialog() {
+            if (mUpdateDownloadProgressDialog != null) {
+                mUpdateDownloadProgressDialog?.dismiss()
+            }
+        }
+
+        private fun showUpdateAvailableDialog() {
+            val updateInfo = (requireActivity() as PreferencesActivity).viewModel.getUpdateInfo()
+            if (updateInfo?.link != null) {
+                AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+                    .setTitle(getString(R.string.state_update_available))
+                    .setMessage(
+                        String.format(
+                            Locale.ENGLISH,
+                            "%s\n%s\nSize: %s",
+                            updateInfo.title,
+                            updateInfo.body,
+                            GrammarHandler.humanReadableByteCountBin(updateInfo.size)
+                        )
+                    )
+                    .setPositiveButton(getString(R.string.download_update_title)) { _, _ ->
+                        (requireActivity() as PreferencesActivity).viewModel.getUpdate(
+                            updateInfo,
+                            requireContext()
+                        )
+                    }
+                    .setNegativeButton(getString(R.string.not_now_title)) { _, _ ->
+                    }
+                    .setNeutralButton(getString(R.string.ingrore_this_update_title)) { _, _ ->
+                        (requireActivity() as PreferencesActivity).viewModel.ignoreUpdate(updateInfo)
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
+        }
+
+        private fun showUpdateCheckSnackbar() {
+            if (mUpdateCheckSnackbar == null) {
+                mUpdateCheckSnackbar = Snackbar.make(
+                    requireContext(),
+                    (requireActivity() as PreferencesActivity).binding.root,
+                    "Check for update",
+                    Snackbar.LENGTH_INDEFINITE
+                )
+            }
+            mUpdateCheckSnackbar?.show()
+        }
+
+        private fun hideUpdateCheckSnackbar() {
+            mUpdateCheckSnackbar?.dismiss()
+        }
+    }
+
     class ConnectionPreferencesFragment : PreferenceFragmentCompat() {
 
         private var setBridgesLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-
-            }
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences_connection, rootKey)
@@ -134,16 +308,26 @@ class PreferencesActivity : BaseActivity() {
 
             val useTorBridgesPref = findPreference<SwitchPreferenceCompat>("use custom bridges")
             useTorBridgesPref?.setOnPreferenceChangeListener { _, newValue ->
-                if(newValue as Boolean){
-                    setBridgesLauncher.launch(Intent(requireContext(), SetTorBridgesActivity::class.java))
+                if (newValue as Boolean) {
+                    setBridgesLauncher.launch(
+                        Intent(
+                            requireContext(),
+                            SetTorBridgesActivity::class.java
+                        )
+                    )
                 }
-                return@setOnPreferenceChangeListener false
+                return@setOnPreferenceChangeListener true
             }
 
             val torBridgesPref =
                 findPreference<Preference>("custom bridges")
             torBridgesPref?.setOnPreferenceClickListener {
-                setBridgesLauncher.launch(Intent(requireContext(), SetTorBridgesActivity::class.java))
+                setBridgesLauncher.launch(
+                    Intent(
+                        requireContext(),
+                        SetTorBridgesActivity::class.java
+                    )
+                )
                 return@setOnPreferenceClickListener true
             }
         }

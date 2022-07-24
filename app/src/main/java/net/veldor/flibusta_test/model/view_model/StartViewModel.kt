@@ -18,7 +18,7 @@ import net.veldor.flibusta_test.model.utils.Updater
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
-class StartViewModel : ViewModel() {
+open class StartViewModel : ViewModel() {
 
     companion object {
 
@@ -36,6 +36,7 @@ class StartViewModel : ViewModel() {
         const val STATE_UPDATE_CHECK_IN_PROGRESS = 1
         const val STATE_UPDATE_AVAILABLE = 2
         const val STATE_UPDATE_NOT_REQUIRED = 3
+        const val STATE_UPDATE_CHECK_FAILED = 4
     }
 
     private var updateInfo: UpdateInfo? = null
@@ -164,11 +165,16 @@ class StartViewModel : ViewModel() {
     fun checkForUpdates() {
         viewModelScope.launch(Dispatchers.IO) {
             updateState.postValue(STATE_UPDATE_CHECK_IN_PROGRESS)
-            if (Updater.checkUpdate()) {
-                updateInfo = Updater.getUpdateInfo()
-                updateState.postValue(STATE_UPDATE_AVAILABLE)
-            } else {
-                updateState.postValue(STATE_UPDATE_NOT_REQUIRED)
+            try{
+                if (Updater.checkUpdate()) {
+                    updateInfo = Updater.getUpdateInfo()
+                    updateState.postValue(STATE_UPDATE_AVAILABLE)
+                } else {
+                    updateState.postValue(STATE_UPDATE_NOT_REQUIRED)
+                }
+            }
+            catch (t: Throwable){
+                updateState.postValue(STATE_UPDATE_CHECK_FAILED)
             }
         }
     }

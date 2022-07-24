@@ -33,7 +33,7 @@ class SendLogWorker(context: Context, workerParams: WorkerParameters) :
                     val fileUri: Uri? = try {
                         FileProvider.getUriForFile(
                             App.instance,
-                            "net.veldor.flibustaloader.provider",
+                            "net.veldor.flibusta_test.provider",
                             outputFile)
                     } catch (e: IllegalArgumentException) {
                         Log.e("File Selector",

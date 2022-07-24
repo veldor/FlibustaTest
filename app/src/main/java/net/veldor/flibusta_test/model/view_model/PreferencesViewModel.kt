@@ -3,22 +3,15 @@ package net.veldor.flibusta_test.model.view_model
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.veldor.flibusta_test.model.handler.BridgesHandler
-import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.ReserveSettingsHandler
-import net.veldor.flibusta_test.model.handler.TorHandler
 import java.io.File
 
 
-class PreferencesViewModel : ViewModel() {
+class PreferencesViewModel : StartViewModel(){
 
-    var checkBridgesLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    var currentBridgesCheckWork: Job? = null
     private val _liveBackupFile = MutableLiveData<DocumentFile>()
     val liveBackupData: LiveData<DocumentFile> = _liveBackupFile
 
@@ -96,23 +89,5 @@ class PreferencesViewModel : ViewModel() {
                 || filesInZip.contains(ReserveSettingsHandler.DOWNLOADS_SCHEDULE_ERROR_BACKUP_NAME)
                 || filesInZip.contains(ReserveSettingsHandler.DOWNLOAD_SCHEDULE_BACKUP_NAME)
         return result
-    }
-
-    fun checkBridges(newValue: String): LiveData<Boolean> {
-        checkBridgesLiveData = MutableLiveData<Boolean>()
-        currentBridgesCheckWork = viewModelScope.launch(Dispatchers.IO) {
-            TorHandler.instance.stop()
-            // try to connect tor with new bridges
-            BridgesHandler().saveBridgesToFile(newValue)
-            try {
-                TorHandler.instance.start()
-                PreferencesHandler.instance.customBridges = newValue
-                checkBridgesLiveData.postValue(true)
-            } catch (e: Throwable) {
-                checkBridgesLiveData.postValue(false)
-                BridgesHandler().getBridges()
-            }
-        }
-        return checkBridgesLiveData
     }
 }
