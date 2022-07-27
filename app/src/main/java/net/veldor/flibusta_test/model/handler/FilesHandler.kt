@@ -64,6 +64,9 @@ object FilesHandler {
             else -> File(App.instance.filesDir, SEARCH_SEQUENCE_AUTOCOMPLETE_FILE)
         }
 
+        if(autocompleteFile.length() == 0L){
+            autocompleteFile.delete()
+        }
 
         if (!autocompleteFile.exists()) {
             makeFile(autocompleteFile, SEARCH_AUTOCOMPLETE_NEW)

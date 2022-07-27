@@ -35,4 +35,5 @@ interface MyAdapterInterface: Filterable {
     fun setFilterSelection(selected: Int)
     fun filterEnabled(): Boolean
     fun reapplyFilters(results: SearchResult)
+    fun loadPreviousResults(results: java.util.ArrayList<FoundEntity>)
 }

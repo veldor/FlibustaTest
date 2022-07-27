@@ -13,6 +13,11 @@ import java.io.File
 
 class PreferencesHandler private constructor() {
 
+    var forbidden: Boolean
+        get() = preferences.getBoolean(PREF_FORBIDDEN, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FORBIDDEN, state).apply()
+        }
     var checkUpdateAfter: Int
         get() = preferences.getInt(PREF_CHECK_UPDATE_AFTER, -1)
         set(state) {
@@ -507,6 +512,7 @@ class PreferencesHandler private constructor() {
         private const val PREF_SAVING_LOGS = "saving log files"
         private const val PREF_CHECK_UPDATE_AFTER = "check update after"
         private const val PREF_CHECK_UPDATE_ON_START = "check update on start"
+        private const val PREF_FORBIDDEN = "forbidden"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

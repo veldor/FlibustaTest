@@ -94,6 +94,7 @@ object BookActionsHelper {
             }
         }
     }
+
     fun getFileFromDocumentFile(df: DocumentFile): File? {
         val docId: String
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -107,6 +108,60 @@ object BookActionsHelper {
     }
 
     fun shareBook(file: File) {
-        TODO("Not yet implemented")
+        if (file.exists()) {
+            val fileUri: Uri? = try {
+                FileProvider.getUriForFile(
+                    App.instance,
+                    "net.veldor.flibusta_test.provider",
+                    file
+                )
+            } catch (e: IllegalArgumentException) {
+                Log.e(
+                    "File Selector",
+                    "The selected file can't be shared: $file"
+                )
+                null
+            }
+            Log.d("surprise", "shareFile: uri is $fileUri")
+            // отправлю запрос на открытие файла
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+            shareIntent.type = MimeHelper.getMimeFromFileName(file.name)
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            App.instance.startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    App.instance.getString(R.string.share_with_title)
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+    }
+
+    fun openBook(file: File) {
+        if (file.exists()) {
+            val fileUri: Uri? = try {
+                FileProvider.getUriForFile(
+                    App.instance,
+                    "net.veldor.flibusta_test.provider",
+                    file
+                )
+            } catch (e: IllegalArgumentException) {
+                Log.e(
+                    "File Selector",
+                    "The selected file can't be open: $file"
+                )
+                null
+            }
+            // отправлю запрос на открытие файла
+            val shareIntent = Intent(Intent.ACTION_VIEW)
+            shareIntent.setDataAndType(fileUri, MimeHelper.getMimeFromFileName(file.name))
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            App.instance.startActivity(
+                Intent.createChooser(
+                    shareIntent,
+                    App.instance.getString(R.string.open_with_title)
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
     }
 }

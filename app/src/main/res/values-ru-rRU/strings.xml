@@ -513,7 +513,7 @@
     <string name="state_library_connection_falied">Проверка соединения с библиотекой неудачна</string>
     <string name="state_tor_launch_error">Ошибка запуска TOR</string>
     <string name="setup_tor_custom_bridges">Назначить мосты</string>
-    <string name="state_check_library_connection">Проверка соедниения</string>
+    <string name="state_check_library_connection">Проверка соединения</string>
     <string name="add_to_subscribes_msg">Добавить в подписки</string>
     <string name="prepare_connection">Подготовка соединения</string>
     <string name="try_bridges_title">Проверить мосты</string>
@@ -546,4 +546,15 @@
     <string name="update_check_failed">Проверка не удалась, попробуйте позднее</string>
     <string name="show_updates_list_title">Все стабильные релизы</string>
     <string name="show_updates_list_pref">Просмотреть все стабильные релизы</string>
+    <string name="show_connection_options_message">Подсказка по переключению соединений</string>
+    <string name="show_connection_options_disabled_title">Не предлагать переключение соединения на старте</string>
+    <string name="show_connection_options_enabled_title">При запуске приложения проверять тип подключения и предлагать другой при несоответствии</string>
+    <string name="step_final_text">Последний шаг</string>
+    <string name="try_download_book_text">Отлично. Теперь вы можете скачать книгу для проверки возможности скачивания</string>
+    <string name="download__test_book_label">Загрузить книгу</string>
+    <string name="success_book_load_title">Похоже, книга скачана успешно.</string>
+    <string name="failed_book_load_title">Кажется, возникла ошибка при скачивании книги. Можете попробовать ещё раз или пропустить этот шаг</string>
+    <string name="sort_list_btn_desc">Сортировка результатов поиска</string>
+    <string name="download_state_btn_desc">Отображение прогресса загрузки книг</string>
+    <string name="show_blocked_state_btn_description">Отображение отфильтрованных результатов</string>
 </resources>

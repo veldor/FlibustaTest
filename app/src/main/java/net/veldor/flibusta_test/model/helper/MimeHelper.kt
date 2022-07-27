@@ -52,4 +52,13 @@ object MimeHelper {
             DOWNLOAD_MIMES[mime]
         } else mime
     }
+
+    fun getMimeFromFileName(name: String): String {
+        DOWNLOAD_MIMES.forEach {
+            if (name.endsWith(it.value)) {
+                return it.key
+            }
+        }
+        return "application/txt"
+    }
 }

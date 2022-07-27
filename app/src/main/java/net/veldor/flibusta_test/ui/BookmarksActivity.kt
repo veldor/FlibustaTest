@@ -68,6 +68,7 @@ class BookmarksActivity : BaseActivity(), SomeActionDelegate, SearchView.OnQuery
                 } else {
                     val intent = Intent(this, BrowserActivity::class.java)
                     intent.putExtra("link", item.link)
+                    Log.d("surprise", "actionDone: link is ${item.link}")
                     startActivity(intent)
                 }
             }

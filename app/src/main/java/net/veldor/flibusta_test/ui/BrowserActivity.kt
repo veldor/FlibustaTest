@@ -47,28 +47,6 @@ class BrowserActivity : BaseActivity() {
         binding.includedBnv.bottomNavView.inflateMenu(R.menu.browser_bottom_nav_menu)
         // disable reselect
         binding.includedBnv.bottomNavView.setOnItemReselectedListener {}
-
-        if (intent.hasExtra("link")) {
-            val link = intent.getStringExtra("link")
-            if (link != null) {
-                if (link.startsWith("/opds/")) {
-                    // load link to opds fragment
-                    val f = getCurrentFragment()
-                    if (f is OpdsFragment) {
-                        f.loadLink(link)
-                    }
-                } else {
-
-                    val f = getCurrentFragment()
-                    if (f is OpdsFragment) {
-                        Log.d("surprise", "BrowserActivity.kt 61: config opds")
-                        f.configureBackdrop()
-                    }
-                    PreferencesHandler.instance.lastWebViewLink = link
-                    binding.includedBnv.bottomNavView.selectedItemId = R.id.navigation_web_view
-                }
-            }
-        }
         navController.graph = navController.navInflater.inflate(R.navigation.browser_navigation)
     }
 

@@ -451,7 +451,6 @@ class FoundItemCompactAdapter(
     }
 
     override fun getItemPositionById(clickedItemId: Long): Int {
-        Log.d("surprise", "FoundItemCompactAdapter.kt 454: found here")
         if (resultValues.isNotEmpty()) {
             resultValues.forEach {
                 if (it.itemId == clickedItemId) {
@@ -472,5 +471,19 @@ class FoundItemCompactAdapter(
 
     override fun reapplyFilters(results: SearchResult) {
 
+    }
+
+
+    override fun loadPreviousResults(results: java.util.ArrayList<FoundEntity>) {
+        lastSortOption = -1
+        val oldLength = itemCount
+        resultValues.addAll(results)
+        originValues.addAll(results)
+        _size.postValue(resultValues.size)
+        if (oldLength > 0) {
+            notifyItemRangeInserted(itemCount, results.size)
+        } else {
+            notifyDataSetChanged()
+        }
     }
 }

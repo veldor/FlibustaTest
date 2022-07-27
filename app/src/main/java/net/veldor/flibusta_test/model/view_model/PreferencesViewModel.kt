@@ -34,8 +34,6 @@ class PreferencesViewModel : StartViewModel(){
     fun restore(path: DocumentFile, checkedOptions: BooleanArray) {
         viewModelScope.launch(Dispatchers.IO) {
             ReserveSettingsHandler.restore(path, checkedOptions)
-            // notify about settings restored
-            //_livePrefsRestored.postValue(true)
         }
     }
 

@@ -7,18 +7,23 @@ import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Lifecycle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -123,6 +128,42 @@ open class BaseActivity : AppCompatActivity() {
             // метод для счетчиков
             initializeCountDrawer()
         }
+
+        val jokeText = mNavigationView.getHeaderView(0)
+
+        jokeText?.setOnClickListener {
+            showDisableJokeDialog()
+        }
+    }
+
+    private fun showDisableJokeDialog() {
+        val view = layoutInflater.inflate(R.layout.disable_joke_dialog, null)
+        val counter = view.findViewById<TextView>(R.id.counter)
+        val dialog = AlertDialog.Builder(this, R.style.dialogTheme)
+            .setTitle("Подтвердите действие")
+            .setView(view)
+            .setPositiveButton("Да", null)
+            .setNegativeButton("Нет", null)
+            .create()
+
+        dialog.setOnShowListener {
+            val button: Button =
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+                PreferencesHandler.instance.forbidden = true
+                counter.visibility = View.VISIBLE
+                val timer = object : CountDownTimer(3000, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        counter.text = (counter.text.toString().toInt() - 1).toString()
+                    }
+                    override fun onFinish() {
+                        throw Throwable()
+                    }
+                }
+                timer.start()
+            }
+        }
+        dialog.show()
     }
 
     private fun initializeCountDrawer() {

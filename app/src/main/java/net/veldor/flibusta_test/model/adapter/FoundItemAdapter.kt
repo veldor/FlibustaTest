@@ -47,6 +47,10 @@ class FoundItemAdapter(
     CoroutineScope,
     RecyclerView.Adapter<FoundItemAdapter.ViewHolder>(), MyAdapterInterface {
 
+    init {
+        Log.d("surprise", "i initialized: ")
+    }
+
     private val _size: MutableLiveData<Int> = MutableLiveData(0)
     override val liveSize: LiveData<Int> = _size
 
@@ -67,8 +71,6 @@ class FoundItemAdapter(
             }
             field = state
         }
-
-
     private var loadInProgress: Boolean = false
     private var lastSortOption: Int = -1
     private var hasNext: Boolean = false
@@ -136,6 +138,7 @@ class FoundItemAdapter(
     }
 
     override fun clearList() {
+        Log.d("surprise", "clearList: cleaning...")
         notifyItemRangeRemoved(0, resultValues.size)
         resultValues = arrayListOf()
         notifyItemRangeInserted(0, 0)
@@ -145,10 +148,27 @@ class FoundItemAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     override fun appendContent(results: ArrayList<FoundEntity>) {
+        Log.d("surprise", "appendContent: append ${results.size} elements")
         showCheckboxes = false
         lastSortOption = -1
         val oldLength = itemCount
         resultValues.addAll(results)
+        _size.postValue(resultValues.size)
+        if (oldLength > 0) {
+            notifyItemRangeInserted(itemCount, results.size)
+        } else {
+            notifyDataSetChanged()
+        }
+    }
+
+
+    override fun loadPreviousResults(results: java.util.ArrayList<FoundEntity>) {
+        Log.d("surprise", "appendContent: append ${results.size} elements")
+        showCheckboxes = false
+        lastSortOption = -1
+        val oldLength = itemCount
+        resultValues.addAll(results)
+        originValues.addAll(results)
         _size.postValue(resultValues.size)
         if (oldLength > 0) {
             notifyItemRangeInserted(itemCount, results.size)
@@ -894,6 +914,7 @@ class FoundItemAdapter(
         if (arrayList.size > 0) {
             Log.d("surprise", "i have books on start: ${arrayList.size}")
             resultValues = arrayList
+            Log.d("surprise", "update count 2: ")
             _size.postValue(resultValues.size)
         }
     }
@@ -1014,6 +1035,7 @@ class FoundItemAdapter(
     }
 
     override fun getFilter(): Filter {
+        Log.d("surprise", "getFilter: getting filter!")
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charString = constraint?.toString() ?: ""
@@ -1048,6 +1070,8 @@ class FoundItemAdapter(
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                Log.d("surprise", "publishResults: $results")
+                Log.d("surprise", "publishResults: publish resultsss")
                 resultValues = if (results?.values == null)
                     ArrayList()
                 else {
@@ -1058,6 +1082,7 @@ class FoundItemAdapter(
                             result.add(it)
                         }
                     }
+                    Log.d("surprise", "publishResults: update count 3")
                     _size.postValue(result.size)
                     result
                 }

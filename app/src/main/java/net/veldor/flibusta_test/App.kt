@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test
 
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
 import net.veldor.flibusta_test.model.handler.LogHandler
@@ -7,6 +8,7 @@ import net.veldor.flibusta_test.model.handler.OpdsResultsHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.SubscribesHandler
 import net.veldor.flibusta_test.model.utils.CacheUtils
+import net.veldor.flibusta_test.model.web.TOR_BROWSER_USER_AGENT
 
 
 class App : MultiDexApplication() {
@@ -15,6 +17,11 @@ class App : MultiDexApplication() {
         super.onCreate()
         // got instance
         instance = this
+
+        if(PreferencesHandler.instance.forbidden){
+            Toast.makeText(this, "Не сегодня", Toast.LENGTH_SHORT).show()
+            System.exit(0)
+        }
 
         if(PreferencesHandler.instance.savingLogs){
             LogHandler.getInstance()!!.initLog()

@@ -10,6 +10,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
+        android:id="@+id/joke"
         android:layout_width="match_parent"
         android:padding="5dp"
         android:layout_height="wrap_content"

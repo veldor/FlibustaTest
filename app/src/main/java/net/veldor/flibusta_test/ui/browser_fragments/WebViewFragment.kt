@@ -209,33 +209,36 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.browser_menu, menu)
 
-        // check when request link in bookmarks list
-        if (BookmarkHandler.instance.bookmarkInList(
-                binding.myWebView.url.substring(
-                    binding.myWebView.url.indexOf(
-                        "/",
-                        8
+        if(binding.myWebView.url != null){
+            // check when request link in bookmarks list
+            if (BookmarkHandler.instance.bookmarkInList(
+                    binding.myWebView.url.substring(
+                        binding.myWebView.url.indexOf(
+                            "/",
+                            8
+                        )
                     )
                 )
-            )
-        ) {
-            val item = menu.findItem(R.id.action_add_bookmark)
-            item.icon = ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.ic_baseline_bookmark_border_24,
-                requireActivity().theme
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                item.icon.setTint(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.white,
-                        requireActivity().theme
-                    )
+            ) {
+                val item = menu.findItem(R.id.action_add_bookmark)
+                item.icon = ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_baseline_bookmark_border_24,
+                    requireActivity().theme
                 )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    item.icon.setTint(
+                        ResourcesCompat.getColor(
+                            resources,
+                            R.color.white,
+                            requireActivity().theme
+                        )
+                    )
+                }
+                item.title = getString(R.string.remove_bookmark_title)
             }
-            item.title = getString(R.string.remove_bookmark_title)
         }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

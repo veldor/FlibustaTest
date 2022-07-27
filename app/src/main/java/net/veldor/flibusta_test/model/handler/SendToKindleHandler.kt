@@ -51,4 +51,27 @@ class SendToKindleHandler {
             }
         }
     }
+
+    fun send(destinationFile: File) {
+        val fileUri: Uri? = try {
+            FileProvider.getUriForFile(
+                App.instance,
+                "net.veldor.flibusta_test.provider",
+                destinationFile
+            )
+        } catch (e: IllegalArgumentException) {
+            Log.e(
+                "File Selector",
+                "The selected file can't be shared: $destinationFile"
+            )
+            null
+        }
+        Log.d("surprise", "shareFile: uri is $fileUri")
+        // отправлю запрос на открытие файла
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        shareIntent.type = "application/x-mobipocket-ebook"
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        App.instance.startActivity(shareIntent)
+    }
 }

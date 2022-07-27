@@ -30,11 +30,13 @@ class OpdsResultsHandler private constructor() {
 
     fun getResults(): java.util.ArrayList<SearchResult> {
         Log.d("surprise", "OpdsResultsHandler.kt 30: get previously loaded results")
+        Log.d("surprise", "getResults: ${_requestResult.size}")
         return _requestResult
     }
 
     fun set(previousResults: java.util.ArrayList<SearchResult>) {
         Log.d("surprise", "OpdsResultsHandler.kt 36: set previously loaded results")
+        Log.d("surprise", "set: ${previousResults.size}")
         _requestResult = previousResults
     }
 

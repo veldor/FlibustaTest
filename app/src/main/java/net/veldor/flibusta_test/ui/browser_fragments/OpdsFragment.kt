@@ -98,6 +98,11 @@ class OpdsFragment : Fragment(),
         savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
+        val link = requireActivity().intent.getStringExtra("link")
+        if (link != null && link.startsWith("/opds/")) {
+            loadLink(link)
+            requireActivity().intent.removeExtra("link")
+        }
         activity?.invalidateOptionsMenu()
         viewModel = ViewModelProvider(this).get(OpdsViewModel::class.java)
         viewModel.searchResultsDelegate = this
@@ -1267,11 +1272,13 @@ class OpdsFragment : Fragment(),
         previousResults: ArrayList<SearchResult>?
     ) {
         if (previousResults != null && previousResults.isNotEmpty()) {
+            Log.d("surprise", "loadPreviousResults: appending existent results")
+            Log.d("surprise", "loadPreviousResults: $a")
             binding.hintContainer.visibility = View.GONE
             viewModel.replacePreviousResults(previousResults)
             previousResults.forEach {
                 a?.reapplyFilters(it)
-                a?.appendContent(it.results)
+                a?.loadPreviousResults(it.results)
             }
             binding.foundResultsQuantity.visibility = View.VISIBLE
             if (PreferencesHandler.instance.opdsPagingType) {

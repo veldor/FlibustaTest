@@ -5,8 +5,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_ONE_SHOT
-import android.app.PendingIntent.getActivity
+import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -14,6 +13,7 @@ import android.os.Build
 import android.text.format.Formatter
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
@@ -25,6 +25,7 @@ import net.veldor.flibusta_test.ui.DownloadScheduleActivity
 import net.veldor.flibusta_test.ui.DownloadedBooksActionsActivity
 import net.veldor.flibusta_test.ui.DownloadedBooksActionsActivity.Companion.EXTRA_NOTIFICATION_ID
 import net.veldor.flibusta_test.ui.SubscribesActivity
+import java.io.File
 import java.util.*
 
 class NotificationHandler private constructor(val context: Context) {
@@ -204,7 +205,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 START_APP_CODE,
                 openWindowIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -292,7 +293,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 openFileBrowserIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -318,7 +319,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 shareIntent,
-                FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                FLAG_ONE_SHOT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -344,7 +345,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 openIntent,
-                FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                FLAG_ONE_SHOT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -424,7 +425,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 reloadIntent,
-                FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                FLAG_ONE_SHOT or FLAG_IMMUTABLE
             )
         } else {
             PendingIntent.getBroadcast(
@@ -452,7 +453,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 deleteIntent,
-                FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                FLAG_ONE_SHOT or FLAG_IMMUTABLE
             )
         } else {
             PendingIntent.getBroadcast(
@@ -471,7 +472,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 START_APP_CODE,
                 openWindowIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -587,7 +588,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 DOWNLOAD_RESUME_CODE,
                 resumeIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             PendingIntent.getBroadcast(
@@ -605,7 +606,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 START_APP_CODE,
                 openWindowIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -643,7 +644,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 openFileBrowserIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -703,7 +704,7 @@ class NotificationHandler private constructor(val context: Context) {
                     context,
                     myActionId,
                     openErrorsFragmentIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
                 )
             } else {
                 getActivity(
@@ -735,7 +736,7 @@ class NotificationHandler private constructor(val context: Context) {
                 context,
                 myActionId,
                 openFileBrowserIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         } else {
             getActivity(
@@ -773,5 +774,84 @@ class NotificationHandler private constructor(val context: Context) {
 
         mNotificationManager.notify(bookLoadedId, downloadScheduleBuilder.build())
         ++bookLoadedId
+    }
+
+    fun createSuccessBookLoadNotification(destinationFile: File) {
+        // add open browser intent
+        val openFileBrowserIntent =
+            Intent(context, DownloadDirContentActivity::class.java)
+        openFileBrowserIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val openBrowserPending =
+            getActivity(
+                context,
+                myActionId,
+                openFileBrowserIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        myActionId++
+        // add share intent
+        val shareIntent =
+            Intent(context, DownloadedBooksActionsActivity::class.java)
+        shareIntent.putExtra(EXTRA_NOTIFICATION_ID, bookLoadedId)
+        shareIntent.putExtra("path", destinationFile.path)
+        shareIntent.putExtra(
+            DownloadedBooksActionsActivity.EXTRA_TYPE,
+            DownloadedBooksActionsActivity.TYPE_SHARE_COMPAT
+        )
+        val sharePending =
+            getActivity(
+                context,
+                myActionId,
+                shareIntent,
+                FLAG_ONE_SHOT
+            )
+        myActionId++
+        // add open intent
+        val openIntent =
+            Intent(context, DownloadedBooksActionsActivity::class.java)
+        openIntent.putExtra("path", destinationFile.path)
+        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        openIntent.putExtra(EXTRA_NOTIFICATION_ID, bookLoadedId)
+        openIntent.putExtra(
+            DownloadedBooksActionsActivity.EXTRA_TYPE,
+            DownloadedBooksActionsActivity.TYPE_OPEN_COMPAT
+        )
+        val openPending =
+            getActivity(
+                context,
+                myActionId,
+                openIntent,
+                FLAG_ONE_SHOT
+            )
+        myActionId++
+        val notificationBuilder =
+            NotificationCompat.Builder(context, BOOKS_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_book_black_24dp)
+                .setContentTitle(
+                    context.getString(R.string.success_load_title)
+                )
+                .setContentIntent(openBrowserPending)
+                .setContentText(destinationFile.name)
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(destinationFile.name)
+                )
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setGroup(DOWNLOADED_BOOKS_GROUP)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .addAction(
+                    R.drawable.ic_open_black_24dp,
+                    context.getString(R.string.open_title),
+                    openPending
+                )
+                .addAction(
+                    R.drawable.ic_share_white_24dp,
+                    context.getString(R.string.share_title),
+                    sharePending
+                )
+                .setAutoCancel(true)
+        mNotificationManager.notify(bookLoadedId, notificationBuilder.build())
+        ++bookLoadedId
+        showSuccessBookLoadGroupNotification()
     }
 }
