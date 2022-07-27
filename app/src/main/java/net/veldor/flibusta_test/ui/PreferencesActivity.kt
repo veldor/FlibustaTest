@@ -9,6 +9,7 @@ import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,7 +27,9 @@ import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivityPreferencesBinding
 import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
+import net.veldor.flibusta_test.model.handler.ReserveSettingsHandler
 import net.veldor.flibusta_test.model.helper.BookActionsHelper
+import net.veldor.flibusta_test.model.selections.RestoreProgress
 import net.veldor.flibusta_test.model.utils.CacheUtils
 import net.veldor.flibusta_test.model.utils.TransportUtils
 import net.veldor.flibusta_test.model.utils.Updater
@@ -474,8 +477,6 @@ class PreferencesActivity : BaseActivity() {
                         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                         intent.type = "application/zip"
                         if (TransportUtils.intentCanBeHandled(intent)) {
-                            Toast.makeText(context, "Восстанавливаю настройки.", Toast.LENGTH_LONG)
-                                .show()
                             restoreFileSelectResultLauncher.launch(intent)
                         } else {
                             Toast.makeText(
@@ -488,6 +489,745 @@ class PreferencesActivity : BaseActivity() {
                     }
             }
         }
+
+        override fun onResume() {
+            super.onResume()
+            ReserveSettingsHandler.liveRestoreProgress.observe(viewLifecycleOwner) {
+                if (it.state != RestoreProgress.STATE_AWAITING) {
+                    showRestoreProgressDialog()
+                }
+                if(it.state == RestoreProgress.STATE_FINISHED){
+                    Toast.makeText(requireContext(), getString(R.string.preferences_restore_finished_title), Toast.LENGTH_LONG).show()
+                }
+                when (it.basePreferencesRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.downloadedBooksRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.readBooksRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.searchAutofillRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.bookmarksListRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.subscribesRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.filtersRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.downloadScheduleRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleRestoreResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+            }
+            ReserveSettingsHandler.liveBackupProgress.observe(viewLifecycleOwner) {
+                if (it.state == RestoreProgress.STATE_IN_PROGRESS) {
+                    showRestoreProgressDialog()
+                }
+                if (it.state != RestoreProgress.STATE_FINISHED) {
+                    hideBackupProgressDialog()
+                }
+                when (it.basePreferencesRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.basePreferencesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.basePreferencesBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.downloadedBooksRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadedBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadedBooksBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.readBooksRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.readBooksRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.readBooksBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.searchAutofillRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.searchAutofillRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.searchAutofillBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.bookmarksListRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.bookmarksListRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.bookmarksListBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.subscribesRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.subscribesRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.subscribesBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.filtersRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.filterRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.filterBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+                when (it.downloadScheduleRestoreState) {
+                    RestoreProgress.STATE_AWAITING -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_IN_PROGRESS -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)?.visibility =
+                            View.GONE
+                    }
+                    RestoreProgress.STATE_FINISHED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_check_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                    RestoreProgress.STATE_SKIPPED -> {
+                        mRestoreProgressDialogView?.findViewById<ProgressBar>(R.id.downloadScheduleRestoreProgress)?.visibility =
+                            View.GONE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)?.visibility =
+                            View.VISIBLE
+                        mRestoreProgressDialogView?.findViewById<ImageView>(R.id.downloadScheduleBackupResult)
+                            ?.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    resources,
+                                    R.drawable.ic_baseline_close_24,
+                                    requireActivity().theme
+                                )
+                            )
+                    }
+                }
+            }
+        }
+
+        private fun showRestoreProgressDialog() {
+            if (mRestoreProgressDialog == null) {
+                mRestoreProgressDialogView =
+                    layoutInflater.inflate(R.layout.restore_progress_dialog, null)
+                mRestoreProgressDialog = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+                    .setTitle(getString(R.string.restore_progress_title))
+                    .setView(mRestoreProgressDialogView)
+                    .setCancelable(false)
+                    .setPositiveButton(getString(R.string.reset_app_title)) { _, _ ->
+                        Handler().postDelayed(ResetApp(), 100)
+                    }
+                    .setNegativeButton(getString(R.string.close_title), ){ _, _ ->
+                        ReserveSettingsHandler.resultsHandled()
+                    }
+                    .create()
+            }
+            mRestoreProgressDialog?.show()
+        }
+        private fun showBackupProgressDialog() {
+            if (mBackupProgressDialog == null) {
+                mBackupProgressDialogView =
+                    layoutInflater.inflate(R.layout.restore_progress_dialog, null)
+                mBackupProgressDialog = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
+                    .setTitle(getString(R.string.restore_progress_title))
+                    .setView(mRestoreProgressDialogView)
+                    .setCancelable(false)
+                    .setPositiveButton(getString(R.string.reset_app_title)) { _, _ ->
+                        Handler().postDelayed(ResetApp(), 100)
+                    }
+                    .setNegativeButton(getString(R.string.close_title), ){ _, _ ->
+                        ReserveSettingsHandler.resultsHandled()
+                    }
+                    .create()
+            }
+            mBackupProgressDialog?.show()
+        }
+        
+        private fun hideBackupProgressDialog(){
+            mBackupProgressDialog?.dismiss()
+        }
+
+
+        private var mBackupProgressDialogView: View? = null
+        private var mBackupProgressDialog: AlertDialog? = null
+        private var mRestoreProgressDialog: AlertDialog? = null
+        private var mRestoreProgressDialogView: View? = null
 
 
         private var backupDirSelectResultLauncher =
@@ -676,23 +1416,12 @@ class PreferencesActivity : BaseActivity() {
                                     ) { _, which, isChecked ->
                                         checkResults[which] = isChecked
                                     }
-                                        .setTitle("Выберите элементы для резервирования")
-                                        .setPositiveButton("OK") { _, _ ->
+                                        .setTitle(getString(R.string.select_elements_for_restore_title))
+                                        .setPositiveButton(getString(R.string.restore_title)) { _, _ ->
                                             (requireActivity() as PreferencesActivity).viewModel.restore(
                                                 dl, checkResults
                                             )
-                                            (requireActivity() as PreferencesActivity).viewModel.livePrefsRestored.observe(
-                                                viewLifecycleOwner
-                                            ) {
-                                                if (it) {
-                                                    Toast.makeText(
-                                                        requireContext(),
-                                                        "Preferences restored, reboot app",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                    Handler().postDelayed(ResetApp(), 3000)
-                                                }
-                                            }
+                                            showRestoreProgressDialog()
                                         }
                                         .show()
 
@@ -729,23 +1458,12 @@ class PreferencesActivity : BaseActivity() {
                                     ) { _, which, isChecked ->
                                         checkResults[which] = isChecked
                                     }
-                                        .setTitle("Выберите элементы для резервирования")
-                                        .setPositiveButton("OK") { _, _ ->
+                                        .setTitle(getString(R.string.select_elements_for_restore_title))
+                                        .setPositiveButton(getString(R.string.restore_title)) { _, _ ->
                                             (requireActivity() as PreferencesActivity).viewModel.restore(
                                                 file, checkResults
                                             )
-                                            (requireActivity() as PreferencesActivity).viewModel.livePrefsRestored.observe(
-                                                viewLifecycleOwner
-                                            ) {
-                                                if (it) {
-                                                    Toast.makeText(
-                                                        requireContext(),
-                                                        "Preferences restored, reboot app",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                    Handler().postDelayed(ResetApp(), 3000)
-                                                }
-                                            }
+                                            showRestoreProgressDialog()
                                         }
                                         .show()
                                 }

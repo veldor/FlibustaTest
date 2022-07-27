@@ -152,6 +152,7 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
         Handler().postDelayed({
+            Log.d("surprise", "DownloadBookSetupActivity.kt 155: changing name")
             getDownloadedFileName()
         }, 500)
         return true

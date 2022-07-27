@@ -8,6 +8,7 @@ class DownloadLink : Serializable {
     @JvmField
     var mime: String? = null
     var name: String? = null
+    var nameInSequence: String? = null
     var author: String? = null
     var size: String? = null
     var authorDirName: String? = null

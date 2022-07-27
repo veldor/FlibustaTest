@@ -2,11 +2,12 @@ package net.veldor.flibusta_test.model.handler
 
 import android.os.Build
 import android.os.Environment
-import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.db.DatabaseInstance
-import net.veldor.flibusta_test.model.selections.subscribe.SubscribeType
+import net.veldor.flibusta_test.model.selections.RestoreProgress
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -15,6 +16,14 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 object ReserveSettingsHandler {
+
+    private val restoreProgress: MutableLiveData<RestoreProgress> =
+        MutableLiveData(RestoreProgress())
+    val liveRestoreProgress: LiveData<RestoreProgress> = restoreProgress
+
+    private val backupProgress: MutableLiveData<RestoreProgress> =
+        MutableLiveData(RestoreProgress())
+    val liveBackupProgress: LiveData<RestoreProgress> = restoreProgress
 
     fun backup(dir: File, options: BooleanArray): File? {
         /*try {
@@ -308,6 +317,10 @@ object ReserveSettingsHandler {
     }
 
     fun backup(dir: DocumentFile, options: BooleanArray): DocumentFile? {
+        val progress = RestoreProgress()
+        progress.state = RestoreProgress.STATE_IN_PROGRESS
+        backupProgress.postValue(progress)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val sdf = SimpleDateFormat("yyyy/MM/dd HH-mm-ss", Locale.ENGLISH)
             val filename = "Резервная копия Flibusta downloader от " + sdf.format(Date())
@@ -317,6 +330,8 @@ object ReserveSettingsHandler {
             val out =
                 ZipOutputStream(App.instance.contentResolver.openOutputStream(sBackupFile!!.uri))
             if (options[0]) {
+                progress.basePreferencesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню файл с общими настройками
                 val sharedPrefsFile: File =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -328,8 +343,16 @@ object ReserveSettingsHandler {
                         )
                     }
                 writeToZip(out, dataBuffer, sharedPrefsFile, PREF_BACKUP_NAME)
+                progress.basePreferencesRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.basePreferencesRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[1]) {
+                progress.downloadedBooksRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню данные из базы с загруженными книгами
                 val books = DatabaseInstance.instance.mDatabase.downloadedBooksDao().allBooks
                 if (books != null && books.isNotEmpty()) {
@@ -348,8 +371,16 @@ object ReserveSettingsHandler {
                         DOWNLOADED_BOOKS_BACKUP_NAME
                     )
                 }
+                progress.downloadedBooksRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.downloadedBooksRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[2]) {
+                progress.readBooksRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню данные из базы с загруженными книгами
                 val books = DatabaseInstance.instance.mDatabase.readBooksDao().allBooks
                 if (books != null && books.isNotEmpty()) {
@@ -368,8 +399,16 @@ object ReserveSettingsHandler {
                         READED_BOOKS_BACKUP_NAME
                     )
                 }
+                progress.readBooksRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.readBooksRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[3]) {
+                progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню все автозаполнения
                 var autofillFile: File =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -419,8 +458,16 @@ object ReserveSettingsHandler {
                 if (autofillFile.isFile) {
                     writeToZip(out, dataBuffer, autofillFile, AUTOFILL_SEQUENCE_BACKUP_NAME)
                 }
+                progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[4]) {
+                progress.bookmarksListRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 val bookmarksFile =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         File(App.instance.dataDir.toString() + "/files/bookmarksOpds.xml")
@@ -433,8 +480,16 @@ object ReserveSettingsHandler {
                 if (bookmarksFile.isFile) {
                     writeToZip(out, dataBuffer, bookmarksFile, BOOKMARKS_OPDS_BACKUP_NAME)
                 }
+                progress.bookmarksListRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.bookmarksListRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[5]) {
+                progress.subscribesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню все подписки
                 var autofillFile: File =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -484,8 +539,16 @@ object ReserveSettingsHandler {
                 if (autofillFile.isFile) {
                     writeToZip(out, dataBuffer, autofillFile, SUBSCRIBE_SEQUENCE_BACKUP_NAME)
                 }
+                progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[6]) {
+                progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню фильтры
                 var autofillFile: File =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -547,8 +610,16 @@ object ReserveSettingsHandler {
                 if (autofillFile.isFile) {
                     writeToZip(out, dataBuffer, autofillFile, BLACKLIST_MIME_BACKUP_NAME)
                 }
+                progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             if (options[7]) {
+                progress.downloadScheduleRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
                 // сохраню данные из базы с загруженными книгами
                 val schedule =
                     DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().allBooks
@@ -600,24 +671,35 @@ object ReserveSettingsHandler {
                         DOWNLOADS_SCHEDULE_ERROR_BACKUP_NAME
                     )
                 }
+                progress.downloadScheduleRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                backupProgress.postValue(progress)
+            }
+            else{
+                progress.downloadScheduleRestoreState = RestoreProgress.STATE_SKIPPED
+                backupProgress.postValue(progress)
             }
             out.close()
         }
+        progress.state = RestoreProgress.STATE_FINISHED
+        backupProgress.postValue(progress)
         return sBackupFile
     }
 
     fun restore(file: DocumentFile, options: BooleanArray) {
-        Log.d("surprise", "ReserveSettingsHandler.kt 882: restoring...")
+        val progress = RestoreProgress()
+        progress.state = RestoreProgress.STATE_IN_PROGRESS
+        restoreProgress.postValue(progress)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val fileData = App.instance.contentResolver.openInputStream(file.uri)
             val zin = ZipInputStream(fileData)
             var ze: ZipEntry?
             var targetFile: File
             while (zin.nextEntry.also { ze = it } != null) {
-                Log.d("surprise", "ReserveSettingsHandler.kt 605: ${ze!!.name}")
                 when (ze!!.name) {
                     PREF_BACKUP_NAME -> {
                         if (options[0]) {
+                            progress.basePreferencesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/shared_prefs/net.veldor.flibusta_test_preferences.xml")
                             } else {
@@ -627,34 +709,43 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: global preferences restored"
-                            )
+                            progress.basePreferencesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.basePreferencesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     DOWNLOADED_BOOKS_BACKUP_NAME -> {
                         if (options[1]) {
+                            progress.downloadedBooksRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.downloadedBooksDao().deleteTable()
                             XMLHandler.handleBackup(zin)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 625: downloaded books restored"
-                            )
+                            progress.downloadedBooksRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.downloadedBooksRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     READED_BOOKS_BACKUP_NAME -> {
                         if (options[2]) {
+                            progress.readBooksRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.readBooksDao().deleteTable()
                             XMLHandler.handleBackup(zin)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 625: read books restored"
-                            )
+                            progress.readBooksRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.readBooksRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     AUTOFILL_BOOKS_BACKUP_NAME -> {
                         if (options[3]) {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/searchBookAutocomplete.xml")
                             } else {
@@ -664,14 +755,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: autofill books restored"
-                            )
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     AUTOFILL_AUTHOR_BACKUP_NAME -> {
                         if (options[3]) {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/searchAuthorAutocomplete.xml")
                             } else {
@@ -681,14 +775,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: autofill author restored"
-                            )
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     AUTOFILL_GENRE_BACKUP_NAME -> {
                         if (options[3]) {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/searchGenreAutocomplete.xml")
                             } else {
@@ -698,14 +795,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: autofill genre restored"
-                            )
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     AUTOFILL_SEQUENCE_BACKUP_NAME -> {
                         if (options[3]) {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/searchSequenceAutocomplete.xml")
                             } else {
@@ -715,14 +815,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: autofill sequence restored"
-                            )
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BOOKMARKS_OPDS_BACKUP_NAME -> {
                         if (options[4]) {
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/bookmarksOpds.xml")
                             } else {
@@ -732,10 +835,11 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: bookmarks restored"
-                            )
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     SUBSCRIBE_BOOK_BACKUP_NAME -> {
@@ -749,10 +853,11 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: book subscribes restored"
-                            )
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     SUBSCRIBE_AUTHOR_BACKUP_NAME -> {
@@ -766,10 +871,11 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: authors subscribes restored"
-                            )
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     SUBSCRIBE_GENRE_BACKUP_NAME -> {
@@ -783,10 +889,11 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: genre subscribes restored"
-                            )
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     SUBSCRIBE_SEQUENCE_BACKUP_NAME -> {
@@ -800,14 +907,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: genre sequencesSubscribe restored"
-                            )
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_BOOK_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/booksBlacklist.xml")
                             } else {
@@ -817,10 +927,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_AUTHOR_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/authorsBlacklist.xml")
                             } else {
@@ -830,14 +947,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: authorsBlacklist restored"
-                            )
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_GENRE_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/genresBlacklist.xml")
                             } else {
@@ -847,14 +967,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: genresBlacklist restored"
-                            )
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_SEQUENCE_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/sequencesBlacklist.xml")
                             } else {
@@ -864,14 +987,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: sequencesBlacklist restored"
-                            )
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_MIME_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/formatBlacklist.xml")
                             } else {
@@ -881,37 +1007,48 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 616: sequencesBlacklist restored"
-                            )
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     DOWNLOADS_SCHEDULE_BACKUP_NAME -> {
                         if (options[7]) {
+                            progress.downloadScheduleRestoreState =
+                                RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
                                 .deleteTable()
                             XMLHandler.handleBackup(zin)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 625: download schedule restored"
-                            )
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     DOWNLOADS_SCHEDULE_ERROR_BACKUP_NAME -> {
                         if (options[7]) {
+                            progress.downloadScheduleRestoreState =
+                                RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.downloadErrorDao().deleteTable()
                             XMLHandler.handleBackup(zin)
-                            Log.d(
-                                "surprise",
-                                "ReserveSettingsHandler.kt 625: download schedule errors restored"
-                            )
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     // тут импортирую старые файлы
                     AUTOFILL_BACKUP_NAME -> {
                         // добавлю файл как автозаполнение ко всем категориям
                         if (options[3]) {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/searchSequenceAutocomplete.xml")
                             } else {
@@ -948,10 +1085,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BOOKS_SUBSCRIBE_BACKUP_NAME -> {
                         if (options[5]) {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/booksSubscribe.xml")
                             } else {
@@ -962,10 +1106,17 @@ object ReserveSettingsHandler {
                             }
                             extractFromZip(zin, targetFile)
                             SubscribesHandler.instance.convertToPatterns(targetFile)
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     AUTHORS_SUBSCRIBE_BACKUP_NAME -> {
                         if (options[5]) {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/authorsSubscribe.xml")
                             } else {
@@ -976,10 +1127,17 @@ object ReserveSettingsHandler {
                             }
                             extractFromZip(zin, targetFile)
                             SubscribesHandler.instance.convertToPatterns(targetFile)
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     SEQUENCES_SUBSCRIBE_BACKUP_NAME -> {
                         if (options[5]) {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/sequencesSubscribe.xml")
                             } else {
@@ -990,10 +1148,17 @@ object ReserveSettingsHandler {
                             }
                             extractFromZip(zin, targetFile)
                             SubscribesHandler.instance.convertToPatterns(targetFile)
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     GENRE_SUBSCRIBE_BACKUP_NAME -> {
                         if (options[5]) {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/genresSubscribe.xml")
                             } else {
@@ -1004,10 +1169,17 @@ object ReserveSettingsHandler {
                             }
                             extractFromZip(zin, targetFile)
                             SubscribesHandler.instance.convertToPatterns(targetFile)
+                            progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_BOOKS_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/booksBlacklist.xml")
                             } else {
@@ -1017,10 +1189,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_AUTHORS_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/authorsBlacklist.xml")
                             } else {
@@ -1030,10 +1209,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_GENRES_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/genresBlacklist.xml")
                             } else {
@@ -1043,10 +1229,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_SEQUENCES_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/sequencesBlacklist.xml")
                             } else {
@@ -1056,10 +1249,17 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                     BLACKLIST_FORMAT_BACKUP_NAME -> {
                         if (options[6]) {
+                            progress.filtersRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             targetFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 File(App.instance.dataDir.toString() + "/files/formatBlacklist.xml")
                             } else {
@@ -1069,27 +1269,49 @@ object ReserveSettingsHandler {
                                 )
                             }
                             extractFromZip(zin, targetFile)
+                            progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
 
                     DOWNLOAD_SCHEDULE_BACKUP_NAME -> {
                         if (options[7]) {
+                            progress.downloadScheduleRestoreState =
+                                RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
                                 .deleteTable()
                             XMLHandler.handleBackup(zin)
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.downloadScheduleRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
 
                     BOOKMARKS_BACKUP_NAME -> {
                         if (options[1]) {
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_IN_PROGRESS
+                            restoreProgress.postValue(progress)
                             DatabaseInstance.instance.mDatabase.downloadedBooksDao().deleteTable()
                             XMLHandler.handleBackup(zin)
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_FINISHED
+                            restoreProgress.postValue(progress)
+                        } else {
+                            progress.bookmarksListRestoreState = RestoreProgress.STATE_SKIPPED
+                            restoreProgress.postValue(progress)
                         }
                     }
                 }
             }
             zin.close()
         }
+        progress.state = RestoreProgress.STATE_FINISHED
+        restoreProgress.postValue(progress)
     }
 
     fun restore(file: File, options: BooleanArray) {
@@ -1188,6 +1410,10 @@ object ReserveSettingsHandler {
             result.add(ze!!.name)
         }
         return result
+    }
+
+    fun resultsHandled() {
+        restoreProgress.value = RestoreProgress()
     }
 
 

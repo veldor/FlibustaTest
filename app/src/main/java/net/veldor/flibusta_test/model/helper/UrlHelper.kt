@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
-import android.util.Log
 import androidx.annotation.RequiresApi
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
@@ -84,7 +83,7 @@ object UrlHelper {
         val bookName = if (handleName) getBookName(link) else link.name
         // получу конечное расположение файла
         sb.append(PreferencesHandler.instance.getDownloadDirLocation())
-        if(link.reservedSequenceName.isNotEmpty()){
+        if (link.reservedSequenceName.isNotEmpty()) {
             return "$rootDir${link.reservedSequenceName}/$bookName"
         }
         if (!PreferencesHandler.instance.createSequenceDir &&
@@ -191,9 +190,11 @@ object UrlHelper {
                 }
             }
         }
-        if (PreferencesHandler.instance.isSequenceInBookName && link.reservedSequenceName.isNotEmpty()) {
-            if (bookName.length / 2 + link.reservedSequenceName.length / 2 < 110) {
-                bookName = bookName + "_" + link.reservedSequenceName
+        if (PreferencesHandler.instance.isSequenceInBookName) {
+            if (!link.nameInSequence.isNullOrEmpty()) {
+                if (bookName.length / 2 + link.nameInSequence!!.length / 2 < 110) {
+                    bookName = bookName + "_" + link.nameInSequence
+                }
             }
         }
         if (bookName.length / 2 > 220) {
@@ -215,6 +216,6 @@ object UrlHelper {
     }
 
     fun isBookDownloadLink(requestString: String): Boolean {
-        return  requestString.matches(Regex(".+/b/\\d+/.+"))
+        return requestString.matches(Regex(".+/b/\\d+/.+"))
     }
 }

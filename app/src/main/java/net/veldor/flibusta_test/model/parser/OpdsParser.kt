@@ -216,6 +216,7 @@ class OpdsParser(private val text: String) {
                                     )
                                 }
                                 link.sequenceDirName = simpleStringBuilder.toString().trim()
+                                link.nameInSequence = foundedEntity!!.sequencesComplex.trim().replace("Серия: ", "")
                             } else {
                                 link.sequenceDirName = ""
                             }

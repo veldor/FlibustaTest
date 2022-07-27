@@ -13,7 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
@@ -36,7 +35,6 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
-import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class FoundItemAdapter(
@@ -46,10 +44,6 @@ class FoundItemAdapter(
 ) :
     CoroutineScope,
     RecyclerView.Adapter<FoundItemAdapter.ViewHolder>(), MyAdapterInterface {
-
-    init {
-        Log.d("surprise", "i initialized: ")
-    }
 
     private val _size: MutableLiveData<Int> = MutableLiveData(0)
     override val liveSize: LiveData<Int> = _size
