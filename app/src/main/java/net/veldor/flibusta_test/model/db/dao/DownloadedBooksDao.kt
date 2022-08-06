@@ -27,6 +27,9 @@ interface DownloadedBooksDao {
     @Delete
     fun delete(book: DownloadedBooks?)
 
-    @Query("DELETE FROM downloadedbooks")
+    @Query("DELETE FROM downloadedbooks;")
     fun deleteTable(): Int
+
+    @Query("SELECT COUNT(*) FROM downloadedbooks")
+    fun count(): Int
 }

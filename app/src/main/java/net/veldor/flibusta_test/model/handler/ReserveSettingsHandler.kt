@@ -345,8 +345,7 @@ object ReserveSettingsHandler {
                 writeToZip(out, dataBuffer, sharedPrefsFile, PREF_BACKUP_NAME)
                 progress.basePreferencesRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.basePreferencesRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -373,8 +372,7 @@ object ReserveSettingsHandler {
                 }
                 progress.downloadedBooksRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.downloadedBooksRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -401,8 +399,7 @@ object ReserveSettingsHandler {
                 }
                 progress.readBooksRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.readBooksRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -460,8 +457,7 @@ object ReserveSettingsHandler {
                 }
                 progress.searchAutofillRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.searchAutofillRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -482,8 +478,7 @@ object ReserveSettingsHandler {
                 }
                 progress.bookmarksListRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.bookmarksListRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -541,8 +536,7 @@ object ReserveSettingsHandler {
                 }
                 progress.subscribesRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.subscribesRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -612,8 +606,7 @@ object ReserveSettingsHandler {
                 }
                 progress.filtersRestoreState = RestoreProgress.STATE_FINISHED
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.filtersRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -673,8 +666,7 @@ object ReserveSettingsHandler {
                 }
                 progress.downloadScheduleRestoreState = RestoreProgress.STATE_IN_PROGRESS
                 backupProgress.postValue(progress)
-            }
-            else{
+            } else {
                 progress.downloadScheduleRestoreState = RestoreProgress.STATE_SKIPPED
                 backupProgress.postValue(progress)
             }
@@ -1297,7 +1289,7 @@ object ReserveSettingsHandler {
                         if (options[1]) {
                             progress.bookmarksListRestoreState = RestoreProgress.STATE_IN_PROGRESS
                             restoreProgress.postValue(progress)
-                            DatabaseInstance.instance.mDatabase.downloadedBooksDao().deleteTable()
+                            DatabaseInstance.instance.mDatabase.bookmarksDao().deleteTable()
                             XMLHandler.handleBackup(zin)
                             progress.bookmarksListRestoreState = RestoreProgress.STATE_FINISHED
                             restoreProgress.postValue(progress)

@@ -27,4 +27,7 @@ interface BookmarksDao {
     fun getDuplicate(name: String?, link: String?): List<Bookmark?>? /*    @Update
     void update(ReadedBooks book);
 */
+
+    @Query("DELETE FROM Bookmark")
+    fun deleteTable(): Int
 }

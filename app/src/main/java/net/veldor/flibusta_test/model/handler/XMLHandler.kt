@@ -193,7 +193,9 @@ object XMLHandler {
                     val id = node.attributes.getNamedItem("id").textContent
                     val rb = ReadedBooks()
                     rb.bookId = id
-                    if (DatabaseInstance.instance.mDatabase.readBooksDao().getBookById(id) == null) {
+                    if (DatabaseInstance.instance.mDatabase.readBooksDao()
+                            .getBookById(id) == null
+                    ) {
                         DatabaseInstance.instance.mDatabase.readBooksDao().insert(rb)
                     }
                     ++counter
@@ -205,6 +207,7 @@ object XMLHandler {
                 document,
                 XPathConstants.NODESET
             ) as NodeList
+            Log.d("surprise", "handleBackup: downloaded books size is ${entries.length}")
             if (entries.length > 0) {
                 var counter = 0
                 val entriesLen = entries.length
@@ -213,17 +216,20 @@ object XMLHandler {
                     node = entries.item(counter)
                     // получу идентификатор книги
                     val id = node.attributes.getNamedItem("id").textContent
+                    Log.d("surprise", "handleBackup: book id is $id")
                     val rb = DownloadedBooks()
                     rb.bookId = id
-                    if (DatabaseInstance.instance.mDatabase.downloadedBooksDao().getBookById(id) == null) {
-                        DatabaseInstance.instance.mDatabase.downloadedBooksDao().insert(rb)
-                    }
+                   DatabaseInstance.instance.mDatabase.downloadedBooksDao().insert(rb)
                     ++counter
                 }
                 return
             }
 
-            entries = xPath.evaluate("/download_schedule/link", document, XPathConstants.NODESET) as NodeList
+            entries = xPath.evaluate(
+                "/download_schedule/link",
+                document,
+                XPathConstants.NODESET
+            ) as NodeList
             if (entries.length > 0) {
                 var counter = 0
                 val entriesLen = entries.length
@@ -251,14 +257,19 @@ object XMLHandler {
                     scheduleElement.authorDirName = authorDirName
                     scheduleElement.sequenceDirName = sequenceDirName
                     scheduleElement.reservedSequenceName = reservedSequenceName
-                    DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().insert(scheduleElement)
+                    DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
+                        .insert(scheduleElement)
                     ++counter
                 }
                 return
             }
             Log.d("surprise", "XMLHandler.kt 259: search errors...")
             Log.d("surprise", "XMLHandler.kt 260: $xml")
-            entries = xPath.evaluate("/download_schedule_errors/link", document, XPathConstants.NODESET) as NodeList
+            entries = xPath.evaluate(
+                "/download_schedule_errors/link",
+                document,
+                XPathConstants.NODESET
+            ) as NodeList
             if (entries.length > 0) {
                 var counter = 0
                 val entriesLen = entries.length
@@ -306,7 +317,14 @@ object XMLHandler {
                     // получу идентификатор книги
                     val name = node.attributes.getNamedItem("name").textContent
                     val link = node.attributes.getNamedItem("link").textContent
-                    BookmarkHandler.instance.addBookmark(BookmarkItem("",  App.instance.getString(R.string.no_category_title), null, null), name, link)
+                    BookmarkHandler.instance.addBookmark(
+                        BookmarkItem(
+                            "",
+                            App.instance.getString(R.string.no_category_title),
+                            null,
+                            null
+                        ), name, link
+                    )
                     ++counter
                 }
             }

@@ -27,7 +27,7 @@ class DonationDialog {
                         Toast.makeText(mContext, mContext.getString(R.string.wallet_copied_message), Toast.LENGTH_LONG).show()
                     } else if(which == 1) {
                         val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = Uri.parse("https://money.yandex.ru/to/41001269882689")
+                        intent.data = Uri.parse("https://yoomoney.ru/to/41001269882689")
                         mContext.startActivity(intent)
                     }else {
                         val intent = Intent(Intent.ACTION_VIEW)
