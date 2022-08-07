@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.msopentech.thali.toronionproxy.OnionProxyManagerEventHandler
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.ActivitySetTorBridgesBinding
+import net.veldor.flibusta_test.model.handler.BridgesHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.view_model.BridgesViewModel
 import java.util.*
@@ -65,6 +66,8 @@ class SetTorBridgesActivity : AppCompatActivity() {
         binding.statusWrapper.setInAnimation(this, android.R.anim.slide_in_left)
         binding.statusWrapper.setOutAnimation(this, android.R.anim.slide_out_right)
 
+        binding.bridgesInput.setText(PreferencesHandler.instance.customBridges)
+
         OnionProxyManagerEventHandler.liveLastLog.observe(this) {
             if (it.contains("unable to connect OR connection")) {
                 Log.d("surprise", "setupUI: have ip connection error!")
@@ -101,8 +104,20 @@ class SetTorBridgesActivity : AppCompatActivity() {
         }
 
         binding.checkBridgesBtn.setOnClickListener {
-            viewModel.checkBridges(binding.bridgesInput.text, this)
+            viewModel.checkBridges(binding.bridgesInput.text)
             testBegin()
+        }
+
+        binding.useBridgesAnywayBtn.setOnClickListener {
+            BridgesHandler().saveBridgesToFile(binding.bridgesInput.text.toString())
+            PreferencesHandler.instance.customBridges = binding.bridgesInput.text.toString()
+            Toast.makeText(
+                this,
+                getString(R.string.bridges_saved_title),
+                Toast.LENGTH_SHORT
+            ).show()
+            this.setResult(Activity.RESULT_OK)
+            finish()
         }
 
         binding.switchToVpnBtn.setOnClickListener {

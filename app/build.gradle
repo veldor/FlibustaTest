@@ -13,8 +13,8 @@ android {
         applicationId 'net.veldor.flibusta_test'
         minSdkVersion 16
         targetSdk 28
-        versionCode 152
-        versionName "4.1.5.1"
+        versionCode 153
+        versionName "4.1.5.2"
         setProperty("archivesBaseName", "FD_test_$versionName")
         multiDexEnabled true
     }

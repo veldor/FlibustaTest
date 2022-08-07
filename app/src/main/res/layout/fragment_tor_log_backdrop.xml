@@ -32,7 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/pullUpView" />
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/wholeTextScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -48,8 +48,12 @@
             <TextView
                 android:id="@+id/fullTextLog"
                 android:textIsSelectable="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:textSize="12sp"
+                android:scrollbars="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

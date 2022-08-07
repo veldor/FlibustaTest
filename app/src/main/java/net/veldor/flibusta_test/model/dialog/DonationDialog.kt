@@ -11,7 +11,7 @@ import net.veldor.flibusta_test.R
 class DonationDialog {
     class Builder(private val mContext: Context) {
         fun build(): AlertDialog {
-            val donateOptions = arrayOf("BitCoin", "Юmoney", "Patreon")
+            val donateOptions = arrayOf("BitCoin", "Юmoney", "DonationAlerts")
             // покажу диалог с выбором способа доната
             val builder = AlertDialog.Builder(mContext)
             builder
@@ -31,7 +31,7 @@ class DonationDialog {
                         mContext.startActivity(intent)
                     }else {
                         val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = Uri.parse("https://www.patreon.com/somedevf33434")
+                        intent.data = Uri.parse("https://www.donationalerts.com/r/somedevf33434")
                         mContext.startActivity(intent)
                     }
                 }

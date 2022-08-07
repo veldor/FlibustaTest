@@ -52,7 +52,11 @@ class TorHandler private constructor() {
                     tor = AndroidOnionProxyManager(App.instance, TOR_FILES_LOCATION)
                 }
                 // get bridges
-                if(!PreferencesHandler.instance.useCustomBridges){
+                Log.d(
+                    "surprise",
+                    "TorHandler.kt 55: use custom bridges? ${PreferencesHandler.instance.useCustomBridges}"
+                )
+                if (!PreferencesHandler.instance.useCustomBridges) {
                     BridgesHandler().getBridges()
                 }
                 tor!!.interruptLaunch()
@@ -81,7 +85,7 @@ class TorHandler private constructor() {
         return tor!!.iPv4LocalHostSocksPort
     }
 
-    fun checkTorConnection() :Boolean{
+    fun checkTorConnection(): Boolean {
         if (tor == null || tor?.isRunning != true || tor?.isNetworkEnabled != true || tor?.isBootstrapped != true) {
             Log.d("surprise", "checkTorConnection: restart tor")
             start()
@@ -96,7 +100,7 @@ class TorHandler private constructor() {
     }
 
     fun cancelLaunch(context: Context) {
-        if(tor != null){
+        if (tor != null) {
             tor!!.interruptLaunch()
         }
         WorkManager.getInstance(context).cancelAllWorkByTag(StartTorWorker.TAG)
@@ -106,7 +110,11 @@ class TorHandler private constructor() {
     companion object {
         const val TOR_FILES_LOCATION = "torfiles"
         const val TOTAL_TRIES_PER_TOR_STARTUP = 3
-        public val TOTAL_SECONDS_PER_TOR_STARTUP = TimeUnit.MINUTES.toSeconds(1).toInt()
+        val TOTAL_SECONDS_PER_TOR_STARTUP = if (PreferencesHandler.instance.isEInk) {
+            TimeUnit.MINUTES.toSeconds(9).toInt()
+        } else {
+            TimeUnit.MINUTES.toSeconds(3).toInt()
+        }
         var instance: TorHandler = TorHandler()
             private set
     }

@@ -422,6 +422,12 @@ class PreferencesHandler private constructor() {
         return true
     }
 
+    val useTorMirror
+        get() = preferences.getBoolean(
+            IS_TOR_MIRROR_PREF,
+            false
+        )
+
     var isCustomMirror: Boolean
         get() = preferences.getBoolean(
             IS_CUSTOM_MIRROR_PREF,
@@ -456,6 +462,9 @@ class PreferencesHandler private constructor() {
 
     companion object {
         const val BASE_URL = "http://flibusta.is"
+        const val BASE_TOR_URL =
+            "http://flibustaongezhld6dibs2dps6vm4nvqg2kp7vgowbu76tzopgnhazqd.onion"
+        const val BASE_TOR_COMPAT_URL = "http://flibustahezeous3.onion"
 
         const val PREF_DOWNLOAD_LOCATION = "download_location"
         private const val PREF_USE_TOR = "external vpn"
@@ -468,6 +477,7 @@ class PreferencesHandler private constructor() {
         private const val EINK_PREF = "is eInk"
         private const val HIDE_PICS_PREF = "hide pics"
         private const val IS_CUSTOM_MIRROR_PREF = "use custom mirror"
+        private const val IS_TOR_MIRROR_PREF = "use tor mirror"
         private const val CUSTOM_MIRROR_PREF = "custom flibusta mirror"
         private const val AUTH_COOKIE_VALUE_PREF = "auth cookie value"
 

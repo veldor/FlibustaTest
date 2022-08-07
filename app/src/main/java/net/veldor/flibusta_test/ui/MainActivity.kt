@@ -206,9 +206,9 @@ class MainActivity : AppCompatActivity() {
 
         if (!PreferencesHandler.instance.useTor) {
             binding.connectionTypeSwitcher.isChecked = true
-            binding.showTorLogBtn.visibility = View.VISIBLE
-        } else {
             binding.showTorLogBtn.visibility = View.GONE
+        } else {
+            binding.showTorLogBtn.visibility = View.VISIBLE
         }
         binding.connectionTypeSwitcher.setOnCheckedChangeListener { _, b ->
             PreferencesHandler.instance.useTor = !b
@@ -416,9 +416,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showServerCheckErrorDialog() {
+        dropTimer()
         AlertDialog.Builder(this, R.style.dialogTheme)
             .setTitle(getString(R.string.server_check_error))
             .setMessage(getString(R.string.server_check_error_text))
+            .setCancelable(false)
             .setPositiveButton(getString(R.string.retry_launch_title)) { _, _ ->
                 viewModel.launchConnection()
                 resetTimer()
@@ -435,6 +437,12 @@ class MainActivity : AppCompatActivity() {
                 resetTimer()
             }
             .show()
+    }
+
+    private fun dropTimer() {
+        mCdt?.cancel()
+        binding.currentStateProgress.progress = 0
+        mProgressCounter = 0
     }
 
     private fun readyToGo() {
@@ -502,7 +510,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkConnectionOptions() {
         if (PreferencesHandler.instance.showConnectionOptions) {
             if (NetworkHandler().isVpnConnected()) {
-                if (PreferencesHandler.instance.useTor) {
+                if (PreferencesHandler.instance.useTor && !PreferencesHandler.instance.useTorMirror) {
                     showDisableTorDialog()
                 }
             } else if (!PreferencesHandler.instance.useTor) {

@@ -55,7 +55,7 @@ open class StartViewModel : ViewModel() {
                     return@launch
                 }
                 // пропингую библиотеку
-                if (PreferencesHandler.instance.checkServerOnStart && !skipLibraryPing) {
+                if (PreferencesHandler.instance.checkServerOnStart && !skipLibraryPing && !PreferencesHandler.instance.useTorMirror) {
                     if (!isActive) {
                         Log.d("surprise", "launchConnection: work cancelled")
                         return@launch

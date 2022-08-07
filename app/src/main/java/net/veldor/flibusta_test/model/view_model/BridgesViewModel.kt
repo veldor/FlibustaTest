@@ -12,10 +12,10 @@ import net.veldor.flibusta_test.model.handler.*
 
 class BridgesViewModel : ViewModel() {
 
-    public var currentBridgesCheckWork: Job? = null
-    public val liveCheckState = MutableLiveData(STATE_PENDING)
+    var currentBridgesCheckWork: Job? = null
+    val liveCheckState = MutableLiveData(STATE_PENDING)
 
-    fun checkBridges(bridgesData: CharSequence?, context: Context) {
+    fun checkBridges(bridgesData: CharSequence?) {
         if (!bridgesData.isNullOrEmpty()) {
             currentBridgesCheckWork = viewModelScope.launch(Dispatchers.IO) {
                 TorHandler.instance.stop()
@@ -48,10 +48,10 @@ class BridgesViewModel : ViewModel() {
     }
 
     companion object {
-        public const val STATE_PENDING = 0
-        public const val STATE_RUNNING = 1
-        public const val STATE_SUCCESS = 2
-        public const val STATE_FAILED = 3
+        const val STATE_PENDING = 0
+        const val STATE_RUNNING = 1
+        const val STATE_SUCCESS = 2
+        const val STATE_FAILED = 3
     }
 
 }

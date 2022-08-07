@@ -56,6 +56,12 @@ object UrlHelper {
                 return customMirror
             }
         }
+        if (PreferencesHandler.instance.useTorMirror) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
+                return PreferencesHandler.BASE_TOR_COMPAT_URL
+            }
+            return PreferencesHandler.BASE_TOR_URL
+        }
         return PreferencesHandler.BASE_URL
     }
 

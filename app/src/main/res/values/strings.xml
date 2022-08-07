@@ -587,4 +587,8 @@ Later you can change this parameter in Catalog settings</string>
     <string name="backuping_subscribes_title">Subscribes backup</string>
     <string name="backuping_filters_title">FilterBackup</string>
     <string name="backuping_download_schedule_title">Download schedule backup</string>
+    <string name="use_tor_mirror_title">Use .onion mirror. May not work in VPN mode</string>
+    <string name="use_http_mirror_title">Use flibusta.is mirror by default</string>
+    <string name="main_mirror_tor_title">Use .onion</string>
+    <string name="use_bridges_anyway_title">Yse anyway</string>
 </resources>

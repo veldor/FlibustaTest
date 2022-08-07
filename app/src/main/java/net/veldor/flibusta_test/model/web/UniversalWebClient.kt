@@ -1,7 +1,6 @@
 package net.veldor.flibusta_test.model.web
 
 import android.os.Build
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper

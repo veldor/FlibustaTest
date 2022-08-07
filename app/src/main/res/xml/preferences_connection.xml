@@ -27,6 +27,12 @@
         app:title="@string/use_vpn_pref_title" />
     <SwitchPreferenceCompat
         android:defaultValue="false"
+        android:summaryOff="@string/use_http_mirror_title"
+        android:summaryOn="@string/use_tor_mirror_title"
+        android:title="@string/main_mirror_tor_title"
+        app:key="use tor mirror" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
         android:summaryOff="@string/default_server_url_use_title"
         android:summaryOn="@string/custom_url_use_title"
         android:title="@string/custom_mirror_pref_title"
