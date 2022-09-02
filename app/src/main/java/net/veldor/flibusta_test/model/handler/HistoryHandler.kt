@@ -8,9 +8,7 @@ class HistoryHandler private constructor() {
 
     fun addToHistory(item: HistoryItem) {
         if (!PreferencesHandler.instance.saveOpdsHistory) {
-            item.searchResults.forEach {
-                it.results = arrayListOf()
-            }
+            item.rawResults.clear()
         }
         mHistory.push(item)
     }

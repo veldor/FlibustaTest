@@ -26,7 +26,6 @@ class FilterActivity : BaseActivity() {
         item.isChecked = true
 
         // setup bottom menu
-        binding.includedBnv.bottomNavView
         val fragment: NavHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController: NavController = fragment.navController

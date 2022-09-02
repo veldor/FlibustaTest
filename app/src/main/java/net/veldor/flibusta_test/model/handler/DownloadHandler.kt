@@ -15,6 +15,7 @@ import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.db.entity.DownloadError
 import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
+import net.veldor.flibusta_test.model.exception.WrongDownloadDirException
 import net.veldor.flibusta_test.model.selections.BooksDownloadProgress
 import net.veldor.flibusta_test.model.utils.RandomString
 import net.veldor.flibusta_test.model.web.UniversalWebClient
@@ -105,91 +106,101 @@ class DownloadHandler private constructor() {
                 currentProgress.bookLoadedSize = tempFile.length()
                 liveBookDownloadProgress.postValue(currentProgress)
                 NotificationHandler.instance.closeBookLoadingProgressNotification()
-                Log.d("surprise", "DownloadHandler.kt 108: going here")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     val destinationDir = getDestinationDir(book)
-                    if (destinationDir != null) {
-                        var destinationFile = destinationDir.findFile(book.name)
-                        if (destinationFile != null) {
-                            if (destinationFile.length() != tempFile.length()) {
-                                val namePart = book.name.substringBeforeLast(".")
-                                val mimePart = book.name.substringAfterLast(".")
-                                var counter = 1
-                                while (true) {
-                                    val test =
-                                        destinationDir.findFile("$namePart ($counter) .$mimePart")
-                                    if (test == null) {
-                                        destinationFile = destinationDir.createFile(
-                                            book.format,
-                                            "$namePart ($counter).$mimePart"
-                                        )
+                    if (destinationDir == null || destinationDir.name == null) {
+                        val errorInfo = DownloadError()
+                        errorInfo.copyDataFrom(book)
+                        errorInfo.error = "Не удалось идентифицировать папку загрузок"
+                        DatabaseInstance.instance.mDatabase.downloadErrorDao().insert(errorInfo)
+                        NotificationHandler.instance.closeBookLoadingProgressNotification()
+                        NotificationHandler.instance.showBookDownloadErrorNotification(errorInfo)
+                        throw WrongDownloadDirException()
+                    }
+                    var destinationFile = destinationDir.findFile(book.name)
+                    if (destinationFile != null) {
+                        if (destinationFile.length() != tempFile.length()) {
+                            val namePart = book.name.substringBeforeLast(".")
+                            val mimePart = book.name.substringAfterLast(".")
+                            var counter = 1
+                            while (true) {
+                                val test =
+                                    destinationDir.findFile("$namePart ($counter) .$mimePart")
+                                if (test == null) {
+                                    destinationFile = destinationDir.createFile(
+                                        book.format,
+                                        "$namePart ($counter).$mimePart"
+                                    )
+                                    break
+                                } else {
+                                    if (test.length() == tempFile.length()) {
+                                        destinationFile = test
                                         break
-                                    } else {
-                                        if (test.length() == tempFile.length()) {
-                                            destinationFile = test
-                                            break
-                                        }
                                     }
-                                    // make a new name
-                                    counter++
                                 }
-                            }
-                        } else {
-                            destinationFile = destinationDir.createFile(book.format, book.name)
-                        }
-                        // check destination file exists
-                        if (destinationFile != null) {
-                            val uri = destinationFile.uri
-                            val stream = App.instance.contentResolver.openOutputStream(uri)
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                Files.copy(tempFile.toPath(), stream)
-                            } else {
-                                tempFile.inputStream().copyTo(stream!!)
-                            }
-                            stream?.flush()
-                            stream?.close()
-                            // если файл загружен и всё ок- покажу уведомление о скачанной книге
-                            if (destinationFile.isFile && destinationFile.length() > 100) {
-                                if (PreferencesHandler.instance.sendToKindle && destinationFile.name?.endsWith(
-                                        ".mobi"
-                                    ) == true
-                                ) {
-                                    SendToKindleHandler().send(destinationFile)
-                                }
-                                if (DatabaseInstance.instance.mDatabase.downloadedBooksDao()
-                                        .getBookById(book.bookId) == null
-                                ) {
-                                    val newItem = DownloadedBooks()
-                                    newItem.bookId = book.bookId
-                                    DatabaseInstance.instance.mDatabase.downloadedBooksDao()
-                                        .insert(newItem)
-                                }
-                                try {
-                                    Log.d("surprise", "download: ${destinationFile.type}")
-                                    // try to unzip file
-                                    if (destinationFile.type == "application/zip" && PreferencesHandler.instance.unzipLoaded) {
-                                        // try to unzip file
-                                        destinationFile = unzipFile(destinationFile)!!
-                                    }
-                                } catch (t: Throwable) {
-                                    t.printStackTrace()
-                                }
-                                NotificationHandler.instance.createSuccessBookLoadNotification(
-                                    destinationFile
-                                )
-                                NotificationHandler.instance.closeBookLoadingProgressNotification()
-                                return true
+                                // make a new name
+                                counter++
                             }
                         }
                     } else {
-                        return false
+                        destinationFile = destinationDir.createFile(book.format, book.name)
+                    }
+                    // check destination file exists
+                    if (destinationFile != null) {
+                        val uri = destinationFile.uri
+                        val stream = App.instance.contentResolver.openOutputStream(uri)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            Files.copy(tempFile.toPath(), stream)
+                        } else {
+                            tempFile.inputStream().copyTo(stream!!)
+                        }
+                        stream?.flush()
+                        stream?.close()
+                        // если файл загружен и всё ок- покажу уведомление о скачанной книге
+                        if (destinationFile.isFile && destinationFile.length() > 100) {
+                            if (PreferencesHandler.instance.sendToKindle && destinationFile.name?.endsWith(
+                                    ".mobi"
+                                ) == true
+                            ) {
+                                SendToKindleHandler().send(destinationFile)
+                            }
+                            if (DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+                                    .getBookById(book.bookId) == null
+                            ) {
+                                val newItem = DownloadedBooks()
+                                newItem.bookId = book.bookId
+                                DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+                                    .insert(newItem)
+                            }
+                            try {
+                                Log.d("surprise", "download: ${destinationFile.type}")
+                                // try to unzip file
+                                if (destinationFile.type == "application/zip" && PreferencesHandler.instance.unzipLoaded) {
+                                    // try to unzip file
+                                    destinationFile = unzipFile(destinationFile)!!
+                                }
+                            } catch (t: Throwable) {
+                                t.printStackTrace()
+                            }
+                            NotificationHandler.instance.createSuccessBookLoadNotification(
+                                destinationFile
+                            )
+                            NotificationHandler.instance.closeBookLoadingProgressNotification()
+                            return true
+                        }
                     }
                 } else {
                     val destinationDir = getCompatDestinationDir(book)
-                    Log.d("surprise", "DownloadHandler.kt 189: destination dir is ${destinationDir?.path}")
+                    Log.d(
+                        "surprise",
+                        "DownloadHandler.kt 189: destination dir is ${destinationDir?.path}"
+                    )
                     if (destinationDir != null) {
                         var destinationFile = File(destinationDir, book.name)
-                        Log.d("surprise", "DownloadHandler.kt 192: destination file is $destinationFile")
+                        Log.d(
+                            "surprise",
+                            "DownloadHandler.kt 192: destination file is $destinationFile"
+                        )
                         if (destinationFile.isFile) {
                             Log.d("surprise", "DownloadHandler.kt 194: file exists")
                             if (destinationFile.length() != tempFile.length()) {
@@ -259,7 +270,10 @@ class DownloadHandler private constructor() {
                     }
                 }
             }
+        } catch (e: WrongDownloadDirException) {
+            throw WrongDownloadDirException()
         } catch (e: Throwable) {
+            Log.d("surprise", "download: book load error found")
             e.printStackTrace()
         }
         val errorInfo = DownloadError()

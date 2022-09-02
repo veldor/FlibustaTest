@@ -8,16 +8,175 @@
     android:padding="10dp"
     tools:context=".ui.BrowserActivity">
 
-
-    <SeekBar
-        android:id="@+id/seekBar"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:max="2"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/booksViewTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="@string/book_view_options_title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <CheckBox
+                android:id="@+id/showCoversCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_book_covers_title"
+                app:layout_constraintTop_toBottomOf="@+id/booksViewTitle" />
+
+            <CheckBox
+                android:id="@+id/showAuthorsCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_authors_title"
+                app:layout_constraintTop_toBottomOf="@+id/showCoversCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showTranslatorsCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_translators_title"
+                app:layout_constraintTop_toBottomOf="@+id/showAuthorsCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showSequencesCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_sequences_title"
+                app:layout_constraintTop_toBottomOf="@+id/showTranslatorsCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showGenresCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_genres_title"
+                app:layout_constraintTop_toBottomOf="@+id/showSequencesCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showFormatCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_format_title"
+                app:layout_constraintTop_toBottomOf="@+id/showGenresCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showDownloadsCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_downloads_title"
+                app:layout_constraintTop_toBottomOf="@+id/showFormatCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showSizeCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_size_title"
+                app:layout_constraintTop_toBottomOf="@+id/showDownloadsCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showAvailableFormatsCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_formats_title"
+                app:layout_constraintTop_toBottomOf="@+id/showSizeCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showReadCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_read_btn_title"
+                app:layout_constraintTop_toBottomOf="@+id/showAvailableFormatsCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showDownloadCheckbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_download_btn_title"
+                app:layout_constraintTop_toBottomOf="@+id/showReadCheckbox" />
+
+            <TextView
+                android:id="@+id/otherElementsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/other_elements_view_options_title"
+                app:layout_constraintTop_toBottomOf="@+id/showDownloadCheckbox" />
+
+            <CheckBox
+                android:id="@+id/showElementDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_description_title"
+                app:layout_constraintTop_toBottomOf="@+id/otherElementsTitle" />
+
+            <CheckBox
+                android:id="@+id/showElementBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:text="@string/show_element_btn_title"
+                app:layout_constraintTop_toBottomOf="@+id/showElementDescription" />
+
+            <TextView
+                android:id="@+id/rowsCountTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text="@string/layout_rows_count_title"
+                app:layout_constraintTop_toBottomOf="@+id/showElementBtn" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/seekBar"
+                android:layout_width="match_parent"
+                android:layout_marginTop="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:stepSize="1"
+                android:valueFrom="1"
+                android:valueTo="3"
+                app:layout_constraintTop_toBottomOf="@id/rowsCountTitle"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

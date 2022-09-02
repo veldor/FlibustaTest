@@ -2,8 +2,6 @@ package net.veldor.flibusta_test.model.view_model
 
 import android.text.format.Formatter
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -16,33 +14,26 @@ import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.db.entity.ReadedBooks
 import net.veldor.flibusta_test.model.delegate.BookInfoAddedDelegate
 import net.veldor.flibusta_test.model.delegate.FormatAvailabilityCheckDelegate
+import net.veldor.flibusta_test.model.delegate.OpdsObserverDelegate
 import net.veldor.flibusta_test.model.delegate.PictureLoadedDelegate
-import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
 import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.helper.StringHelper
 import net.veldor.flibusta_test.model.helper.UrlHelper
-import net.veldor.flibusta_test.model.parser.OpdsParser
+import net.veldor.flibusta_test.model.parser.NewOpdsParser
 import net.veldor.flibusta_test.model.selections.BookmarkItem
 import net.veldor.flibusta_test.model.selections.DownloadLink
-import net.veldor.flibusta_test.model.selections.HistoryItem
+import net.veldor.flibusta_test.model.selections.OpdsStatement
 import net.veldor.flibusta_test.model.selections.RequestItem
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import net.veldor.flibusta_test.model.utils.CacheUtils
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
 open class OpdsViewModel : ViewModel() {
     private var checkBooksWork: Job? = null
-    private var lastScrolled: Int = -1
-    var searchResultsDelegate: SearchResultActionDelegate? = null
     private var bookInfoDelegate: BookInfoAddedDelegate? = null
     private var currentWork: Job? = null
-    private val _liveRequestState: MutableLiveData<String> = MutableLiveData(STATUS_WAIT)
-    val liveRequestState: LiveData<String> = _liveRequestState
     private var formatDelegate: FormatAvailabilityCheckDelegate? = null
-
-    private var lastRequestedUrl: String? = null
 
     fun request(
         request: RequestItem?
@@ -50,125 +41,60 @@ open class OpdsViewModel : ViewModel() {
         if (request == null) {
             return
         }
+        OpdsStatement.instance.requestLaunched()
         if (request.addToHistory) {
-            lastRequestedUrl = request.request
+            // add current condition to history
+            OpdsStatement.instance.saveToHistory()
         } else {
             CacheUtils.requestClearCache()
         }
-        var appendResult = request.append
+        OpdsStatement.instance.setCurrentRequest(request.request)
         CoverHandler.dropPreviousLoading()
         if (currentWork != null) {
             currentWork!!.cancel()
-            _liveRequestState.postValue(STATUS_CANCELLED)
         }
         currentWork = viewModelScope.launch(Dispatchers.IO) {
-            if (request.addToHistory && OpdsResultsHandler.instance.resultsSize > 0) {
-                // make a copy of result
-                val requestResult = arrayListOf<SearchResult>()
-                requestResult += OpdsResultsHandler.instance.getResults()
-                requestResult.forEach {
-                    it.clickedElementIndex = request.clickedElementIndex
-                }
-                HistoryHandler.instance.addToHistory(HistoryItem(requestResult))
-            }
-            if (!request.append) {
-                OpdsResultsHandler.instance.clear()
-            }
-            // if require load all pages- do it in cycle, otherwise- make a single request
-            if (PreferencesHandler.instance.opdsPagingType) {
-                // do a single request
-                val roundResult = doRequestRound(request.request, request.append)
-                if (roundResult != null) {
-                    if (!currentWork!!.isCancelled) {
-                        OpdsResultsHandler.instance.add(roundResult)
-                        searchResultsDelegate?.receiveSearchResult(roundResult)
-                    } else {
-                        _liveRequestState.postValue(STATUS_CANCELLED)
-                    }
-                }
-            } else {
-                var link: String? = request.request
-                while (!currentWork!!.isCancelled) {
-                    if (link != null) {
-                        val roundResult =
-                            doRequestRound(link, appendResult) ?: break
-                        if (!appendResult) {
-                            appendResult = true
-                        }
-                        if (!currentWork!!.isCancelled) {
-                            searchResultsDelegate?.receiveSearchResult(roundResult)
-                            OpdsResultsHandler.instance.add(roundResult)
-                            link = getNextPageLink()
-                        } else {
-                            _liveRequestState.postValue(STATUS_CANCELLED)
-                        }
-                    } else {
-                        break
-                    }
-                }
+            // получу результаты запроса
+            getData(request)
+            if (currentWork?.isCancelled != true) {
+                OpdsStatement.instance.requestFinished()
             }
         }
     }
 
-    private fun doRequestRound(
-        request: String,
-        append: Boolean
-    ): SearchResult? {
-        _liveRequestState.postValue(STATUS_REQUESTING)
-        // make a request
-        val response = UniversalWebClient().rawRequest(request, false)
-        val statusCode = response.statusCode
-        if (statusCode == 200 && response.inputStream != null) {
+    private fun getData(request: RequestItem) {
+        Log.d("surprise", "getData: request data")
+        val response = UniversalWebClient().rawRequest(request.request, false)
+        if (currentWork?.isCancelled == true) {
+            OpdsStatement.instance.requestCancelled()
+            return
+        }
+        if (response.inputStream != null) {
             val answerString = StringHelper.streamToString(response.inputStream)
             // check what answer string is opds
             if (!answerString.isNullOrEmpty() && answerString.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>")) {
-                // got content, parse it
-                _liveRequestState.postValue(STATUS_REQUESTED)
-                val parser = OpdsParser(answerString)
-                val results = parser.parse()
-                _liveRequestState.postValue(STATUS_PARSED)
-                val searchResult = SearchResult()
-                searchResult.requestLink = request
-                searchResult.appended = append
-                searchResult.size = results.size
-                if (results.isNotEmpty()) {
-                    searchResult.type = results[0].type
-                }
-                searchResult.results = results
-                searchResult.filteredList = parser.filteredList
-                searchResult.nextPageLink = parser.nextPageLink
-                searchResult.filtered = parser.filtered
-                return if (!currentWork!!.isCancelled) {
-                    _liveRequestState.postValue(STATUS_READY)
-                    searchResult
-                } else {
-                    _liveRequestState.postValue(STATUS_CANCELLED)
-                    null
-                }
+                // сохраню строку в список результатов
+                OpdsStatement.instance.addRawResults(answerString)
+                // получу результаты запроса
+                val parser = NewOpdsParser(answerString)
+                parser.parse(currentWork)
+            }else {
+                // ошибка запроса
+                OpdsStatement.instance.requestFailed()
             }
+        } else {
+            // ошибка запроса
+            OpdsStatement.instance.requestFailed()
         }
-        _liveRequestState.postValue(STATUS_REQUEST_ERROR)
-        return null
-    }
-
-    fun getPreviousResults(): ArrayList<SearchResult> {
-        return OpdsResultsHandler.instance.getResults()
-    }
-
-    fun saveScrolledPosition(s: Int) {
-        lastScrolled = s
     }
 
     fun loadInProgress(): Boolean {
         return currentWork?.isActive == true
     }
 
-    fun getNextPageLink(): String? {
-        return OpdsResultsHandler.instance.getResults().lastOrNull()?.nextPageLink
-    }
-
     fun cancelSearch() {
         currentWork?.cancel()
+        OpdsStatement.instance.requestCancelled()
     }
 
     fun downloadPic(book: FoundEntity, delegate: PictureLoadedDelegate) {
@@ -196,10 +122,6 @@ open class OpdsViewModel : ViewModel() {
         }
     }
 
-    fun getScrolledPosition(): Int {
-        return lastScrolled
-    }
-
     fun setFormatDelegate(delegate: FormatAvailabilityCheckDelegate) {
         formatDelegate = delegate
     }
@@ -211,10 +133,6 @@ open class OpdsViewModel : ViewModel() {
                 DownloadHandler.instance.startDownload()
             }
         }
-    }
-
-    fun replacePreviousResults(previousResults: ArrayList<SearchResult>) {
-        OpdsResultsHandler.instance.set(previousResults)
     }
 
     fun markRead(item: FoundEntity) {
@@ -321,51 +239,39 @@ open class OpdsViewModel : ViewModel() {
         checkBooksWork?.cancel()
     }
 
-    fun applyFilters(item: FoundEntity, target: String, list: java.util.ArrayList<FoundEntity>?) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val rules = FilterHandler.addToBlacklist(item, target)
-            val filtered = arrayListOf<FoundEntity>()
-            list?.forEach { item ->
-                rules.forEach inner@{
-                    if (FilterHandler.filterByRule(item, it)) {
-                        filtered.add(item)
-                        return@inner
-                    }
-                }
-            }
-            searchResultsDelegate?.valueFiltered(filtered)
-        }
-    }
-
     fun addBookmark(category: BookmarkItem, name: String, link: String) {
         BookmarkHandler.instance.addBookmark(category, name, link)
     }
 
     fun readyToCreateBookmark(): Boolean {
-        return lastRequestedUrl != null
+        return OpdsStatement.instance.getCurrentRequest() != null
     }
 
     fun getBookmarkLink(): String? {
-        return lastRequestedUrl
+        return OpdsStatement.instance.getCurrentRequest()
     }
 
     fun removeBookmark() {
-        BookmarkHandler.instance.deleteBookmark(lastRequestedUrl)
+        BookmarkHandler.instance.deleteBookmark(OpdsStatement.instance.getCurrentRequest())
     }
 
-    fun saveClickedElement(clickedItemId: Long) {
-        Log.d("surprise", "OpdsViewModel.kt 357: save clicked $clickedItemId")
-        OpdsResultsHandler.instance.addClickedItemId(clickedItemId)
+    fun addBlacklistItem(item: FoundEntity, target: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            FilterHandler.addToBlacklist(item, target)
+        }
     }
 
+    fun addSubscribeItem(item: FoundEntity, target: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            SubscribesHandler.addSubscribe(item, target)
+        }
+    }
 
-    companion object {
-        const val STATUS_WAIT = "wait"
-        const val STATUS_REQUESTING = "requesting"
-        const val STATUS_REQUESTED = "requested"
-        const val STATUS_PARSED = "parsed"
-        const val STATUS_READY = "ready"
-        const val STATUS_CANCELLED = "cancelled"
-        const val STATUS_REQUEST_ERROR = "request error"
+    fun drawBadges(delegate: OpdsObserverDelegate) {
+        viewModelScope.launch(Dispatchers.IO) {
+        Thread.sleep(500)
+            delegate.drawBadges()
+    }
+
     }
 }

@@ -43,10 +43,4 @@
         android:summary="@string/use_rules_filters_enabled_title"
         android:summaryOff="@string/use_rules_filters_disabled_title"
         android:title="@string/use_rules_filters_pref" />
-    <SwitchPreferenceCompat
-        app:key="add to filter on long click"
-        android:defaultValue="false"
-        android:summary="@string/long_click_to_add_filter_enabled_title"
-        android:summaryOff="@string/long_click_to_add_filter_disabled_title"
-        android:title="@string/add_filter_on_long_click_pref" />
 </PreferenceScreen>

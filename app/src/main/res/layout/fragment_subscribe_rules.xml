@@ -22,6 +22,7 @@
                 android:id="@+id/blacklist_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -33,9 +34,14 @@
                 <RadioButton
                     android:id="@+id/blacklistBook"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
                     android:checked="true"
+                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/book_name_title"
                     android:textSize="11sp" />
@@ -44,8 +50,13 @@
                 <RadioButton
                     android:id="@+id/blacklistAuthor"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/book_author_title"
                     android:textSize="11sp" />
@@ -54,8 +65,13 @@
                 <RadioButton
                     android:id="@+id/blacklistSequence"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/sequence_title"
                     android:textSize="11sp" />
@@ -63,8 +79,13 @@
                 <RadioButton
                     android:id="@+id/blacklistGenre"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/genre_title"
                     android:textSize="11sp" />
@@ -92,8 +113,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/add_to_blacklist_btn"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rulesHint"
-                app:startIconDrawable="@drawable/fab_add">
+                app:layout_constraintTop_toBottomOf="@id/rulesHint">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/blacklistItemInput"
@@ -110,17 +130,18 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <Button
+            <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/add_to_blacklist_btn"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="wrap_content"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="13dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="6dp"
                 android:padding="10dp"
-                android:text="@string/add_to_blacklist_msg"
+                android:src="@drawable/fab_add"
+                android:tint="@color/black"
                 app:layout_constraintBottom_toBottomOf="@+id/blacklistInputLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/blacklistInputLayout" />
@@ -139,12 +160,12 @@
                 android:id="@+id/filterListView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:layout_marginStart="20dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginRight="20dp"
                 android:imeOptions="flagNoExtractUi"
+                android:visibility="gone"
                 app:iconifiedByDefault="false"
                 app:layout_constraintTop_toBottomOf="@id/blacklistInputLayout"
                 app:queryHint="@string/search_in_list_title" />

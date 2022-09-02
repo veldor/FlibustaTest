@@ -1,6 +1,7 @@
 package net.veldor.flibusta_test.model.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -9,11 +10,10 @@ import net.veldor.flibusta_test.databinding.FilteredListViewBinding
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 
 class FilteredItemsAdapter(
-    arrayList: ArrayList<FoundEntity>?,
+    private val values: ArrayList<FoundEntity>,
     val context: Context
 ) :
     RecyclerView.Adapter<FilteredItemsAdapter.ViewHolder>() {
-    private var values: ArrayList<FoundEntity> = arrayListOf()
 
 
     private var mLayoutInflater: LayoutInflater =
@@ -36,21 +36,9 @@ class FilteredItemsAdapter(
         return values.size
     }
 
-    fun appendList(list: java.util.ArrayList<FoundEntity>) {
-        if (values.isEmpty()) {
-            values = list
-            notifyDataSetChanged()
-        } else {
-            val previousSize = values.size
-            values += list
-            notifyItemRangeInserted(previousSize, list.size)
-        }
-    }
-
-    fun clear() {
-        val previousSize = values.size
-        values = arrayListOf()
-        notifyItemRangeRemoved(0, previousSize)
+    fun requireUpdate() {
+        Log.d("surprise", "requireUpdate: i updating this list of ${values.size}")
+        notifyDataSetChanged()
     }
 
 
@@ -62,12 +50,6 @@ class FilteredItemsAdapter(
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             binding.filterReason.text = item.filterResult?.toString()
-        }
-    }
-
-    init {
-        if (arrayList != null && arrayList.isNotEmpty()) {
-            values = arrayList
         }
     }
 }

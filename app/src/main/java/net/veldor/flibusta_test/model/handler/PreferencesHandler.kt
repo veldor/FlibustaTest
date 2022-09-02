@@ -13,6 +13,94 @@ import java.io.File
 
 class PreferencesHandler private constructor() {
 
+    var showOnionVpnConflictDialog: Boolean
+        get() = preferences.getBoolean(PREF_SHOW_ONION_VPN_CONFLICT_DIALOG, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SHOW_ONION_VPN_CONFLICT_DIALOG, state).apply()
+        }
+
+    val toolbarSearchShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_SEARCH_VISIBILITY, true)
+    val toolbarSortShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_SORT_VISIBILITY, true)
+    val toolbarBlockedShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_BLOCKED_VISIBILITY, true)
+    val toolbarDloadStateShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_DLOAD_STATE_VISIBILITY, true)
+    val toolbarThemeShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_THEME_VISIBILITY, true)
+    val toolbarEinkShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_EINK_VISIBILITY, true)
+    val toolbarBookmarkShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_BOOKMARK_VISIBILITY, true)
+    val toolbarViewConfigShown: Boolean
+        get() = preferences.getBoolean(PREF_TOOLBAR_VIEW_CONFIG_VISIBILITY, true)
+
+    var showAuthors: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_AUTHORS, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_AUTHORS, state).apply()
+        }
+
+    var showFoundBookTranslators: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_TRANSLATORS, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_TRANSLATORS, state).apply()
+        }
+
+    var showFoundBookSequences: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_SEQUENCES, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_SEQUENCES, state).apply()
+        }
+
+    var showFoundBookGenres: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_GENRES, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_GENRES, state).apply()
+        }
+
+    var showFoundBookFormat: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_FORMAT, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_FORMAT, state).apply()
+        }
+
+    var showFoundBookDownloads: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_DOWNLOADS, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_DOWNLOADS, state).apply()
+        }
+
+    var showFoundBookSize: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_SIZE, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_SIZE, state).apply()
+        }
+
+    var showFoundBookAvailableFormats: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_AVAILABLE_FORMATS, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_AVAILABLE_FORMATS, state).apply()
+        }
+
+    var showFoundBookReadBtn: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_READ_BTN, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_READ_BTN, state).apply()
+        }
+
+    var showFoundBookDownloadBtn: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_DLOAD_BTN, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_DLOAD_BTN, state).apply()
+        }
+    var showElementDescription: Boolean
+        get() = preferences.getBoolean(PREF_FOUND_ITEM_SHOW_ELEMENT_DESCRIPTION, true)
+        set(state) {
+            preferences.edit().putBoolean(PREF_FOUND_ITEM_SHOW_ELEMENT_DESCRIPTION, state).apply()
+        }
+
     var forbidden: Boolean
         get() = preferences.getBoolean(PREF_FORBIDDEN, false)
         set(state) {
@@ -422,11 +510,16 @@ class PreferencesHandler private constructor() {
         return true
     }
 
-    val useTorMirror
+    var useTorMirror
         get() = preferences.getBoolean(
             IS_TOR_MIRROR_PREF,
             false
         )
+        set(state) {
+            preferences.edit()
+                .putBoolean(IS_TOR_MIRROR_PREF, state)
+                .apply()
+        }
 
     var isCustomMirror: Boolean
         get() = preferences.getBoolean(
@@ -523,6 +616,28 @@ class PreferencesHandler private constructor() {
         private const val PREF_CHECK_UPDATE_AFTER = "check update after"
         private const val PREF_CHECK_UPDATE_ON_START = "check update on start"
         private const val PREF_FORBIDDEN = "forbidden"
+        private const val PREF_FOUND_ITEM_SHOW_AUTHORS = "found item show authors"
+        private const val PREF_FOUND_ITEM_SHOW_TRANSLATORS = "found item show translators"
+        private const val PREF_FOUND_ITEM_SHOW_SEQUENCES = "found item show sequences"
+        private const val PREF_FOUND_ITEM_SHOW_GENRES = "found item show genres"
+        private const val PREF_FOUND_ITEM_SHOW_FORMAT = "found item show format"
+        private const val PREF_FOUND_ITEM_SHOW_DOWNLOADS = "found item show downloads"
+        private const val PREF_FOUND_ITEM_SHOW_SIZE = "found item show size"
+        private const val PREF_FOUND_ITEM_SHOW_AVAILABLE_FORMATS =
+            "found item show available formats"
+        private const val PREF_FOUND_ITEM_SHOW_READ_BTN = "found item show read button"
+        private const val PREF_FOUND_ITEM_SHOW_DLOAD_BTN = "found item show download button"
+        private const val PREF_FOUND_ITEM_SHOW_ELEMENT_DESCRIPTION =
+            "found item show element description"
+        private const val PREF_TOOLBAR_SEARCH_VISIBILITY = "show toolbar search"
+        private const val PREF_TOOLBAR_SORT_VISIBILITY = "show toolbar sort"
+        private const val PREF_TOOLBAR_BLOCKED_VISIBILITY = "show toolbar blocked"
+        private const val PREF_TOOLBAR_DLOAD_STATE_VISIBILITY = "show toolbar download state"
+        private const val PREF_TOOLBAR_THEME_VISIBILITY = "show toolbar theme"
+        private const val PREF_TOOLBAR_EINK_VISIBILITY = "show toolbar eink"
+        private const val PREF_TOOLBAR_BOOKMARK_VISIBILITY = "show toolbar bookmark"
+        private const val PREF_TOOLBAR_VIEW_CONFIG_VISIBILITY = "show toolbar view config"
+        private const val PREF_SHOW_ONION_VPN_CONFLICT_DIALOG = "show onion vpn conflict dialog"
 
         private const val PREF_NIGHT_THEME = "night theme"
         const val NIGHT_THEME_SYSTEM = "1"

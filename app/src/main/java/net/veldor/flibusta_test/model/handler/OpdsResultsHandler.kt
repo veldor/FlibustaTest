@@ -28,30 +28,13 @@ class OpdsResultsHandler private constructor() {
         }
     }
 
-    fun getResults(): java.util.ArrayList<SearchResult> {
-        Log.d("surprise", "OpdsResultsHandler.kt 30: get previously loaded results")
-        Log.d("surprise", "getResults: ${_requestResult.size}")
-        return _requestResult
-    }
-
     fun set(previousResults: java.util.ArrayList<SearchResult>) {
-        Log.d("surprise", "OpdsResultsHandler.kt 36: set previously loaded results")
         Log.d("surprise", "set: ${previousResults.size}")
         _requestResult = previousResults
     }
 
-    fun addClickedItemId(clickedItemId: Long) {
-        _requestResult.forEach {
-            it.clickedElementIndex = clickedItemId
-        }
-    }
-
     private val _livePossibleMemoryOverflow: MutableLiveData<Boolean> = MutableLiveData()
     val livePossibleMemoryOverflow: LiveData<Boolean> = _livePossibleMemoryOverflow
-    val resultsSize: Int
-        get() {
-            return _requestResult.size
-        }
     private var _requestResult: ArrayList<SearchResult> = arrayListOf()
 
     companion object {

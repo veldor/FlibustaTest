@@ -305,6 +305,57 @@ class SubscribesHandler private constructor() {
     }
 
     companion object {
+        fun addSubscribe(item: FoundEntity, target: String) {
+            if (target == "name") {
+                when (item.type) {
+                    OpdsParser.TYPE_AUTHOR, OpdsParser.TYPE_AUTHORS -> {
+                        if (item.name != null) {
+                            SubscribeAuthors.instance.addValue(item.name!!)
+                            return
+                        }
+                    }
+                    OpdsParser.TYPE_GENRE -> {
+                        if (item.name != null) {
+                            SubscribeGenre.instance.addValue(item.name!!)
+                            return
+                        }
+                    }
+                    OpdsParser.TYPE_SEQUENCE -> {
+                        val value = item.name!!.trim().lowercase()
+                        SubscribeSequences.instance.addValue(value)
+                        return
+                    }
+                }
+            }
+            when (target) {
+                "author" -> {
+                    item.authors.forEach {
+                        if (it.name != null) {
+                            SubscribeAuthors.instance.addValue(it.name!!)
+                        }
+                    }
+                    return
+                }
+                "sequence" -> {
+                    item.sequences.forEach {
+                        if (it.name != null) {
+                            val value = it.name!!.trim().lowercase()
+                                .substring(17, it.name!!.trim().length - 1)
+                            SubscribeSequences.instance.addValue(value)
+                        }
+                        return
+                    }
+                }
+                "genre" -> {
+                    item.genres.forEach {
+                        if (it.name != null) {
+                            SubscribeGenre.instance.addValue(it.name!!)
+                        }
+                    }
+                }
+            }
+        }
+
         @kotlin.jvm.JvmStatic
         var instance: SubscribesHandler = SubscribesHandler()
             private set

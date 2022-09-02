@@ -33,54 +33,29 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
+import net.veldor.flibusta_test.model.selections.OpdsStatement
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import kotlin.coroutines.CoroutineContext
 
-/*
-class FoundItemAdapter(
-    arrayList: ArrayList<FoundEntity>,
+
+class NewFoundItemAdapter(
+    private val resultValues: ArrayList<FoundEntity>,
     val delegate: FoundItemActionDelegate,
     val context: Context
 ) :
     CoroutineScope,
-    RecyclerView.Adapter<FoundItemAdapter.ViewHolder>(), MyAdapterInterface {
+    RecyclerView.Adapter<NewFoundItemAdapter.ViewHolder>(), MyAdapterInterface {
 
-    private val _size: MutableLiveData<Int> = MutableLiveData(0)
-    override val liveSize: LiveData<Int> = _size
 
-    private var selectedFilterOption: Int = R.id.filterName
-    private var useFilter: Boolean = false
-        set(state) {
-            if (state) {
-                // use filter
-                originValues = resultValues
-                _size.postValue(originValues.size)
-            } else {
-                // use normal list
-                if (originValues.isNotEmpty()) {
-                    resultValues = originValues
-                    _size.postValue(resultValues.size)
-                    notifyItemRangeChanged(0, originValues.size - 1)
-                }
-            }
-            field = state
-        }
-    private var loadInProgress: Boolean = false
-    private var lastSortOption: Int = -1
-    private var hasNext: Boolean = false
+    private var pressedItemId: String? = null
+
     private var job: Job = Job()
-    private var menuClicked: FoundEntity? = null
     private var itemInAction: FoundEntity? = null
-    private var showCheckboxes = false
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + job
 
-    private var resultValues: ArrayList<FoundEntity> = arrayListOf()
-    private var originValues: ArrayList<FoundEntity> = arrayListOf()
-
     override fun setNextPageLink(link: String?) {
-        hasNext = link != null
     }
 
     override fun sort() {
@@ -91,7 +66,6 @@ class FoundItemAdapter(
     }
 
     override fun setLoadInProgress(state: Boolean) {
-        loadInProgress = state
     }
 
     private val mLayoutInflater: LayoutInflater =
@@ -115,9 +89,7 @@ class FoundItemAdapter(
         if (i < resultValues.size) {
             viewHolder.bind(resultValues[i])
         } else {
-            if (hasNext) {
-                viewHolder.bindButton()
-            }
+            viewHolder.bindButton()
         }
     }
 
@@ -126,50 +98,28 @@ class FoundItemAdapter(
     }
 
     override fun getItemCount(): Int {
-        if (hasNext) {
+        if (OpdsStatement.instance.isNextPageLink()) {
             return resultValues.size + 1
         }
         return resultValues.size
     }
 
+    private val _size: MutableLiveData<Int> = MutableLiveData(0)
+    override val liveSize: LiveData<Int> = _size
+
+    @SuppressLint("NotifyDataSetChanged")
     override fun clearList() {
-        Log.d("surprise", "clearList: cleaning...")
-        notifyItemRangeRemoved(0, resultValues.size)
-        resultValues = arrayListOf()
-        notifyItemRangeInserted(0, 0)
-        _size.postValue(0)
-        hasNext = false
+        resultValues.clear()
+        notifyDataSetChanged()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun appendContent(results: ArrayList<FoundEntity>) {
-        Log.d("surprise", "appendContent: append ${results.size} elements")
-        showCheckboxes = false
-        lastSortOption = -1
-        val oldLength = itemCount
-        resultValues.addAll(results)
-        _size.postValue(resultValues.size)
-        if (oldLength > 0) {
-            notifyItemRangeInserted(itemCount, results.size)
-        } else {
-            notifyDataSetChanged()
-        }
     }
 
 
     override fun loadPreviousResults(results: java.util.ArrayList<FoundEntity>) {
-        Log.d("surprise", "appendContent: append ${results.size} elements")
-        showCheckboxes = false
-        lastSortOption = -1
-        val oldLength = itemCount
-        resultValues.addAll(results)
-        originValues.addAll(results)
-        _size.postValue(resultValues.size)
-        if (oldLength > 0) {
-            notifyItemRangeInserted(itemCount, results.size)
-        } else {
-            notifyDataSetChanged()
-        }
+
     }
 
     inner class ViewHolder(private val binding: FoundItemBinding) : RecyclerView.ViewHolder(
@@ -179,106 +129,40 @@ class FoundItemAdapter(
 
         init {
             binding.menuButton.setOnClickListener {
-                menuClicked = binding.item
                 delegate.menuItemPressed(item, binding.menuButton)
             }
-
-            if (PreferencesHandler.instance.isEInk) {
-                binding.name.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.firstInfoBlockLeftParam.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.firstInfoBlockRightParam.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.secondInfoBlockLeftParam.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.secondInfoBlockRightParam.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.thirdBlockCenterElement.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.thirdBlockRightElement.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.thirdBlockLeftElement.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                )
-                binding.rootView.setBackgroundColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.white,
-                        context.theme
-                    )
-                )
-            }
-        }
-
-        private lateinit var item: FoundEntity
-
-        init {
             binding.previewImage.setOnClickListener {
                 delegate.imageClicked(item)
             }
         }
 
+        private lateinit var item: FoundEntity
+
+
         fun bind(item: FoundEntity) {
             this.item = item
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
-            drawTypical()
-            // handle book button
+            drawBase()
             if (item.type == TYPE_BOOK) {
                 drawBook()
             } else {
-                drawNoBook()
+                drawElement()
             }
         }
 
-        private fun drawTypical() {
+        fun bindButton() {
+            // скрою все элементы кроме главной кнопки
+            hideAllExceptMainBtn()
+            binding.centerActionBtn.text = context.getString(R.string.show_more_title)
+            binding.centerActionBtn.setOnClickListener {
+                delegate.loadMoreBtnClicked()
+            }
+        }
+
+
+        private fun drawBase() {
+            // действие главной кнопки
             binding.centerActionBtn.setOnClickListener {
                 itemInAction = binding.item
                 delegate.buttonPressed(item)
@@ -293,9 +177,8 @@ class FoundItemAdapter(
                     )
             }
 
-            // handle selected item
-            if (item.selected) {
-                Log.d("surprise", "FoundItemAdapter.kt 284: mark selected")
+            // handle selected no-book item
+            if (pressedItemId != null && item.link == pressedItemId) {
                 binding.mainView.setBackgroundColor(
                     ResourcesCompat.getColor(
                         context.resources,
@@ -307,7 +190,7 @@ class FoundItemAdapter(
                 binding.mainView.background =
                     ResourcesCompat.getDrawable(
                         context.resources,
-                        R.drawable.genre_layout,
+                        R.color.sequences_background,
                         context.theme
                     )
             }
@@ -331,23 +214,14 @@ class FoundItemAdapter(
                         )
                     )
             }
-            // setup main button
-            binding.centerActionBtn.setOnClickListener {
-                itemInAction = binding.item
-                delegate.buttonPressed(item)
-                item.buttonPressed = true
-                if (!PreferencesHandler.instance.isEInk)
-                    binding.centerActionBtn.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.dark_gray,
-                            context.theme
-                        )
-                    )
-            }
         }
 
+
         private fun drawBook() {
+            showBookItems()
+            binding.name.setPadding(30, 10, 30, 10)
+            binding.centerActionBtn.setOnLongClickListener(null)
+            binding.rootView.setOnLongClickListener(null)
             binding.centerActionBtn.text = context.getString(R.string.download_message)
             if (!PreferencesHandler.instance.isEInk)
                 binding.root.setBackgroundColor(
@@ -361,17 +235,6 @@ class FoundItemAdapter(
                 binding.centerActionBtn.visibility = View.INVISIBLE
             } else {
                 binding.centerActionBtn.visibility = View.VISIBLE
-            }
-            binding.firstInfoBlockRightParam.visibility = View.VISIBLE
-            binding.firstInfoBlockLeftParam.visibility = View.VISIBLE
-            binding.secondInfoBlockRightParam.visibility = View.VISIBLE
-            binding.secondInfoBlockLeftParam.visibility = View.VISIBLE
-            binding.thirdBlockRightElement.visibility = View.VISIBLE
-            binding.thirdBlockLeftElement.visibility = View.VISIBLE
-            binding.thirdBlockCenterElement.visibility = View.VISIBLE
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                binding.rootView.foreground = null
             }
             binding.rootView.setOnClickListener {}
             binding.name.visibility = View.VISIBLE
@@ -514,24 +377,25 @@ class FoundItemAdapter(
                 // скрою окно иконки
                 binding.previewImage.visibility = View.GONE
             }
-            // available formats
-            binding.availableLinkFormats.isClickable = true
-            binding.availableLinkFormats.isFocusable = true
-            binding.availableLinkFormats.setTextColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.white,
-                    null
+            if (PreferencesHandler.instance.showFoundBookAvailableFormats) {
+                // available formats
+                binding.availableLinkFormats.isClickable = true
+                binding.availableLinkFormats.isFocusable = true
+                binding.availableLinkFormats.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.white,
+                        null
+                    )
                 )
-            )
-            GrammarHandler.getAvailableDownloadFormats(item, binding.availableLinkFormats)
-            binding.availableLinkFormats.visibility = View.VISIBLE
-            binding.availableLinkFormats.setOnClickListener {
-                Toast.makeText(
-                    context,
-                    "Это список доступных форматов. Скачать книгу можно нажав на кнопку ниже",
-                    Toast.LENGTH_LONG
-                ).show()
+                GrammarHandler.getAvailableDownloadFormats(item, binding.availableLinkFormats)
+                binding.availableLinkFormats.setOnClickListener {
+                    Toast.makeText(
+                        context,
+                        "Это список доступных форматов. Скачать книгу можно нажав на кнопку ниже",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
             // author
             if (!item.author.isNullOrEmpty()) {
@@ -550,36 +414,38 @@ class FoundItemAdapter(
             }
             // translate
             if (item.translate.isNullOrEmpty()) {
-                binding.firstInfoBlockRightParam.text =
-                    context.getString(R.string.no_translate_title)
+                binding.firstInfoBlockRightParam.visibility = View.GONE
             } else {
                 binding.firstInfoBlockRightParam.text = item.translate
             }
-            // sequence
-            if (item.sequencesComplex.isNotEmpty()) {
-                binding.secondInfoBlockLeftParam.isClickable = true
-                makeSelectable(binding.secondInfoBlockLeftParam)
-                binding.secondInfoBlockLeftParam.text = item.sequencesComplex
-                binding.secondInfoBlockLeftParam.setOnClickListener {
-                    itemInAction = binding.item
-                    delegate.sequenceClicked(item)
+            if (PreferencesHandler.instance.showFoundBookSequences) {
+                // sequence
+                if (item.sequencesComplex.isNotEmpty()) {
+                    binding.secondInfoBlockLeftParam.isClickable = true
+                    makeSelectable(binding.secondInfoBlockLeftParam)
+                    binding.secondInfoBlockLeftParam.text = item.sequencesComplex
+                    binding.secondInfoBlockLeftParam.setOnClickListener {
+                        itemInAction = binding.item
+                        delegate.sequenceClicked(item)
+                    }
+                } else {
+                    binding.secondInfoBlockLeftParam.text =
+                        context.getString(R.string.no_sequence_title)
+                    binding.secondInfoBlockLeftParam.isClickable = false
+                    binding.secondInfoBlockLeftParam.setOnClickListener {}
+                    makeNoSelectable(binding.secondInfoBlockLeftParam)
                 }
-            } else {
-                binding.secondInfoBlockLeftParam.text =
-                    context.getString(R.string.no_sequence_title)
-                binding.secondInfoBlockLeftParam.isClickable = false
-                binding.secondInfoBlockLeftParam.setOnClickListener {}
-                makeNoSelectable(binding.secondInfoBlockLeftParam)
             }
             // genre
-            binding.secondInfoBlockRightParam.text = item.genreComplex
+            if (item.genreComplex.isNullOrEmpty()) {
+                binding.secondInfoBlockRightParam.visibility = View.GONE
+            } else {
+                binding.secondInfoBlockRightParam.text = item.genreComplex
+            }
 
             binding.thirdBlockLeftElement.text = item.format
-            binding.thirdBlockLeftElement.visibility = View.VISIBLE
             binding.thirdBlockCenterElement.text = item.downloadsCount
-            binding.thirdBlockCenterElement.visibility = View.VISIBLE
             binding.thirdBlockRightElement.text = item.size
-            binding.thirdBlockRightElement.visibility = View.VISIBLE
             if (!PreferencesHandler.instance.isEInk)
                 binding.centerActionBtn.setTextColor(
                     ResourcesCompat.getColor(
@@ -588,8 +454,6 @@ class FoundItemAdapter(
                         context.theme
                     )
                 )
-            binding.leftActionBtn.visibility = View.VISIBLE
-            binding.rightActionBtn.visibility = View.VISIBLE
             if (!item.read) {
                 binding.leftActionBtn.background.setColorFilter(
                     ResourcesCompat.getColor(
@@ -607,92 +471,145 @@ class FoundItemAdapter(
                     ), PorterDuff.Mode.SRC_ATOP
                 )
             }
-            if (!item.downloaded) {
-                binding.rightActionBtn.background.setColorFilter(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.dark_gray,
-                        context.theme
-                    ), PorterDuff.Mode.SRC_ATOP
-                )
-            } else {
-                binding.rightActionBtn.background.setColorFilter(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.genre_text_color,
-                        context.theme
-                    ), PorterDuff.Mode.SRC_ATOP
-                )
-            }
+            if (PreferencesHandler.instance.showFoundBookDownloadBtn) {
+                if (!item.downloaded) {
+                    binding.rightActionBtn.background.setColorFilter(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.dark_gray,
+                            context.theme
+                        ), PorterDuff.Mode.SRC_ATOP
+                    )
+                } else {
+                    binding.rightActionBtn.background.setColorFilter(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.genre_text_color,
+                            context.theme
+                        ), PorterDuff.Mode.SRC_ATOP
+                    )
+                }
 
-            binding.rightActionBtn.setOnClickListener {
-                delegate.rightButtonPressed(item)
+                binding.rightActionBtn.setOnClickListener {
+                    delegate.rightButtonPressed(item)
+                }
             }
             binding.leftActionBtn.setOnClickListener {
                 delegate.leftButtonPressed(item)
             }
-
-            if (PreferencesHandler.instance.addFilterByLongClick) {
-                makeSelectable(binding.firstInfoBlockLeftParam)
-                binding.firstInfoBlockLeftParam.setOnLongClickListener {
-                    delegate.buttonLongPressed(item, "author",)
-                    return@setOnLongClickListener true
-                }
-                makeSelectable(binding.secondInfoBlockLeftParam)
-                binding.secondInfoBlockLeftParam.setOnLongClickListener {
-                    delegate.buttonLongPressed(item, "sequence",)
-                    return@setOnLongClickListener true
-                }
-                makeSelectable(binding.secondInfoBlockRightParam)
-                binding.secondInfoBlockRightParam.setOnLongClickListener {
-                    delegate.buttonLongPressed(item, "genre",)
-                    return@setOnLongClickListener true
-                }
+            makeSelectable(binding.firstInfoBlockLeftParam)
+            binding.firstInfoBlockLeftParam.setOnLongClickListener {
+                delegate.buttonLongPressed(item, "author", binding.firstInfoBlockLeftParam)
+                return@setOnLongClickListener true
+            }
+            makeSelectable(binding.secondInfoBlockLeftParam)
+            binding.secondInfoBlockLeftParam.setOnLongClickListener {
+                delegate.buttonLongPressed(item, "sequence", binding.secondInfoBlockLeftParam)
+                return@setOnLongClickListener true
+            }
+            makeSelectable(binding.secondInfoBlockRightParam)
+            binding.secondInfoBlockRightParam.setOnLongClickListener {
+                delegate.buttonLongPressed(item, "genre", binding.secondInfoBlockRightParam)
+                return@setOnLongClickListener true
             }
         }
 
-        private fun makeSelectable(view: View) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                view.foreground = with(TypedValue()) {
-                    context.theme.resolveAttribute(
-                        R.attr.selectableItemBackground, this, true
-                    )
-                    ContextCompat.getDrawable(context, resourceId)
-                }
-            }
+        private fun showBookItems() {
+            binding.menuButton.visibility = View.VISIBLE
+
+            binding.firstInfoBlockLeftParam.visibility =
+                if (PreferencesHandler.instance.showAuthors) View.VISIBLE else View.GONE
+
+            binding.firstInfoBlockRightParam.visibility =
+                if (PreferencesHandler.instance.showFoundBookTranslators) View.VISIBLE else View.GONE
+
+            binding.secondInfoBlockLeftParam.visibility =
+                if (PreferencesHandler.instance.showFoundBookSequences) View.VISIBLE else View.GONE
+
+            binding.secondInfoBlockRightParam.visibility =
+                if (PreferencesHandler.instance.showFoundBookGenres) View.VISIBLE else View.GONE
+
+            binding.thirdBlockLeftElement.visibility =
+                if (PreferencesHandler.instance.showFoundBookFormat) View.VISIBLE else View.GONE
+
+            binding.thirdBlockCenterElement.visibility =
+                if (PreferencesHandler.instance.showFoundBookDownloads) View.VISIBLE else View.GONE
+
+            binding.thirdBlockRightElement.visibility =
+                if (PreferencesHandler.instance.showFoundBookSize) View.VISIBLE else View.GONE
+
+            binding.availableLinkFormats.visibility =
+                if (PreferencesHandler.instance.showFoundBookAvailableFormats) View.VISIBLE else View.GONE
+
+            binding.leftActionBtn.visibility =
+                if (PreferencesHandler.instance.showFoundBookReadBtn) View.VISIBLE else View.GONE
+
+            binding.rightActionBtn.visibility =
+                if (PreferencesHandler.instance.showFoundBookDownloadBtn) View.VISIBLE else View.GONE
         }
 
-        private fun makeNoSelectable(view: View) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                view.foreground = null
-            }
-        }
-
-        private fun drawNoBook() {
-            binding.centerActionBtn.text = context.getString(R.string.show_message)
-            binding.centerActionBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.genre_text_color,
-                    context.theme
-                )
-            )
-            // hide all useless
+        private fun showElementItems() {
+            binding.menuButton.visibility = View.GONE
             binding.name.visibility = View.VISIBLE
+            binding.firstInfoBlockLeftParam.visibility = View.GONE
+            binding.firstInfoBlockRightParam.visibility = View.GONE
+            binding.secondInfoBlockLeftParam.visibility = View.GONE
+            binding.secondInfoBlockRightParam.visibility = View.GONE
+            binding.thirdBlockLeftElement.visibility = View.GONE
+            binding.thirdBlockCenterElement.visibility = View.GONE
+            binding.thirdBlockRightElement.visibility = View.GONE
+            binding.availableLinkFormats.visibility = View.GONE
+            binding.leftActionBtn.visibility = View.GONE
+            binding.rightActionBtn.visibility = View.GONE
+            binding.menuButton.visibility = View.GONE
+            binding.previewImage.visibility = View.GONE
+        }
+
+
+        private fun drawElement() {
+            showElementItems()
+
+            binding.rootView.setOnLongClickListener {
+                delegate.buttonLongPressed(item, "name", binding.rootView)
+                return@setOnLongClickListener true
+            }
+
+            if (PreferencesHandler.instance.hideOpdsResultsButtons) {
+                binding.centerActionBtn.visibility = View.GONE
+                binding.name.setPadding(50, 100, 50, 100)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    /*binding.rootView.foreground = with(TypedValue()) {
+                        context.theme.resolveAttribute(
+                            R.attr.selectableItemBackground, this, true
+                        )
+                        ContextCompat.getDrawable(context, resourceId)
+                    }*/
+                }
+                binding.rootView.setOnClickListener {
+                    itemInAction = binding.item
+                    delegate.itemPressed(item)
+                }
+            } else {
+                binding.centerActionBtn.setOnLongClickListener {
+                    delegate.buttonLongPressed(item, "name", binding.rootView)
+                    return@setOnLongClickListener true
+                }
+                binding.name.setPadding(30, 10, 30, 10)
+                binding.centerActionBtn.visibility = View.VISIBLE
+                binding.centerActionBtn.text = context.getString(R.string.show_message)
+            }
+            // hide all useless
             binding.name.isClickable = false
             binding.name.isFocusable = false
             if (PreferencesHandler.instance.addFilterByLongClick) {
                 makeSelectable(binding.name)
                 binding.name.setOnLongClickListener {
-                    delegate.buttonLongPressed(item, "name",)
+                    delegate.buttonLongPressed(item, "name", binding.name)
                     return@setOnLongClickListener true
                 }
                 binding.name.setOnClickListener { delegate.itemPressed(item) }
             } else {
                 makeNoSelectable(binding.name)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                binding.rootView.foreground = null
             }
             if (!PreferencesHandler.instance.isEInk) {
                 when (item.type) {
@@ -725,93 +642,46 @@ class FoundItemAdapter(
                     }
                 }
             }
-
-            if (item.content.isNotEmpty()) {
-                binding.availableLinkFormats.isClickable = false
-                binding.availableLinkFormats.isFocusable = true
-                binding.availableLinkFormats.text = item.content
-                binding.availableLinkFormats.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.textColor,
-                        null
+            if (PreferencesHandler.instance.showElementDescription) {
+                if (item.content.isNotEmpty()) {
+                    binding.availableLinkFormats.visibility = View.VISIBLE
+                    binding.availableLinkFormats.isClickable = false
+                    binding.availableLinkFormats.isFocusable = true
+                    binding.availableLinkFormats.text = item.content
+                    binding.availableLinkFormats.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.textColor,
+                            null
+                        )
                     )
-                )
-                binding.availableLinkFormats.visibility = View.VISIBLE
+                }
             } else {
                 binding.availableLinkFormats.visibility = View.GONE
             }
-            binding.menuButton.visibility = View.GONE
-            binding.previewImage.visibility = View.GONE
-            binding.firstInfoBlockRightParam.visibility = View.GONE
-            binding.firstInfoBlockLeftParam.visibility = View.GONE
-            binding.secondInfoBlockRightParam.visibility = View.GONE
-            binding.secondInfoBlockLeftParam.visibility = View.GONE
-            binding.thirdBlockRightElement.visibility = View.GONE
-            binding.thirdBlockLeftElement.visibility = View.GONE
-            binding.thirdBlockCenterElement.visibility = View.GONE
-            binding.leftActionBtn.visibility = View.GONE
-            binding.rightActionBtn.visibility = View.GONE
-
-            if (PreferencesHandler.instance.hideOpdsResultsButtons) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    binding.rootView.foreground = with(TypedValue()) {
-                        context.theme.resolveAttribute(
-                            R.attr.selectableItemBackground, this, true
-                        )
-                        ContextCompat.getDrawable(context, resourceId)
-                    }
-                }
-                binding.rootView.setOnClickListener {
-                    itemInAction = binding.item
-                    delegate.itemPressed(item)
-                }
-                binding.centerActionBtn.visibility = View.GONE
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    binding.rootView.foreground = null
-                }
-                binding.centerActionBtn.visibility = View.VISIBLE
-                binding.centerActionBtn.text = context.getString(R.string.show_message)
-            }
-            binding.leftActionBtn.visibility = View.GONE
         }
 
-        fun bindButton() {
-            // hide all useless
-            binding.name.visibility = View.GONE
-            binding.menuButton.visibility = View.GONE
-            binding.previewImage.visibility = View.GONE
-            binding.firstInfoBlockRightParam.visibility = View.GONE
-            binding.firstInfoBlockLeftParam.visibility = View.GONE
-            binding.secondInfoBlockRightParam.visibility = View.GONE
-            binding.secondInfoBlockLeftParam.visibility = View.GONE
-            binding.thirdBlockRightElement.visibility = View.GONE
-            binding.thirdBlockCenterElement.visibility = View.GONE
-            binding.thirdBlockLeftElement.visibility = View.GONE
-            binding.availableLinkFormats.visibility = View.GONE
-            binding.leftActionBtn.visibility = View.GONE
-            binding.rightActionBtn.visibility = View.GONE
-
+        private fun makeSelectable(view: View) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                binding.rootView.foreground = null
-            }
-
-            if (PreferencesHandler.instance.isDisplayPagerButton && !loadInProgress) {
-                binding.name.text = null
-                binding.centerActionBtn.text = context.getString(R.string.show_more_title)
-                binding.centerActionBtn.visibility = View.VISIBLE
-                binding.centerActionBtn.setOnClickListener {
-                    binding.name.text =
-                        context.getString(R.string.loading_more_title)
-                    binding.centerActionBtn.visibility = View.GONE
-                    delegate.loadMoreBtnClicked()
+                view.foreground = with(TypedValue()) {
+                    context.theme.resolveAttribute(
+                        R.attr.selectableItemBackground, this, true
+                    )
+                    ContextCompat.getDrawable(context, resourceId)
                 }
-            } else {
-                binding.name.text =
-                    context.getString(R.string.loading_more_title)
-                binding.centerActionBtn.visibility = View.GONE
             }
+        }
+
+        private fun makeNoSelectable(view: View) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                view.foreground = null
+            }
+        }
+
+        private fun hideAllExceptMainBtn() {
+            showElementItems()
+            binding.name.visibility = View.GONE
+            binding.availableLinkFormats.visibility = View.GONE
         }
     }
 
@@ -904,9 +774,6 @@ class FoundItemAdapter(
     }
 
     override fun getClickedItemId(): Long {
-        if (itemInAction != null) {
-            return itemInAction!!.itemId
-        }
         return -1
     }
 
@@ -914,21 +781,12 @@ class FoundItemAdapter(
         return resultValues.isNotEmpty()
     }
 
-    init {
-        if (arrayList.size > 0) {
-            Log.d("surprise", "i have books on start: ${arrayList.size}")
-            resultValues = arrayList
-            Log.d("surprise", "update count 2: ")
-            _size.postValue(resultValues.size)
-        }
-    }
 
     override fun setHasNext(isNext: Boolean) {
-        hasNext = isNext
+
     }
 
     override fun getResultsSize(): Int {
-        Log.d("surprise", "FoundItemAdapter.kt 729: size is ${resultValues.size}")
         return resultValues.size
     }
 
@@ -1012,86 +870,71 @@ class FoundItemAdapter(
     }
 
     override fun setFilterEnabled(state: Boolean) {
-        useFilter = state
     }
 
     override fun setFilterSelection(selected: Int) {
-        selectedFilterOption = selected
     }
 
     override fun filterEnabled(): Boolean {
-        return useFilter
+        return false
     }
 
-    override fun reapplyFilters(r: SearchResult) {
-        val iterator = r.results.iterator()
-        var node: FoundEntity
-        while (iterator.hasNext()) {
-            node = iterator.next()
-            val checkResult = FilterHandler.check(node)
-            if (!checkResult.result) {
-                Log.d("surprise", "FoundItemAdapter.kt 1003: item filtered!!")
-                iterator.remove()
-                node.filterResult = checkResult
-                r.filteredList.add(node)
-            }
-        }
+    override fun reapplyFilters(results: SearchResult) {
     }
 
     override fun getFilter(): Filter {
         Log.d("surprise", "getFilter: getting filter!")
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val charString = constraint?.toString() ?: ""
-                resultValues = if (charString.isEmpty()) {
-                    originValues
-                } else {
-                    val filteredList = ArrayList<FoundEntity>()
-                    originValues
-                        .filter {
-                            when (selectedFilterOption) {
-                                R.id.filterName -> {
-                                    (it.name?.lowercase()?.contains(constraint!!) == true)
-                                }
-                                R.id.filterAuthor -> {
-                                    (it.author?.lowercase()?.contains(constraint!!) == true)
-                                }
-                                R.id.filterGenre -> {
-                                    (it.genreComplex?.lowercase()?.contains(constraint!!) == true)
-                                }
-                                R.id.filterSequence -> {
-                                    (it.sequencesComplex.lowercase().contains(constraint!!))
-                                }
-                                else -> {
-                                    (it.translate?.lowercase()?.contains(constraint!!) == true)
-                                }
-                            }
-                        }
-                        .forEach { filteredList.add(it) }
-                    filteredList
-                }
                 return FilterResults().apply { values = resultValues }
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                Log.d("surprise", "publishResults: $results")
-                Log.d("surprise", "publishResults: publish resultsss")
-                resultValues = if (results?.values == null)
-                    ArrayList()
-                else {
-                    val r = results.values as ArrayList<*>
-                    val result: ArrayList<FoundEntity> = arrayListOf()
-                    r.forEach {
-                        if (it is FoundEntity) {
-                            result.add(it)
-                        }
-                    }
-                    Log.d("surprise", "publishResults: update count 3")
-                    _size.postValue(result.size)
-                    result
-                }
-                notifyDataSetChanged()
             }
         }
     }
-}*/
+
+    fun addItem(item: FoundEntity?): Int {
+        // проверю, не фильтруется ли контент
+        if (item != null) {
+            resultValues.add(item)
+            notifyItemInserted(resultValues.indexOf(item))
+            if (pressedItemId != null && item.link == pressedItemId) {
+                Log.d("surprise", "scrollToPressed: search for scroll to $pressedItemId")
+                // scroll to current item
+                delegate.scrollTo(resultValues.indexOf(item))
+            }
+        }
+        return resultValues.size
+    }
+
+    fun setPressedId(pressedItemId: String?) {
+        if (pressedItemId != null) {
+            this.pressedItemId = pressedItemId
+        }
+    }
+
+    fun scrollToPressed() {
+        if (pressedItemId != null) {
+            Log.d("surprise", "scrollToPressed: search for scroll to $pressedItemId")
+            resultValues.forEach {
+                if (it.link == pressedItemId) {
+                    delegate.scrollTo(resultValues.indexOf(it))
+                }
+            }
+        }
+    }
+
+    fun hide(item: FoundEntity) {
+        var position: Int = -1
+        resultValues.forEach {
+            if (it.link == item.link) {
+                position = resultValues.lastIndexOf(it)
+            }
+        }
+        if (position >= 0 && resultValues.size > position) {
+            resultValues.removeAt(position)
+            notifyItemRemoved(position)
+        }
+    }
+}

@@ -12,6 +12,7 @@ import androidx.navigation.Navigation
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentConnectFlibustaViaTorBinding
 import net.veldor.flibusta_test.model.handler.GrammarHandler
+import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.view_model.ConnectivityGuideViewModel
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 import net.veldor.flibusta_test.ui.ConnectivityGuideActivity
@@ -34,6 +35,7 @@ class TestFlibustaViaTorFragment : Fragment() {
             viewModel.finallyTestConnection(binding.customMirrorInput.text)
 
         }
+        binding.customMirrorInput.setText(UrlHelper.getBaseUrl())
         binding.backBtn.setOnClickListener {
             val navController =
                 Navigation.findNavController(
@@ -57,9 +59,9 @@ class TestFlibustaViaTorFragment : Fragment() {
 
     private fun checkMirrorInput() {
         val value = binding.customMirrorInput.text
-        if(value != null){
-            if(value.toString().isNotEmpty()){
-                if(!GrammarHandler.isValidUrl(value.toString())){
+        if (value != null) {
+            if (value.toString().isNotEmpty()) {
+                if (!GrammarHandler.isValidUrl(value.toString())) {
                     binding.customMirrorInput.error = getString(R.string.wrong_url_message)
                 }
             }
@@ -101,7 +103,11 @@ class TestFlibustaViaTorFragment : Fragment() {
                         binding.launchTorBtn.text = getString(R.string.try_again_message)
                         binding.launchTorBtn.isEnabled = true
                         binding.checkProgress.visibility = View.INVISIBLE
-                        binding.testStatusText.text = String.format(Locale.ENGLISH, getString(R.string.fail_tor_message), UniversalWebClient.connectionError.value?.message)
+                        binding.testStatusText.text = String.format(
+                            Locale.ENGLISH,
+                            getString(R.string.fail_tor_message),
+                            UniversalWebClient.connectionError.value?.message
+                        )
                         binding.errorDescriptionBtn.visibility = View.VISIBLE
                         binding.errorDescriptionBtn.setOnClickListener {
                             Toast.makeText(

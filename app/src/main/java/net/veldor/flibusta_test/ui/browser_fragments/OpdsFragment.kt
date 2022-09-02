@@ -18,27 +18,28 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.SearchAutoComplete
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.internal.ViewUtils.dpToPx
+import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentOpdsBinding
 import net.veldor.flibusta_test.model.adapter.BookmarkDirAdapter
-import net.veldor.flibusta_test.model.adapter.FoundItemAdapter
-import net.veldor.flibusta_test.model.adapter.FoundItemCompactAdapter
-import net.veldor.flibusta_test.model.adapter.OpdsSortAdapter
+import net.veldor.flibusta_test.model.adapter.NewFoundItemAdapter
 import net.veldor.flibusta_test.model.components.HamburgerButton
-import net.veldor.flibusta_test.model.components.SortShowSpinner
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
-import net.veldor.flibusta_test.model.delegate.SearchResultActionDelegate
+import net.veldor.flibusta_test.model.delegate.OpdsObserverDelegate
 import net.veldor.flibusta_test.model.handler.*
 import net.veldor.flibusta_test.model.handler.PreferencesHandler.Companion.NIGHT_THEME_DAY
 import net.veldor.flibusta_test.model.handler.PreferencesHandler.Companion.NIGHT_THEME_NIGHT
@@ -48,16 +49,11 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
-import net.veldor.flibusta_test.model.selections.BookmarkItem
-import net.veldor.flibusta_test.model.selections.HistoryItem
-import net.veldor.flibusta_test.model.selections.RequestItem
-import net.veldor.flibusta_test.model.selections.SortOption
+import net.veldor.flibusta_test.model.selections.*
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import net.veldor.flibusta_test.model.selections.opds.SearchResult
 import net.veldor.flibusta_test.model.view_model.OpdsViewModel
 import net.veldor.flibusta_test.ui.BrowserActivity
 import net.veldor.flibusta_test.ui.DownloadBookSetupActivity
-import net.veldor.flibusta_test.ui.FilterActivity
 import net.veldor.flibusta_test.ui.download_schedule_fragments.DownloadScheduleStatementFragment
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.setEventListener
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
@@ -67,9 +63,12 @@ import java.util.*
 
 class OpdsFragment : Fragment(),
     FoundItemActionDelegate,
-    SearchResultActionDelegate, SearchView.OnQueryTextListener {
+    OpdsObserverDelegate,
+    SearchView.OnQueryTextListener {
 
-    private var totallyBlocked: Int = 0
+    private var downloadBadgeDrawable: BadgeDrawable? = null
+    private var blockedBadgeDrawable: BadgeDrawable? = null
+    private var badgeDrawable: BadgeDrawable? = null
     private var linkForLoad: String? = null
     private var bookmarkReservedName: String? = null
     private var mDisableHistoryDialog: AlertDialog? = null
@@ -85,7 +84,6 @@ class OpdsFragment : Fragment(),
     private var backdropFragment: OpdsDownloadBackdropFragment? = null
     private var lastScrolled: Int = -1
     private var mLastQuery: String? = null
-    private lateinit var sortShowSpinner: SortShowSpinner
     private lateinit var binding: FragmentOpdsBinding
     private lateinit var viewModel: OpdsViewModel
     private lateinit var errorSnackbar: Snackbar
@@ -105,24 +103,19 @@ class OpdsFragment : Fragment(),
         }
         activity?.invalidateOptionsMenu()
         viewModel = ViewModelProvider(this).get(OpdsViewModel::class.java)
-        viewModel.searchResultsDelegate = this
         binding = FragmentOpdsBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
         setupUI()
         setupObservers()
         restoreValues(savedInstanceState)
+        viewModel.drawBadges(this)
+        (binding.resultsList.adapter as NewFoundItemAdapter?)?.scrollToPressed()
+
         return binding.root
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_show_download_state -> {
-                // show download state fragment
-                showDownloadState()
-            }
-            R.id.action_show_sort -> {
-                showSortDialog()
-            }
             R.id.action_add_bookmark -> {
                 handleBookmark()
             }
@@ -130,9 +123,6 @@ class OpdsFragment : Fragment(),
                 binding.bookSearchView.visibility = View.VISIBLE
                 binding.bookSearchView.isIconified = false
                 binding.bookSearchView.requestFocus()
-            }
-            R.id.action_show_filter -> {
-                bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
             }
         }
         return super.onOptionsItemSelected(item)
@@ -275,25 +265,11 @@ class OpdsFragment : Fragment(),
         bottomSheetOpdsBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
+
     override fun onResume() {
         super.onResume()
+        OpdsStatement.instance.delegate = this
         activity?.invalidateOptionsMenu()
-        // check adapter change
-        if (PreferencesHandler.instance.isLightOpdsAdapter && binding.resultsList.adapter is FoundItemAdapter) {
-            val newAdapter = FoundItemCompactAdapter(
-                (binding.resultsList.adapter as FoundItemAdapter).getList(),
-                this,
-                requireActivity()
-            )
-            binding.resultsList.adapter = newAdapter
-        } else if (!PreferencesHandler.instance.isLightOpdsAdapter && binding.resultsList.adapter is FoundItemCompactAdapter) {
-            val newAdapter = FoundItemAdapter(
-                (binding.resultsList.adapter as FoundItemCompactAdapter).getList(),
-                this,
-                requireActivity()
-            )
-            binding.resultsList.adapter = newAdapter
-        }
         configureBackdrop()
     }
 
@@ -303,7 +279,7 @@ class OpdsFragment : Fragment(),
     }
 
 
-    fun configureBackdrop() {
+    private fun configureBackdrop() {
 // Get the fragment reference
         backdropFragment =
             requireActivity().supportFragmentManager.findFragmentById(R.id.opdsBackdropFragment) as OpdsDownloadBackdropFragment?
@@ -363,23 +339,52 @@ class OpdsFragment : Fragment(),
     }
 
     private fun setupObservers() {
+        binding.resultsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy > 0) binding.massLoadFab.hide() else if (dy < 0 && OpdsStatement.instance.requestState.value != OpdsStatement.STATE_LOADING) binding.massLoadFab.show()
+            }
+        })
 
-        DownloadHandler.instance.liveBookDownloadProgress.observe(viewLifecycleOwner) {
-            val booksLeft = it.booksInQueue - it.successLoads - it.loadErrors
-            if (booksLeft > 0) {
-                binding.downloadStateBtn.visibility = View.VISIBLE
-                binding.downloadStateBtn.text = booksLeft.toString()
-            } else {
-                binding.downloadStateBtn.visibility = View.GONE
+        // буду отслеживать состояние режима
+        OpdsStatement.instance.requestState.observe(viewLifecycleOwner) {
+            if (it == OpdsStatement.STATE_LOADING) {
+                binding.fab.visibility = View.VISIBLE
+                binding.swipeLayout.isRefreshing = true
+            } else if (it == OpdsStatement.STATE_CANCELLED) {
+                binding.fab.visibility = View.GONE
+                binding.swipeLayout.isRefreshing = false
+                binding.swipeLayout.isEnabled = OpdsStatement.instance.isNextPageLink()
+            } else if (it == OpdsStatement.STATE_READY) {
+                // если выбрана загрузка всех результатов- загружу следующую страницу
+                if (PreferencesHandler.instance.opdsPagingType) {
+                    binding.fab.visibility = View.GONE
+                    binding.swipeLayout.isRefreshing = false
+                    binding.swipeLayout.isEnabled = OpdsStatement.instance.isNextPageLink()
+                } else {
+                    if (OpdsStatement.instance.isNextPageLink()) {
+                        mLastRequest = RequestItem(
+                            OpdsStatement.instance.getNextPageLink()!!,
+                            append = true,
+                            addToHistory = false
+                        )
+                        newRequestLaunched(mLastRequest!!)
+                        viewModel.request(
+                            mLastRequest
+                        )
+                    } else {
+                        binding.fab.visibility = View.GONE
+                        binding.swipeLayout.isRefreshing = false
+                        binding.swipeLayout.isEnabled = OpdsStatement.instance.isNextPageLink()
+                    }
+                }
+            } else if (it == OpdsStatement.STATE_ERROR) {
+                Log.d("surprise", "setupObservers: have error!")
+                showErrorSnackbar()
             }
         }
 
-        (binding.resultsList.adapter as MyAdapterInterface?)?.liveSize?.observe(viewLifecycleOwner) {
-            binding.foundResultsQuantity.text = String.format(
-                Locale.ENGLISH,
-                getString(R.string.found_results_quantity_title),
-                it
-            )
+        DownloadHandler.instance.liveBookDownloadProgress.observe(viewLifecycleOwner) {
+            handleBookDownloadProgress(it)
         }
 
         OpdsResultsHandler.instance.livePossibleMemoryOverflow.observe(viewLifecycleOwner) {
@@ -403,37 +408,24 @@ class OpdsFragment : Fragment(),
                     }
                 }
             })
-
-        viewModel.liveRequestState.observe(viewLifecycleOwner) {
-            when (it) {
-                OpdsViewModel.STATUS_WAIT -> {
-                    binding.requestProgressBar.visibility = View.GONE
-                }
-                OpdsViewModel.STATUS_REQUESTING -> {
-                    binding.requestProgressBar.visibility = View.VISIBLE
-                    binding.requestProgressBar.progress = 10
-                }
-                OpdsViewModel.STATUS_REQUESTED -> {
-                    binding.requestProgressBar.visibility = View.VISIBLE
-                    binding.requestProgressBar.progress = 50
-                }
-                OpdsViewModel.STATUS_PARSED -> {
-                    binding.requestProgressBar.visibility = View.VISIBLE
-                    binding.requestProgressBar.progress = 90
-                }
-                OpdsViewModel.STATUS_READY -> {
-                    binding.requestProgressBar.visibility = View.GONE
-                    binding.requestProgressBar.progress = 0
-                }
-                OpdsViewModel.STATUS_CANCELLED -> {
-                    binding.requestProgressBar.visibility = View.GONE
-                    binding.requestProgressBar.progress = 0
-                }
-                OpdsViewModel.STATUS_REQUEST_ERROR -> {
-                    binding.requestProgressBar.visibility = View.GONE
-                    binding.fab.hide()
-                    showErrorSnackbar()
-                }
+        binding.swipeLayout.setOnRefreshListener {
+            if (OpdsStatement.instance.isNextPageLink()) {
+                mLastRequest =
+                    RequestItem(
+                        OpdsStatement.instance.getNextPageLink()!!,
+                        append = true,
+                        addToHistory = false
+                    )
+                newRequestLaunched(mLastRequest!!)
+                viewModel.request(
+                    mLastRequest
+                )
+                binding.swipeLayout.performHapticFeedback(
+                    HapticFeedbackConstants.KEYBOARD_TAP,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+                )
+            } else {
+                binding.swipeLayout.isRefreshing = false
             }
         }
     }
@@ -463,7 +455,7 @@ class OpdsFragment : Fragment(),
             )
             errorSnackbar.setAction(getString(R.string.retry_request_title)) {
                 if (mLastRequest != null) {
-                    newRequestLaunched()
+                    newRequestLaunched(mLastRequest!!)
                     viewModel.request(mLastRequest!!)
                 } else {
                     Log.d("surprise", "showErrorSnackbar: no request")
@@ -506,7 +498,6 @@ class OpdsFragment : Fragment(),
 
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
-
         if (PreferencesHandler.instance.isEInk) {
             binding.fab.backgroundTintList = ColorStateList.valueOf(
                 ResourcesCompat.getColor(
@@ -567,38 +558,9 @@ class OpdsFragment : Fragment(),
                     ),
                 )
             )
-
-            binding.searchBook.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
             binding.searchBook.supportButtonTintList = myColorStateList
-            binding.searchAuthor.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
             binding.searchAuthor.supportButtonTintList = myColorStateList
-            binding.searchGenre.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
             binding.searchGenre.supportButtonTintList = myColorStateList
-            binding.searchSequence.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
             binding.searchSequence.supportButtonTintList = myColorStateList
 
             binding.showArrivalsBtn.setTextColor(
@@ -629,14 +591,6 @@ class OpdsFragment : Fragment(),
                 binding.resultsPagingSwitcher.trackTintList = myColorStateList
             }
 
-            binding.sortByTitle.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
-
             binding.useFiltersSwitch.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
@@ -647,14 +601,6 @@ class OpdsFragment : Fragment(),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 binding.useFiltersSwitch.trackTintList = myColorStateList
             }
-
-            binding.showFilterPreferencesBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
 
             binding.doOpdsSearchBtn.setTextColor(
                 ResourcesCompat.getColor(
@@ -667,12 +613,16 @@ class OpdsFragment : Fragment(),
 
         binding.bookSearchView.isSubmitButtonEnabled = false
         val searchLayout = binding.bookSearchView.getChildAt(0) as LinearLayout
+
+        val closeBtn = searchLayout.findViewById(R.id.search_close_btn) as ImageView?
+        closeBtn?.isEnabled = false
+        closeBtn?.setImageDrawable(null)
         val buttonStyle: Int = R.attr.buttonBarButtonStyle
         val showAutofillBtn = ImageButton(requireActivity(), null, buttonStyle)
 
         val hamburgerDrawable = HamburgerButton(
             size = dpToPx(requireContext(), 24).toInt(),
-            barThickness = dpToPx(requireContext(), 2),
+            barThickness = dpToPx(requireContext(), 3),
             barGap = dpToPx(requireContext(), 5)
         )
         hamburgerDrawable.color =
@@ -752,15 +702,17 @@ class OpdsFragment : Fragment(),
             showHints = !showHints
         }
         searchLayout.addView(showAutofillBtn)
+
+        showAutofillBtn.layoutParams.width = dpToPx(requireContext(), 40).toInt()
+        showAutofillBtn.layoutParams.height = dpToPx(requireContext(), 40).toInt()
         // try hide status bar
         //search bar
         if (mLastQuery != null) {
             binding.bookSearchView.setQuery(mLastQuery, false)
         }
-        binding.bookSearchView.isSubmitButtonEnabled = true
+        binding.bookSearchView.isSubmitButtonEnabled = false
         binding.bookSearchView.queryHint = getString(R.string.enter_request_title)
         binding.bookSearchView.setOnQueryTextFocusChangeListener { view, b ->
-            Log.d("surprise", "setupUI: focus changed")
             if (b) {
                 (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility =
                     View.GONE
@@ -805,7 +757,6 @@ class OpdsFragment : Fragment(),
                 val searchAdapter =
                     setAutocompleteAdapter()
                 autocompleteComponent?.setAdapter(searchAdapter)
-                newRequestLaunched()
                 bookmarkReservedName = request
                 mLastRequest = RequestItem(
                     UrlHelper.getSearchRequest(
@@ -813,9 +764,9 @@ class OpdsFragment : Fragment(),
                         URLEncoder.encode(request, "utf-8").replace("+", "%20")
                     ),
                     append = false,
-                    addToHistory = true,
-                    clickedElementIndex = -1
+                    addToHistory = true
                 )
+                newRequestLaunched(mLastRequest!!)
                 viewModel.request(
                     mLastRequest
                 )
@@ -832,24 +783,15 @@ class OpdsFragment : Fragment(),
 
         binding.useFiltersSwitch.setOnCheckedChangeListener { _, isChecked ->
             PreferencesHandler.instance.isOpdsUseFilter = isChecked
-            if (isChecked) {
-                binding.showFilterPreferencesBtn.visibility = View.VISIBLE
-            } else {
-                binding.showFilterPreferencesBtn.visibility = View.GONE
-            }
         }
         binding.useFiltersSwitch.isChecked = PreferencesHandler.instance.isOpdsUseFilter
-
-        binding.showFilterPreferencesBtn.setOnClickListener {
-            startActivity(Intent(requireContext(), FilterActivity::class.java))
-        }
+        binding.showBlockedStateBtn.isVisible = PreferencesHandler.instance.isOpdsUseFilter
 
         binding.fab.setOnClickListener {
-            binding.foundResultsQuantity.visibility = View.VISIBLE
-            binding.requestProgressBar.visibility = View.GONE
             viewModel.cancelSearch()
             binding.fab.hide()
-            (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(false)
+            binding.swipeLayout.isRefreshing = false
+            binding.swipeLayout.isEnabled = OpdsStatement.instance.isNextPageLink()
         }
 
         binding.massLoadFab.setOnClickListener {
@@ -861,7 +803,6 @@ class OpdsFragment : Fragment(),
         // handle entity list display actions
         binding.showEntitiesByAlphabetBtn.setOnClickListener {
             binding.bookSearchView.clearFocus()
-            newRequestLaunched()
 
             when (binding.searchType.checkedRadioButtonId) {
                 R.id.searchAuthor -> {
@@ -869,8 +810,7 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/authorsindex",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
@@ -881,8 +821,7 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/genres",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
@@ -893,14 +832,14 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/sequencesindex",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
                     )
                 }
             }
+            newRequestLaunched(mLastRequest!!)
         }
 
         // handle search type value change
@@ -915,10 +854,6 @@ class OpdsFragment : Fragment(),
                     // change title of new arrivals
                     binding.showArrivalsBtn.text = getString(R.string.new_books_title)
                     binding.showEntitiesByAlphabetBtn.visibility = View.GONE
-                    sortShowSpinner.setSortList(
-                        SortHandler().getBookSortOptions(requireContext()),
-                        SelectedSortTypeHandler.instance.getBookSortOptionIndex()
-                    )
                 }
                 R.id.searchAuthor -> {
                     // change title of new arrivals
@@ -926,10 +861,6 @@ class OpdsFragment : Fragment(),
                     binding.showEntitiesByAlphabetBtn.visibility = View.VISIBLE
                     binding.showEntitiesByAlphabetBtn.text =
                         getString(R.string.show_authors_list_title)
-                    sortShowSpinner.setSortList(
-                        SortHandler().getAuthorSortOptions(requireContext()),
-                        SelectedSortTypeHandler.instance.getAuthorSortOptionIndex()
-                    )
                 }
                 R.id.searchGenre -> {
                     // change title of new arrivals
@@ -937,10 +868,6 @@ class OpdsFragment : Fragment(),
                     binding.showEntitiesByAlphabetBtn.visibility = View.VISIBLE
                     binding.showEntitiesByAlphabetBtn.text =
                         getString(R.string.show_genres_list_title)
-                    sortShowSpinner.setSortList(
-                        SortHandler().getDefaultSortOptions(requireContext()),
-                        SelectedSortTypeHandler.instance.getGenreSortOptionIndex()
-                    )
                 }
                 R.id.searchSequence -> {
                     // change title of new arrivals
@@ -948,24 +875,18 @@ class OpdsFragment : Fragment(),
                     binding.showEntitiesByAlphabetBtn.visibility = View.VISIBLE
                     binding.showEntitiesByAlphabetBtn.text =
                         getString(R.string.show_sequences_list_title)
-                    sortShowSpinner.setSortList(
-                        SortHandler().getDefaultSortOptions(requireContext()),
-                        SelectedSortTypeHandler.instance.getSequenceSortOptionIndex()
-                    )
                 }
             }
         }
         binding.showArrivalsBtn.setOnClickListener {
             binding.bookSearchView.clearFocus()
-            newRequestLaunched()
             when (binding.searchType.checkedRadioButtonId) {
                 R.id.searchBook -> {
                     bookmarkReservedName = "Новинки"
                     mLastRequest = RequestItem(
                         "/opds/new/0/new",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
@@ -976,8 +897,7 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/newauthors",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
@@ -988,8 +908,7 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/newgenres",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
@@ -1000,14 +919,15 @@ class OpdsFragment : Fragment(),
                     mLastRequest = RequestItem(
                         "/opds/newsequences",
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = -1
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
                     )
                 }
             }
+
+            newRequestLaunched(mLastRequest!!)
         }
         binding.resultsPagingSwitcher.setOnCheckedChangeListener { _, b ->
 
@@ -1024,20 +944,18 @@ class OpdsFragment : Fragment(),
         }
         binding.resultsPagingSwitcher.isChecked =
             PreferencesHandler.instance.opdsPagingType
-        handleSortOptions()
 
         binding.doOpdsSearchBtn.setOnClickListener {
             binding.bookSearchView.setQuery(binding.bookSearchView.query, true)
         }
-        val a = if (PreferencesHandler.instance.isLightOpdsAdapter) {
-            FoundItemCompactAdapter(arrayListOf(), this, requireActivity())
-        } else {
-            FoundItemAdapter(arrayListOf(), this, requireActivity())
-        }
+        val a =
+            NewFoundItemAdapter(OpdsStatement.instance.results, this, requireActivity())
         // recycler setup
         a.setHasStableIds(true)
         // load results if exists
         binding.resultsList.adapter = a
+        Log.d("surprise", "setupUI: pressed item is ${OpdsStatement.instance.getPressedItemId()}")
+        a.setPressedId(OpdsStatement.instance.getPressedItemId())
         val rowsCount = PreferencesHandler.instance.opdsLayoutRowsCount
         if (rowsCount == 0) {
             binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
@@ -1045,70 +963,21 @@ class OpdsFragment : Fragment(),
             binding.resultsList.layoutManager =
                 GridLayoutManager(requireActivity(), rowsCount + 1)
         }
-        loadPreviousResults(a, viewModel.getPreviousResults())
 
         if (linkForLoad != null) {
-            newRequestLaunched()
             mLastRequest = RequestItem(
                 linkForLoad!!,
                 append = false,
-                addToHistory = true,
-                clickedElementIndex = -1
+                addToHistory = true
             )
             viewModel.request(
                 mLastRequest
             )
             linkForLoad = null
+            newRequestLaunched(mLastRequest!!)
         }
 
-        // add scroll listener for next results load to recycler
-        binding.resultsList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                // проверю последний видимый элемент
-                val manager = binding.resultsList.layoutManager as LinearLayoutManager?
-                if (manager != null) {
-                    val adapter = binding.resultsList.adapter
-                    if (adapter != null) {
-                        val position = manager.findLastCompletelyVisibleItemPosition()
-                        viewModel.saveScrolledPosition(position)
-                        if (
-                            !(binding.resultsList.adapter as MyAdapterInterface).filterEnabled() &&
-                            !viewModel.loadInProgress() &&
-                            position == adapter.itemCount - 1 &&
-                            position > lastScrolled &&
-                            PreferencesHandler.instance.opdsPagingType &&
-                            !PreferencesHandler.instance.isDisplayPagerButton &&
-                            viewModel.getNextPageLink() != null
-                        ) {
-                            newRequestLaunched()
-                            mLastRequest = RequestItem(
-                                viewModel.getNextPageLink()!!,
-                                append = true,
-                                addToHistory = false,
-                                clickedElementIndex = -1
-                            )
-                            viewModel.request(
-                                mLastRequest
-                            )
-                        }
-                        lastScrolled = position
-                    }
-                }
-            }
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                if ((binding.resultsList.adapter as MyAdapterInterface?)?.containsBooks() == true) {
-                    if (dy > 0)
-                        binding.massLoadFab.hide();
-                    else if (dy < 0)
-                        binding.massLoadFab.show();
-                }
-            }
-        })
-
-        binding.filterListView.isSubmitButtonEnabled = true
+        binding.filterListView.isSubmitButtonEnabled = false
 
         binding.addBookmarkBtn.setImageDrawable(
             if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
@@ -1131,7 +1000,21 @@ class OpdsFragment : Fragment(),
         }
 
         binding.showBlockedStateBtn.setOnClickListener {
-            bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (PreferencesHandler.instance.showFilterStatistics) {
+                backdropFilterFragment?.updateList()
+                bottomSheetFilterBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    String.format(
+                        Locale.ENGLISH,
+                        getString(R.string.filter_statistics_disabled_pattern),
+                        OpdsStatement.instance.getBlockedResultsSize()
+                    ),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
         }
 
         binding.readerModeSwitcher.setOnClickListener {
@@ -1148,27 +1031,31 @@ class OpdsFragment : Fragment(),
         }
 
         binding.nightModeSwitcher.setOnClickListener {
-            if (PreferencesHandler.instance.nightMode == NIGHT_THEME_DAY) {
-                PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
-                AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_YES
-                )
-            } else if (PreferencesHandler.instance.nightMode == NIGHT_THEME_NIGHT) {
-                PreferencesHandler.instance.nightMode = NIGHT_THEME_DAY
-                AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_NO
-                )
-            } else {
-                PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
-                AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_YES
-                )
+            when (PreferencesHandler.instance.nightMode) {
+                NIGHT_THEME_DAY -> {
+                    PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
+                    AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                    )
+                }
+                NIGHT_THEME_NIGHT -> {
+                    PreferencesHandler.instance.nightMode = NIGHT_THEME_DAY
+                    AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_NO
+                    )
+                }
+                else -> {
+                    PreferencesHandler.instance.nightMode = NIGHT_THEME_NIGHT
+                    AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                    )
+                }
             }
             requireActivity().recreate()
         }
 
         binding.switchResultsLayoutBtn.setOnClickListener {
-            showGridLayoutSwitchDialog()
+            showResultsViewCustomizeDialog()
         }
 
         //setup filter list option
@@ -1196,36 +1083,140 @@ class OpdsFragment : Fragment(),
         }
 
         binding.filterListView.setOnQueryTextListener(this)
+
+        // запрещу обновление через swipeLayout по умолчанию
+        binding.swipeLayout.isEnabled = false
+
+        // toolbar options
+        binding.useFilterBtn.isVisible = PreferencesHandler.instance.toolbarSearchShown
+        binding.sortBtn.isVisible = PreferencesHandler.instance.toolbarSortShown
+        binding.showBlockedStateBtn.isVisible = PreferencesHandler.instance.toolbarBlockedShown
+        binding.downloadStateBtn.isVisible = PreferencesHandler.instance.toolbarDloadStateShown
+        binding.addBookmarkBtn.isVisible = PreferencesHandler.instance.toolbarBookmarkShown
+        binding.switchResultsLayoutBtn.isVisible =
+            PreferencesHandler.instance.toolbarViewConfigShown
+        binding.nightModeSwitcher.isVisible = PreferencesHandler.instance.toolbarThemeShown
+        binding.readerModeSwitcher.isVisible = PreferencesHandler.instance.toolbarEinkShown
     }
 
-    private fun showGridLayoutSwitchDialog() {
+    @SuppressLint("NotifyDataSetChanged")
+    private fun showResultsViewCustomizeDialog() {
         val view = layoutInflater.inflate(R.layout.dialog_switch_layout_grid, null)
-        view.findViewById<SeekBar>(R.id.seekBar).progress =
-            PreferencesHandler.instance.opdsLayoutRowsCount
-        view.findViewById<SeekBar>(R.id.seekBar)
-            .setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                    PreferencesHandler.instance.opdsLayoutRowsCount = p1
-                    if (p1 == 0) {
-                        binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
-                    } else {
-                        binding.resultsList.layoutManager =
-                            GridLayoutManager(requireActivity(), p1 + 1)
-                    }
-                }
 
-                override fun onStartTrackingTouch(p0: SeekBar?) {
+        // switch covers
+        val showCoversSwitch = view.findViewById<CheckBox>(R.id.showCoversCheckbox)
+        showCoversSwitch?.isChecked = PreferencesHandler.instance.showCovers
+        showCoversSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showCovers = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show authors
+        val showAuthorsSwitch = view.findViewById<CheckBox>(R.id.showAuthorsCheckbox)
+        showAuthorsSwitch?.isChecked = PreferencesHandler.instance.showAuthors
+        showAuthorsSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showAuthors = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show translators
+        val showTranslatorsSwitch = view.findViewById<CheckBox>(R.id.showTranslatorsCheckbox)
+        showTranslatorsSwitch?.isChecked = PreferencesHandler.instance.showFoundBookTranslators
+        showTranslatorsSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookTranslators = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show sequences
+        val showSequencesSwitch = view.findViewById<CheckBox>(R.id.showSequencesCheckbox)
+        showSequencesSwitch?.isChecked = PreferencesHandler.instance.showFoundBookSequences
+        showSequencesSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookSequences = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show genres
+        val showGenresSwitch = view.findViewById<CheckBox>(R.id.showGenresCheckbox)
+        showGenresSwitch?.isChecked = PreferencesHandler.instance.showFoundBookGenres
+        showGenresSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookGenres = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show format
+        val showFormatSwitch = view.findViewById<CheckBox>(R.id.showFormatCheckbox)
+        showFormatSwitch?.isChecked = PreferencesHandler.instance.showFoundBookFormat
+        showFormatSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookFormat = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show downloads
+        val showDownloadsSwitch = view.findViewById<CheckBox>(R.id.showDownloadsCheckbox)
+        showDownloadsSwitch?.isChecked = PreferencesHandler.instance.showFoundBookDownloads
+        showDownloadsSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookDownloads = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show size
+        val showSizeSwitch = view.findViewById<CheckBox>(R.id.showSizeCheckbox)
+        showSizeSwitch?.isChecked = PreferencesHandler.instance.showFoundBookSize
+        showSizeSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookSize = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show size
+        val showFormatsSwitch = view.findViewById<CheckBox>(R.id.showAvailableFormatsCheckbox)
+        showFormatsSwitch?.isChecked = PreferencesHandler.instance.showFoundBookAvailableFormats
+        showFormatsSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookAvailableFormats = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show read
+        val showReadSwitch = view.findViewById<CheckBox>(R.id.showReadCheckbox)
+        showReadSwitch?.isChecked = PreferencesHandler.instance.showFoundBookReadBtn
+        showReadSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookReadBtn = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show downloaded
+        val showDownloadSwitch = view.findViewById<CheckBox>(R.id.showDownloadCheckbox)
+        showDownloadSwitch?.isChecked = PreferencesHandler.instance.showFoundBookDownloadBtn
+        showDownloadSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showFoundBookDownloadBtn = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
+        // switch show downloaded
+        val showElementDescriptionSwitch = view.findViewById<CheckBox>(R.id.showElementDescription)
+        showElementDescriptionSwitch?.isChecked = PreferencesHandler.instance.showElementDescription
+        showElementDescriptionSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.showElementDescription = state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
 
-                }
+        // switch show element btn
+        val showElementBtnSwitch = view.findViewById<CheckBox>(R.id.showElementBtn)
+        showElementBtnSwitch?.isChecked = !PreferencesHandler.instance.hideOpdsResultsButtons
+        showElementBtnSwitch?.setOnCheckedChangeListener { _, state ->
+            PreferencesHandler.instance.hideOpdsResultsButtons = !state
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.notifyDataSetChanged()
+        }
 
-                override fun onStopTrackingTouch(p0: SeekBar?) {
+        val slider = view.findViewById<Slider>(R.id.seekBar)
 
-                }
+        slider.value =
+            (PreferencesHandler.instance.opdsLayoutRowsCount + 1).toFloat()
 
-            })
+        slider?.setLabelFormatter { value: Float ->
+            val longValue = value.toInt() - 1
+            PreferencesHandler.instance.opdsLayoutRowsCount = longValue
+            if (longValue == 0) {
+                binding.resultsList.layoutManager = LinearLayoutManager(requireActivity())
+            } else {
+                binding.resultsList.layoutManager =
+                    GridLayoutManager(requireActivity(), longValue + 1)
+            }
+            return@setLabelFormatter (longValue + 1).toString()
+        }
+
         AlertDialog.Builder(requireActivity(), R.style.dialogTheme)
             .setTitle(getString(R.string.select_result_layout_rows_title))
             .setView(view)
+            .setPositiveButton(android.R.string.ok, null)
             .show()
     }
 
@@ -1267,83 +1258,8 @@ class OpdsFragment : Fragment(),
         imm?.showSoftInput(v, 0)
     }
 
-    private fun loadPreviousResults(
-        a: MyAdapterInterface?,
-        previousResults: ArrayList<SearchResult>?
-    ) {
-        if (previousResults != null && previousResults.isNotEmpty()) {
-            Log.d("surprise", "loadPreviousResults: appending existent results")
-            Log.d("surprise", "loadPreviousResults: $a")
-            binding.hintContainer.visibility = View.GONE
-            viewModel.replacePreviousResults(previousResults)
-            previousResults.forEach {
-                a?.reapplyFilters(it)
-                a?.loadPreviousResults(it.results)
-            }
-            binding.foundResultsQuantity.visibility = View.VISIBLE
-            if (PreferencesHandler.instance.opdsPagingType) {
-                a?.setNextPageLink(previousResults.lastOrNull()?.nextPageLink)
-            }
-            val clickedElementIndex = previousResults.lastOrNull()?.clickedElementIndex
-            if (clickedElementIndex != null) {
-                if (clickedElementIndex >= 0) {
-                    val position =
-                        (binding.resultsList.adapter as MyAdapterInterface?)?.getItemPositionById(
-                            clickedElementIndex
-                        )
-                    if (position != null && position >= 0) {
-                        binding.resultsList.scrollToPosition(position)
-                        (binding.resultsList.adapter as MyAdapterInterface).markClickedElement(
-                            clickedElementIndex
-                        )
-                    } else {
-                        binding.resultsList.layoutManager?.scrollToPosition(viewModel.getScrolledPosition())
-                    }
-                } else {
-                    binding.resultsList.layoutManager?.scrollToPosition(viewModel.getScrolledPosition())
-                }
-            }
-            if ((binding.resultsList.adapter as MyAdapterInterface?)?.containsBooks() == true) {
-                binding.massLoadFab.show()
-            } else {
-                binding.massLoadFab.hide()
-            }
-        }
-    }
-
-    private fun handleSortOptions() {
-        sortShowSpinner = binding.sortShowSpinner
-        sortShowSpinner.setSortList(
-            SortHandler().getBookSortOptions(requireContext()),
-            SelectedSortTypeHandler.instance.getBookSortOptionIndex()
-        )
-        sortShowSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>, view: View?, pos: Int,
-                id: Long
-            ) {
-                if ((parent.adapter as OpdsSortAdapter).notFirstSelection) {
-                    SelectedSortTypeHandler.instance.saveSortType(
-                        binding.searchType.checkedRadioButtonId,
-                        pos
-                    )
-                    (parent.adapter as OpdsSortAdapter).setSelection(pos)
-                }
-                sortShowSpinner.notifySelection()
-                (binding.resultsList.adapter as MyAdapterInterface).sort()
-            }
-
-            override fun onNothingSelected(arg0: AdapterView<*>?) {
-                Log.d("surprise", "TimetableFragment onNothingSelected 54: nothing selected")
-            }
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.odps_menu, menu)
-        if (!PreferencesHandler.instance.showFilterStatistics) {
-            menu.findItem(R.id.action_show_filter)?.isVisible = false
-        }
         // check when request link in bookmarks list
         if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
             val item = menu.findItem(R.id.action_add_bookmark)
@@ -1373,24 +1289,26 @@ class OpdsFragment : Fragment(),
     }
 
     override fun buttonPressed(item: FoundEntity) {
+        if (item.type != TYPE_BOOK) {
+            OpdsStatement.instance.setPressedItem(item)
+        }
         when (item.type) {
             TYPE_AUTHOR -> {
                 if (item.link?.startsWith("/opds/new/0/newauthors") == true) {
                     // go to link
                     bookmarkReservedName = "Книги автора ${item.name}"
-                    newRequestLaunched()
                     mLastRequest = RequestItem(
                         item.link!!,
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
                     )
+                    newRequestLaunched(mLastRequest!!)
                 } else {
                     // выдам список действий по автору
-                    showAuthorViewSelect(item)
+                    showAuthorViewSelect(item, null)
                 }
             }
             TYPE_BOOK -> {
@@ -1407,16 +1325,15 @@ class OpdsFragment : Fragment(),
             else -> {
                 bookmarkReservedName = item.name
                 // перейду по ссылке
-                newRequestLaunched()
                 mLastRequest = RequestItem(
                     item.link!!,
                     append = false,
-                    addToHistory = true,
-                    clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                    addToHistory = true
                 )
                 viewModel.request(
                     mLastRequest
                 )
+                newRequestLaunched(mLastRequest!!)
             }
         }
     }
@@ -1432,34 +1349,33 @@ class OpdsFragment : Fragment(),
     }
 
     override fun itemPressed(item: FoundEntity) {
+        OpdsStatement.instance.setPressedItem(item)
         bookmarkReservedName = item.name
         when (item.type) {
             TYPE_AUTHOR -> {
                 if (item.link?.startsWith("/opds/new/0/newauthors") == true) {
                     // go to link
-                    newRequestLaunched()
                     mLastRequest = RequestItem(
                         item.link!!,
                         append = false,
-                        addToHistory = true,
-                        clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                        addToHistory = true
                     )
                     viewModel.request(
                         mLastRequest
                     )
                 } else {
                     // выдам список действий по автору
-                    showAuthorViewSelect(item)
+                    showAuthorViewSelect(item, null)
                 }
+                newRequestLaunched(mLastRequest!!)
             }
             else -> {
-                newRequestLaunched()
                 mLastRequest = RequestItem(
                     item.link!!,
                     append = false,
-                    addToHistory = true,
-                    clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                    addToHistory = true
                 )
+                newRequestLaunched(mLastRequest!!)
                 // перейду по ссылке
                 viewModel.request(
                     mLastRequest
@@ -1468,18 +1384,46 @@ class OpdsFragment : Fragment(),
         }
     }
 
-    override fun buttonLongPressed(item: FoundEntity, target: String) {
-        // add value to filter
-        viewModel.applyFilters(
-            item,
-            target,
-            (binding.resultsList.adapter as MyAdapterInterface?)?.getList(),
+    override fun buttonLongPressed(item: FoundEntity, target: String, view: View) {
+        binding.root.performHapticFeedback(
+            HapticFeedbackConstants.KEYBOARD_TAP,
+            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
         )
 
-    }
+        view.setOnCreateContextMenuListener { menu, _, _ ->
+            var menuItem: MenuItem =
+                menu.add(getString(R.string.pull_to_blacklist_msg))
+            menuItem.setOnMenuItemClickListener {
+                viewModel.addBlacklistItem(item, target)
+                if (PreferencesHandler.instance.isOpdsUseFilter) {
+                    (binding.resultsList.adapter as NewFoundItemAdapter).hide(item)
+                    OpdsStatement.instance.addFilteredResult(item)
+                }
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.added_to_filter_list_title),
+                    Toast.LENGTH_SHORT
+                ).show()
+                true
+            }
+            menuItem =
+                menu.add(getString(R.string.add_to_subscribes_msg))
+            menuItem.setOnMenuItemClickListener {
+                viewModel.addSubscribeItem(item, target)
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.added_to_subscribes_list_title),
+                    Toast.LENGTH_SHORT
+                ).show()
+                true
+            }
+        }
 
-    override fun itemLongPressed(item: FoundEntity) {
-        TODO("Not yet implemented")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            view.showContextMenu(view.pivotX, view.pivotY)
+        } else {
+            view.showContextMenu()
+        }
     }
 
     override fun menuItemPressed(item: FoundEntity, button: View) {
@@ -1514,23 +1458,29 @@ class OpdsFragment : Fragment(),
     }
 
     override fun loadMoreBtnClicked() {
-        newRequestLaunched()
-        if (viewModel.getNextPageLink() != null) {
+        if (OpdsStatement.instance.isNextPageLink()) {
             mLastRequest = RequestItem(
-                viewModel.getNextPageLink()!!,
+                OpdsStatement.instance.getNextPageLink()!!,
                 append = true,
-                addToHistory = false,
-                clickedElementIndex = -1
+                addToHistory = false
             )
+            newRequestLaunched(mLastRequest!!)
             viewModel.request(
                 mLastRequest
+            )
+            binding.root.performHapticFeedback(
+                HapticFeedbackConstants.KEYBOARD_TAP,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
         }
     }
 
-    private fun newRequestLaunched() {
+    private fun newRequestLaunched(request: RequestItem) {
         // disable filter
-        (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(false)
+        if (!request.append) {
+            (binding.resultsList.adapter as NewFoundItemAdapter?)?.clearList()
+            showBadge(0)
+        }
         binding.filterListView.visibility = View.GONE
         binding.filterListView.setQuery("", false)
         binding.filterByType.visibility = View.GONE
@@ -1539,20 +1489,19 @@ class OpdsFragment : Fragment(),
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         binding.fab.show()
         binding.massLoadFab.hide()
-        binding.foundResultsQuantity.visibility = View.GONE
         (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(true)
         activity?.invalidateOptionsMenu()
     }
 
     override fun authorClicked(item: FoundEntity) {
         if (item.authors.size == 1) {
-            showAuthorViewSelect(item.authors[0])
+            showAuthorViewSelect(item.authors[0], item)
         } else {
-            showSelectAuthorFromList(item.authors)
+            showSelectAuthorFromList(item.authors, item)
         }
     }
 
-    private fun showSelectAuthorFromList(authors: ArrayList<FoundEntity>) {
+    private fun showSelectAuthorFromList(authors: ArrayList<FoundEntity>, item: FoundEntity?) {
         // создам диалоговое окно
         val dialogBuilder = AlertDialog.Builder(requireContext())
         dialogBuilder.setTitle(R.string.select_authors_choose_message)
@@ -1565,7 +1514,7 @@ class OpdsFragment : Fragment(),
         }
         // покажу список выбора автора
         dialogBuilder.setItems(authorsList.toTypedArray()) { _: DialogInterface?, i: Int ->
-            showAuthorViewSelect(authors[i])
+            showAuthorViewSelect(authors[i], item)
         }
         dialogBuilder.show()
     }
@@ -1573,22 +1522,23 @@ class OpdsFragment : Fragment(),
     override fun sequenceClicked(item: FoundEntity) {
         if (item.sequences.size == 1) {
             bookmarkReservedName = item.sequences[0].name
-            newRequestLaunched()
+            OpdsStatement.instance.setPressedItem(item)
             mLastRequest = RequestItem(
                 item.sequences[0].link!!,
                 append = false,
-                addToHistory = true,
-                clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                addToHistory = true
             )
             viewModel.request(
                 mLastRequest
             )
+            newRequestLaunched(mLastRequest!!)
+
         } else {
-            showSelectSequenceFromList(item.sequences)
+            showSelectSequenceFromList(item.sequences, item)
         }
     }
 
-    private fun showSelectSequenceFromList(sequences: ArrayList<FoundEntity>) {
+    private fun showSelectSequenceFromList(sequences: ArrayList<FoundEntity>, item: FoundEntity?) {
         // создам диалоговое окно
         val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
         dialogBuilder.setTitle(R.string.select_sequences_choose_message)
@@ -1601,17 +1551,17 @@ class OpdsFragment : Fragment(),
         }
         // покажу список выбора автора
         dialogBuilder.setItems(list.toTypedArray()) { _: DialogInterface?, i: Int ->
+            OpdsStatement.instance.setPressedItem(item)
             bookmarkReservedName = sequences[i].name
-            newRequestLaunched()
             mLastRequest = RequestItem(
                 sequences[i].link!!,
                 append = false,
-                addToHistory = true,
-                clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                addToHistory = true
             )
             viewModel.request(
                 mLastRequest
             )
+            newRequestLaunched(mLastRequest!!)
         }
         dialogBuilder.show()
     }
@@ -1619,7 +1569,7 @@ class OpdsFragment : Fragment(),
     override fun nameClicked(item: FoundEntity) {
         // load info about book in backdrop
         if (item.link != null) {
-            viewModel.saveClickedElement((binding.resultsList.adapter as MyAdapterInterface).getClickedItemId())
+            OpdsStatement.instance.setPressedItem(item)
             PreferencesHandler.instance.lastWebViewLink = item.link!!
             (requireActivity() as BrowserActivity).launchWebViewFromOpds()
         }
@@ -1632,6 +1582,9 @@ class OpdsFragment : Fragment(),
                 .show()
             viewModel.markDownloaded(item)
             (binding.resultsList.adapter as MyAdapterInterface).markAsDownloaded(item)
+            if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideDownloaded) {
+                OpdsStatement.instance.addFilteredResult(item)
+            }
         } else {
             item.downloaded = !item.downloaded
             Toast.makeText(
@@ -1650,103 +1603,30 @@ class OpdsFragment : Fragment(),
             Toast.makeText(requireContext(), R.string.mark_as_unread_title, Toast.LENGTH_SHORT)
                 .show()
             viewModel.markUnread(item)
-            (binding.resultsList.adapter as MyAdapterInterface).markBookUnread(item)
+            (binding.resultsList.adapter as NewFoundItemAdapter).markBookUnread(item)
         } else {
             item.read = !item.read
             Toast.makeText(requireContext(), R.string.mark_as_read_title, Toast.LENGTH_SHORT).show()
             viewModel.markRead(item)
-            (binding.resultsList.adapter as MyAdapterInterface).markBookRead(item)
-        }
-    }
-
-    private fun scrollToTop() {
-        binding.resultsList.scrollToPosition(0)
-    }
-
-    override fun receiveSearchResult(searchResult: SearchResult) {
-        requireActivity().runOnUiThread {
-            binding.hintContainer.visibility = View.GONE
-            if (!searchResult.appended) {
-                totallyBlocked = 0
-                backdropFilterFragment?.clearResults()
-                scrollToTop()
-                (binding.resultsList.adapter as MyAdapterInterface).clearList()
-            }
-            (binding.resultsList.adapter as MyAdapterInterface).appendContent(searchResult.results)
-            binding.foundResultsQuantity.visibility = View.VISIBLE
-            if (PreferencesHandler.instance.opdsPagingType) {
-                (binding.resultsList.adapter as MyAdapterInterface).setHasNext(searchResult.nextPageLink != null)
-                (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(false)
-                binding.fab.hide()
-                if ((binding.resultsList.adapter as MyAdapterInterface).containsBooks()) {
-                    binding.massLoadFab.show()
-                }
-            } else {
-                if (searchResult.nextPageLink == null) {
-                    (binding.resultsList.adapter as MyAdapterInterface).setLoadInProgress(false)
-                    binding.fab.hide()
-                    if ((binding.resultsList.adapter as MyAdapterInterface).containsBooks()) {
-                        binding.massLoadFab.show()
-                    }
-                }
-            }
-            setupSortView()
-            if (PreferencesHandler.instance.showFilterStatistics) {
-                totallyBlocked += searchResult.filtered
-                if (totallyBlocked > 0) {
-                    binding.showBlockedStateBtn.visibility = View.VISIBLE
-                    binding.showBlockedStateBtn.text = totallyBlocked.toString()
-                } else {
-                    binding.showBlockedStateBtn.visibility = View.GONE
-                }
-                backdropFilterFragment?.appendResults(searchResult.filteredList)
+            (binding.resultsList.adapter as NewFoundItemAdapter).markBookRead(item)
+            if (PreferencesHandler.instance.isOpdsUseFilter && PreferencesHandler.instance.isHideRead) {
+                OpdsStatement.instance.addFilteredResult(item)
             }
         }
     }
 
-    override fun valueFiltered(item: ArrayList<FoundEntity>) {
-        activity?.runOnUiThread {
-            item.forEach {
-                (binding.resultsList.adapter as MyAdapterInterface?)?.itemFiltered(it)
-            }
-        }
+    override fun scrollTo(indexOf: Int) {
+        Log.d("surprise", "scrollTo: i scroll to $indexOf")
+        binding.resultsList.scrollToPosition(indexOf)
     }
 
-    private fun setupSortView() {
-        when {
-            (binding.resultsList.adapter as MyAdapterInterface).containsGenres() -> {
-                sortShowSpinner.setSortList(
-                    SortHandler().getDefaultSortOptions(requireContext()),
-                    SelectedSortTypeHandler.instance.getGenreSortOptionIndex()
-                )
-            }
-            (binding.resultsList.adapter as MyAdapterInterface).containsSequences() -> {
-                sortShowSpinner.setSortList(
-                    SortHandler().getDefaultSortOptions(requireContext()),
-                    SelectedSortTypeHandler.instance.getSequenceSortOptionIndex()
-                )
-            }
-            (binding.resultsList.adapter as MyAdapterInterface).containsAuthors() -> {
-                sortShowSpinner.setSortList(
-                    SortHandler().getAuthorSortOptions(requireContext()),
-                    SelectedSortTypeHandler.instance.getAuthorSortOptionIndex()
-                )
-            }
-            (binding.resultsList.adapter as MyAdapterInterface).containsBooks() -> {
-                sortShowSpinner.setSortList(
-                    SortHandler().getBookSortOptions(requireContext()),
-                    SelectedSortTypeHandler.instance.getBookSortOptionIndex()
-                )
-            }
-        }
-    }
-
-    private fun showAuthorViewSelect(author: FoundEntity) {
+    private fun showAuthorViewSelect(author: FoundEntity, item: FoundEntity?) {
         // создам диалоговое окно
         val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
         dialogBuilder
             .setTitle(author.author)
             .setItems(mAuthorViewTypes) { _: DialogInterface?, which: Int ->
+                OpdsStatement.instance.setPressedItem(item)
                 loadAuthor(
                     which,
                     author
@@ -1756,9 +1636,6 @@ class OpdsFragment : Fragment(),
     }
 
     private fun loadAuthor(which: Int, author: FoundEntity) {
-        Log.d("surprise", "OpdsFragment.kt 1350: ${author.name}")
-        Log.d("surprise", "OpdsFragment.kt 1350: ${author.link}")
-        Log.d("surprise", "OpdsFragment.kt 1350: ${author.id}")
         bookmarkReservedName = author.name
         var url: String? = null
         val link = Regex("[^0-9]").replace(author.link!!, "")
@@ -1778,16 +1655,15 @@ class OpdsFragment : Fragment(),
             }
         }
         if (url != null) {
-            newRequestLaunched()
             mLastRequest = RequestItem(
                 url,
                 append = false,
-                addToHistory = true,
-                clickedElementIndex = (binding.resultsList.adapter as MyAdapterInterface).getClickedItemId()
+                addToHistory = true
             )
             viewModel.request(
                 mLastRequest
             )
+            newRequestLaunched(mLastRequest!!)
         }
     }
 
@@ -1830,30 +1706,28 @@ class OpdsFragment : Fragment(),
             // если доступен возврат назад- возвращаюсь, если нет- закрываю приложение
             if (!HistoryHandler.instance.isEmpty) {
                 val lastResults = HistoryHandler.instance.lastPage
+                OpdsStatement.instance.load(lastResults)
+                (binding.resultsList.adapter as NewFoundItemAdapter?)?.clearList()
+                (binding.resultsList.adapter as NewFoundItemAdapter?)?.setPressedId(lastResults?.pressedItemId)
                 if (PreferencesHandler.instance.saveOpdsHistory) {
-                    if (lastResults != null) {
-                        loadFromHistory(lastResults)
-                        return true
+                    if (lastResults?.nextPageLink != null) {
+                        binding.swipeLayout.isEnabled = true
                     }
                 } else {
-                    if (lastResults != null) {
-                        val link = lastResults.searchResults.first().requestLink
-                        if (link != null) {
-                            newRequestLaunched()
-                            // load last request
-                            mLastRequest = RequestItem(
-                                link,
-                                append = false,
-                                addToHistory = false,
-                                clickedElementIndex = -1
-                            )
-                            viewModel.request(
-                                mLastRequest
-                            )
-                        }
-                        return true
-                    }
+                    OpdsStatement.instance.prepareRequestFromHistory()
+                    // load last request
+                    mLastRequest = RequestItem(
+                        OpdsStatement.instance.getCurrentRequest()!!,
+                        append = false,
+                        addToHistory = false
+                    )
+                    Log.d("surprise", "keyPressed: request from history ${mLastRequest?.request}")
+                    newRequestLaunched(mLastRequest!!)
+                    viewModel.request(
+                        mLastRequest
+                    )
                 }
+                return true
             }
             if (mConfirmExit != 0L) {
                 if (mConfirmExit > System.currentTimeMillis() - 3000) {
@@ -1882,16 +1756,6 @@ class OpdsFragment : Fragment(),
         return false
     }
 
-    private fun loadFromHistory(lastResults: HistoryItem) {
-        (binding.resultsList.adapter as MyAdapterInterface).clearList()
-        if (PreferencesHandler.instance.saveOpdsHistory) {
-            loadPreviousResults(
-                binding.resultsList.adapter as MyAdapterInterface,
-                lastResults.searchResults
-            )
-        }
-    }
-
     private fun scrollUp() {
         val manager = binding.resultsList.layoutManager as LinearLayoutManager?
         if (manager != null) {
@@ -1912,25 +1776,6 @@ class OpdsFragment : Fragment(),
                     manager.scrollToPositionWithOffset(position + 1, 10)
                     position = manager.findLastCompletelyVisibleItemPosition()
                 }
-                viewModel.saveScrolledPosition(position)
-                if (
-                    !viewModel.loadInProgress() &&
-                    position == adapter.itemCount - 1 &&
-                    position > lastScrolled &&
-                    PreferencesHandler.instance.opdsPagingType &&
-                    !PreferencesHandler.instance.isDisplayPagerButton &&
-                    viewModel.getNextPageLink() != null
-                ) {
-                    mLastRequest = RequestItem(
-                        viewModel.getNextPageLink()!!,
-                        append = true,
-                        addToHistory = false,
-                        clickedElementIndex = -1
-                    )
-                    viewModel.request(
-                        mLastRequest
-                    )
-                }
                 lastScrolled = position
             }
         }
@@ -1938,7 +1783,6 @@ class OpdsFragment : Fragment(),
 
 
     companion object {
-
         const val STATE_SEARCH_VALUE = "search value"
 
         private val mAuthorViewTypes = arrayOf(
@@ -1961,19 +1805,106 @@ class OpdsFragment : Fragment(),
         )
     }
 
-    fun loadLink(link: String) {
+    private fun loadLink(link: String) {
         linkForLoad = link
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         (binding.resultsList.adapter as MyAdapterInterface).filter.filter(query)
-        binding.foundResultsQuantity.visibility = View.VISIBLE
         return false
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
         (binding.resultsList.adapter as MyAdapterInterface).filter.filter(newText)
-        binding.foundResultsQuantity.visibility = View.VISIBLE
         return false
+    }
+
+
+    private fun handleBookDownloadProgress(it: BooksDownloadProgress) {
+        val booksLeft = it.booksInQueue - it.successLoads - it.loadErrors
+        if (booksLeft > 0) {
+            downloadBadgeDrawable?.isVisible = true
+            downloadBadgeDrawable?.number = booksLeft
+        }
+    }
+
+    override fun itemInserted(item: FoundEntity) {
+        requireActivity().runOnUiThread {
+            val resultsCount = (binding.resultsList.adapter as NewFoundItemAdapter).addItem(item)
+            showBadge(resultsCount)
+        }
+    }
+
+    override fun itemFiltered(item: FoundEntity) {
+        requireActivity().runOnUiThread {
+
+            if (PreferencesHandler.instance.showFilterStatistics) {
+                backdropFilterFragment?.updateBlockedCount()
+            }
+            showBlockedBadge(OpdsStatement.instance.getBlockedResultsSize())
+        }
+    }
+
+    @com.google.android.material.badge.ExperimentalBadgeUtils
+    override fun drawBadges() {
+        requireActivity().runOnUiThread {
+            // добавлю бейджи сразу тут
+            blockedBadgeDrawable = BadgeDrawable.create(requireActivity())
+            BadgeUtils.attachBadgeDrawable(blockedBadgeDrawable!!, binding.showBlockedStateBtn)
+            blockedBadgeDrawable!!.maxCharacterCount = 5
+            blockedBadgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
+            blockedBadgeDrawable!!.verticalOffset = 40
+            blockedBadgeDrawable!!.horizontalOffset = 60
+
+            if(OpdsStatement.instance.getBlockedResultsSize() > 0){
+                blockedBadgeDrawable?.number = OpdsStatement.instance.getBlockedResultsSize()
+                blockedBadgeDrawable?.isVisible = true
+            }
+            else{
+                blockedBadgeDrawable?.isVisible = false
+            }
+
+            badgeDrawable = BadgeDrawable.create(requireContext())
+            BadgeUtils.attachBadgeDrawable(badgeDrawable!!, binding.sortBtn)
+            badgeDrawable!!.maxCharacterCount = 5
+            badgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
+            badgeDrawable!!.verticalOffset = 40
+            badgeDrawable!!.horizontalOffset = 60
+
+            if(OpdsStatement.instance.results.size > 0){
+                badgeDrawable?.number = OpdsStatement.instance.results.size
+                badgeDrawable?.isVisible = true
+            }
+            else{
+                badgeDrawable?.isVisible = false
+            }
+
+            downloadBadgeDrawable = BadgeDrawable.create(requireActivity())
+            BadgeUtils.attachBadgeDrawable(downloadBadgeDrawable!!, binding.downloadStateBtn)
+            downloadBadgeDrawable!!.maxCharacterCount = 5
+            downloadBadgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
+            downloadBadgeDrawable!!.verticalOffset = 40
+            downloadBadgeDrawable!!.horizontalOffset = 60
+            downloadBadgeDrawable?.isVisible = false
+
+        }
+    }
+
+    private fun showBadge(resultsCount: Int) {
+        if (resultsCount > 0) {
+            badgeDrawable!!.isVisible = true
+            badgeDrawable!!.number = resultsCount
+        } else {
+            badgeDrawable?.isVisible = false
+        }
+    }
+
+    private fun showBlockedBadge(count: Int) {
+        if (count > 0) {
+            blockedBadgeDrawable!!.isVisible = true
+            blockedBadgeDrawable!!.number = count
+        } else {
+            blockedBadgeDrawable?.isVisible = false
+        }
     }
 }

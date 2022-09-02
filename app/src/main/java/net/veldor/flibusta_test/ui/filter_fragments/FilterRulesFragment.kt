@@ -69,6 +69,11 @@ class FilterRulesFragment : Fragment(), SomeActionDelegate, SearchView.OnQueryTe
             } else false
         }
 
+        binding.useFilterBtn.setOnClickListener {
+            binding.filterListView.visibility = View.VISIBLE
+            it.visibility = View.GONE
+        }
+
         return binding.root
     }
 

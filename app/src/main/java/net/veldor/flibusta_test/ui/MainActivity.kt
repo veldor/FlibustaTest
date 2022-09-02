@@ -32,6 +32,7 @@ import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.NetworkHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.handler.TorHandler
+import net.veldor.flibusta_test.model.helper.UrlHelper
 import net.veldor.flibusta_test.model.utils.Updater
 import net.veldor.flibusta_test.model.view_model.StartViewModel
 import net.veldor.flibusta_test.ui.different_fragments.TorLogFragment
@@ -108,7 +109,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 // check for updates
                 if (Updater.liveCurrentDownloadProgress.value != null && Updater.liveCurrentDownloadProgress.value!! > 0) {
-                    Log.d("surprise", "MainActivity.kt 110: download in progress")
                     updateUpdateDownloadProgress(Updater.liveCurrentDownloadProgress.value)
                 } else if (PreferencesHandler.instance.checkUpdateOnStart) {
                     viewModel.checkForUpdates()
@@ -508,6 +508,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkConnectionOptions() {
+        // проверю использование связки VPN + TOR-зеркало. Если они используются вместе- предупрежу о том, что могут быть проблемы
+        if (NetworkHandler().isVpnConnected() && UrlHelper.getBaseUrl()
+                .endsWith(".onion") && PreferencesHandler.instance.showOnionVpnConflictDialog
+        ) {
+            showOnionAndVpnPossibleConflictDialog()
+        }
+
         if (PreferencesHandler.instance.showConnectionOptions) {
             if (NetworkHandler().isVpnConnected()) {
                 if (PreferencesHandler.instance.useTor && !PreferencesHandler.instance.useTorMirror) {
@@ -517,6 +524,21 @@ class MainActivity : AppCompatActivity() {
                 showEnableTorDialog()
             }
         }
+    }
+
+    private fun showOnionAndVpnPossibleConflictDialog() {
+        AlertDialog.Builder(this, R.style.dialogTheme)
+            .setMessage(getString(R.string.onion_conflict_message))
+            .setPositiveButton(getString(R.string.use_anyway_title), null)
+            .setNegativeButton(getString(R.string.switch_to_base_mirror)) { _, _ ->
+                PreferencesHandler.instance.useTorMirror = false
+                PreferencesHandler.instance.isCustomMirror = false
+                viewModel.relaunchConnection(this)
+            }.setNeutralButton(getString(R.string.do_not_show_again_message)) { _, _ ->
+                PreferencesHandler.instance.showOnionVpnConflictDialog = false
+            }
+            .show()
+
     }
 
 

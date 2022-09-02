@@ -7,8 +7,7 @@ interface FoundItemActionDelegate {
     fun buttonPressed(item: FoundEntity)
     fun imageClicked(item: FoundEntity)
     fun itemPressed(item: FoundEntity)
-    fun buttonLongPressed(item: FoundEntity, target: String)
-    fun itemLongPressed(item: FoundEntity)
+    fun buttonLongPressed(item: FoundEntity, target: String, view: View)
     fun menuItemPressed(item: FoundEntity, button: View)
     fun loadMoreBtnClicked()
     fun authorClicked(item: FoundEntity)
@@ -16,4 +15,5 @@ interface FoundItemActionDelegate {
     fun nameClicked(item: FoundEntity)
     fun rightButtonPressed(item: FoundEntity)
     fun leftButtonPressed(item: FoundEntity)
+    fun scrollTo(indexOf: Int)
 }

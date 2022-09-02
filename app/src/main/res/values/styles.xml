@@ -5,7 +5,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -16,6 +16,7 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/colorPrimary</item>
         <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
     </style>
+
     <!-- Base application theme. -->
     <style name="AppThemeBar" parent="Theme.AppCompat.DayNight">
         <item name="titleTextColor">@color/white</item>
@@ -93,6 +94,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/PositiveButtonStyle</item>
     </style>
 
     <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">

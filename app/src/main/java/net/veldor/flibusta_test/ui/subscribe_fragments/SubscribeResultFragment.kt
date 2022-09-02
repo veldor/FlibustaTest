@@ -174,11 +174,7 @@ class SubscribeResultFragment : Fragment(), FoundItemActionDelegate {
         TODO("Not yet implemented")
     }
 
-    override fun buttonLongPressed(item: FoundEntity, target: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun itemLongPressed(item: FoundEntity) {
+    override fun buttonLongPressed(item: FoundEntity, target: String, view: View) {
         TODO("Not yet implemented")
     }
 
@@ -207,6 +203,10 @@ class SubscribeResultFragment : Fragment(), FoundItemActionDelegate {
     }
 
     override fun leftButtonPressed(item: FoundEntity) {
+        TODO("Not yet implemented")
+    }
+
+    override fun scrollTo(indexOf: Int) {
         TODO("Not yet implemented")
     }
 }

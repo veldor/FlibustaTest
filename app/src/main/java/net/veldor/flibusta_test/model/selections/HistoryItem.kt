@@ -1,5 +1,9 @@
 package net.veldor.flibusta_test.model.selections
 
-import net.veldor.flibusta_test.model.selections.opds.SearchResult
+class HistoryItem() {
 
-class HistoryItem(val searchResults: ArrayList<SearchResult>)
+    var pressedItemId: String? = null
+    var currentRequest: String? = null
+    var nextPageLink: String? = null
+    val rawResults = ArrayList<String>()
+}

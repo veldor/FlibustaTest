@@ -25,6 +25,7 @@ class BrowserActivity : BaseActivity() {
     lateinit var binding: ActivityBrowserBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this).get(WebViewViewModel::class.java)
         binding = ActivityBrowserBinding.inflate(layoutInflater)

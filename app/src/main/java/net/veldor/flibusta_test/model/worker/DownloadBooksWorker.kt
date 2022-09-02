@@ -1,10 +1,12 @@
 package net.veldor.flibusta_test.model.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import net.veldor.flibusta_test.model.db.DatabaseInstance
+import net.veldor.flibusta_test.model.exception.WrongDownloadDirException
 import net.veldor.flibusta_test.model.handler.DownloadHandler
 import net.veldor.flibusta_test.model.handler.NotificationHandler
 import net.veldor.flibusta_test.model.selections.BooksDownloadProgress
@@ -45,6 +47,10 @@ class DownloadBooksWorker(context: Context, workerParams: WorkerParameters) :
                 bookInProgress =
                     DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().firstQueuedBook
             }
+        }
+        catch (e: WrongDownloadDirException){
+            // notify about wrong download dir
+            Log.d("surprise", "doWork: wrong download dir!")
         }
         catch (e:Throwable){e.printStackTrace()}
         DownloadHandler.instance.downloadFinished()

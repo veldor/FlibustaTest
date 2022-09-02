@@ -47,7 +47,6 @@
                 android:paddingEnd="10dp"
                 android:paddingRight="10dp"
                 android:text="@{item.name}"
-                android:textAlignment="center"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toStartOf="@+id/menuButton"
@@ -129,7 +128,7 @@
                 android:textSize="13sp"
                 android:visibility="visible"
                 app:layout_constraintBottom_toTopOf="@id/thirdBarrier"
-                app:layout_constraintEnd_toStartOf="@+id/firstInfoBlockRightParam"
+                app:layout_constraintEnd_toStartOf="@+id/secondInfoBlockRightParam"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/imageBarrier"
                 app:layout_constraintTop_toBottomOf="@+id/secondBarrier" />
@@ -149,7 +148,7 @@
                 app:layout_constraintBottom_toTopOf="@id/thirdBarrier"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/firstInfoBlockLeftParam"
+                app:layout_constraintStart_toEndOf="@+id/secondInfoBlockLeftParam"
                 app:layout_constraintTop_toBottomOf="@+id/secondBarrier" />
 
             <androidx.constraintlayout.widget.Barrier
@@ -182,13 +181,13 @@
                 android:paddingBottom="5dp"
                 android:textColor="@color/textColor"
                 android:visibility="visible"
-                app:layout_constraintEnd_toStartOf="@+id/thirdBlocRightElement"
+                app:layout_constraintEnd_toStartOf="@+id/third_block_right_element"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/thirdBlockLeftElement"
                 app:layout_constraintTop_toBottomOf="@id/thirdBarrier" />
 
             <TextView
-                android:id="@+id/thirdBlocRightElement"
+                android:id="@+id/third_block_right_element"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -206,7 +205,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="thirdBlockLeftElement,thirdBlockCenterElement,thirdBlocRightElement" />
+                app:constraint_referenced_ids="thirdBlockLeftElement,thirdBlockCenterElement,@+id/third_block_right_element" />
 
             <TextView
                 android:id="@+id/availableLinkFormats"
@@ -238,7 +237,7 @@
 
             <Button
                 android:id="@+id/centerActionBtn"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/download_message"
