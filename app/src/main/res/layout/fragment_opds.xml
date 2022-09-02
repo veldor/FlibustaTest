@@ -62,18 +62,18 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:src="@drawable/ic_baseline_block_24"
                         android:contentDescription="@string/show_blocked_state_btn_description"
-                        android:drawableLeft="@drawable/ic_baseline_block_24"/>
+                        android:drawableLeft="@drawable/ic_baseline_block_24"
+                        android:src="@drawable/ic_baseline_block_24" />
 
                     <ImageButton
                         android:id="@+id/downloadStateBtn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
-                        android:src="@drawable/ic_baseline_arrow_downward_24"
                         android:contentDescription="@string/download_state_btn_desc"
-                        android:drawableLeft="@drawable/ic_baseline_arrow_downward_24"/>
+                        android:drawableLeft="@drawable/ic_baseline_arrow_downward_24"
+                        android:src="@drawable/ic_baseline_arrow_downward_24" />
 
 
                     <ImageButton

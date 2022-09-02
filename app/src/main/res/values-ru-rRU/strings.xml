@@ -619,4 +619,5 @@
     <string name="use_anyway_title">Всё равно использовать</string>
     <string name="switch_to_base_mirror">Использовать основное зеркало</string>
     <string name="onion_conflict_message">Вы пытаетесь подключиться к .onion зеркалу через VPN. Не все VPN сервисы поддерживают это действие. Вы можете продолжить попытку или переключиться на основное зеркало.</string>
+    <string name="full_skip_test_btn_text">Пропустить тест</string>
 </resources>

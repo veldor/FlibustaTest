@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.ui.connection_guide
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +14,9 @@ import androidx.navigation.Navigation
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentTestInternetConnectionBinding
 import net.veldor.flibusta_test.model.view_model.ConnectivityGuideViewModel
+import net.veldor.flibusta_test.ui.BrowserActivity
 import net.veldor.flibusta_test.ui.ConnectivityGuideActivity
+import net.veldor.flibusta_test.ui.MainActivity
 
 class TestInternetConnectionGuideFragment : Fragment() {
 
@@ -30,6 +33,12 @@ class TestInternetConnectionGuideFragment : Fragment() {
             binding.startTestBtn.isEnabled = false
             binding.checkProgress.visibility = View.VISIBLE
             viewModel.testInternetConnection()
+        }
+
+        binding.fullSkipTestBtn.setOnClickListener {
+            val targetActivityIntent = Intent(requireContext(), MainActivity::class.java)
+            targetActivityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(targetActivityIntent)
         }
         binding.skipTestBtn.setOnClickListener {
             goToNext()
@@ -68,8 +77,13 @@ class TestInternetConnectionGuideFragment : Fragment() {
                     binding.nextTestBtn.isEnabled = true
                     binding.testStatusText.text = getString(R.string.check_passed)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        binding.testStatusText.setTextColor(resources.getColor(R.color.genre_text_color, null))
-                    } else{
+                        binding.testStatusText.setTextColor(
+                            resources.getColor(
+                                R.color.genre_text_color,
+                                null
+                            )
+                        )
+                    } else {
                         binding.testStatusText.setTextColor(resources.getColor(R.color.genre_text_color))
                     }
                     binding.errorDescriptionBtn.visibility = View.GONE
@@ -80,8 +94,13 @@ class TestInternetConnectionGuideFragment : Fragment() {
                     binding.startTestBtn.isEnabled = true
                     binding.testStatusText.text = getString(R.string.check_failed)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color, null))
-                    } else{
+                        binding.testStatusText.setTextColor(
+                            resources.getColor(
+                                R.color.book_name_color,
+                                null
+                            )
+                        )
+                    } else {
                         binding.testStatusText.setTextColor(resources.getColor(R.color.book_name_color))
                     }
                     binding.errorDescriptionBtn.visibility = View.VISIBLE

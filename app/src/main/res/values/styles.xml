@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Launcher" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="Launcher" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 

@@ -625,4 +625,5 @@ Later you can change this parameter in Catalog settings</string>
     <string name="use_anyway_title">Use anyway</string>
     <string name="switch_to_base_mirror">Switch to base mirror</string>
     <string name="onion_conflict_message">You use simultaneously VPN connection and .onion mirror. This may cause problems with connection, because not all VPN services accept TOR technology.</string>
+    <string name="full_skip_test_btn_text">Skip test</string>
 </resources>

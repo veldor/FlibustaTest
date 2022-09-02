@@ -87,15 +87,15 @@ abstract public class OnionProxyContext {
             boolean permissionGrantResult = obfsFile.setExecutable(true);
             if (torrcFile.exists()) {
                 // append bridges, if it exists, to current file
+                File filesDir = new File(workingDirectory.getParentFile(), "files");
+                File bridgesFile = new File(filesDir, "bridges");
                 //todo append it
+                if (bridgesFile.exists() && bridgesFile.isFile() && bridgesFile.length() > 0) {
                 FileOutputStream fileOutputStream = new FileOutputStream(torrcFile, true);
                 fileOutputStream.write("ClientTransportPlugin obfs4 exec ".getBytes());
                 fileOutputStream.write(obfsFile.getAbsolutePath().getBytes());
                 fileOutputStream.write("\n".getBytes());
                 // append bridges
-                File filesDir = new File(workingDirectory.getParentFile(), "files");
-                File bridgesFile = new File(filesDir, "bridges");
-                if (bridgesFile.exists() && bridgesFile.isFile() && bridgesFile.length() > 0) {
                     try (BufferedReader br = new BufferedReader(new FileReader(bridgesFile))) {
                         for (String line; (line = br.readLine()) != null; ) {
                             if (!line.isEmpty()) {
@@ -105,13 +105,15 @@ abstract public class OnionProxyContext {
                             }
                         }
                     }
+                    fileOutputStream.write("\n".getBytes());
+                    fileOutputStream.write("UseBridges 1".getBytes());
+                    fileOutputStream.write("\n".getBytes());
+                    fileOutputStream.write("\n".getBytes());
+                    fileOutputStream.close();
                 }
-
-                fileOutputStream.write("\n".getBytes());
-                fileOutputStream.write("UseBridges 1".getBytes());
-                fileOutputStream.write("\n".getBytes());
-                fileOutputStream.write("\n".getBytes());
-                fileOutputStream.close();
+            }
+            else{
+                Log.d("surprise", "installFiles 116:  skip add bridges, no file");
             }
         } else {
             Log.d("surprise", "installFiles: have no file");

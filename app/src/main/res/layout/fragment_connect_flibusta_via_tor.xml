@@ -81,6 +81,7 @@
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="@string/start_test_btn_text"
+                android:textColor="@color/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -139,6 +140,7 @@
         android:enabled="false"
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/next_test_btn_text"
+        android:textColor="@color/textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -152,6 +154,7 @@
         android:enabled="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/backward"
+        android:textColor="@color/textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

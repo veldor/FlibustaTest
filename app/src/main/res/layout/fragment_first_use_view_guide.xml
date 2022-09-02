@@ -54,5 +54,6 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/next_test_btn_text"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

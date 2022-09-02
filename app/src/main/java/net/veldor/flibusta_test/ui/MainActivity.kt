@@ -509,7 +509,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkConnectionOptions() {
         // проверю использование связки VPN + TOR-зеркало. Если они используются вместе- предупрежу о том, что могут быть проблемы
-        if (NetworkHandler().isVpnConnected() && UrlHelper.getBaseUrl()
+        if (!PreferencesHandler.instance.useTor && NetworkHandler().isVpnConnected() && UrlHelper.getBaseUrl()
                 .endsWith(".onion") && PreferencesHandler.instance.showOnionVpnConflictDialog
         ) {
             showOnionAndVpnPossibleConflictDialog()
@@ -547,6 +547,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.disable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = false
+                binding.showTorLogBtn.visibility = View.GONE
                 binding.connectionTypeSwitcher.isChecked = true
             }
             .setNegativeButton(android.R.string.cancel) { _, _ -> }
@@ -561,6 +562,7 @@ class MainActivity : AppCompatActivity() {
             .setMessage(getString(R.string.enable_tor_message))
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 PreferencesHandler.instance.useTor = true
+                binding.showTorLogBtn.visibility = View.VISIBLE
                 binding.connectionTypeSwitcher.isChecked = false
             }
             .setNegativeButton(android.R.string.cancel) { _, _ -> }

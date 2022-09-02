@@ -49,6 +49,7 @@
                 android:id="@+id/startTestBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textColor"
                 android:layout_marginTop="40dp"
                 android:background="@drawable/transparent_bg_bordered_button"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -59,6 +60,22 @@
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/step_text" />
+
+            <Button
+                android:id="@+id/fullSkipTestBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColor"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/transparent_bg_bordered_button"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/full_skip_test_btn_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/startTestBtn" />
 
             <ImageButton
                 android:id="@+id/error_description_btn"
@@ -74,7 +91,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/test_status_text" />
+                app:layout_constraintTop_toBottomOf="@+id/fullSkipTestBtn" />
 
             <ProgressBar
                 android:id="@+id/check_progress"
@@ -110,6 +127,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
+        android:textColor="@color/textColor"
         android:layout_marginBottom="10dp"
         android:background="@drawable/transparent_bg_bordered_button"
         android:enabled="false"
@@ -124,6 +142,7 @@
         android:id="@+id/skip_test_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/textColor"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/transparent_bg_bordered_button"
