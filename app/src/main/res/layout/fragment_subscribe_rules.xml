@@ -44,6 +44,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/book_name_title"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
 
@@ -59,6 +60,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/book_author_title"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
 
@@ -74,6 +76,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/sequence_title"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
                 <RadioButton
@@ -88,6 +91,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/genre_title"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
             </RadioGroup>
 
@@ -140,8 +144,8 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="6dp"
                 android:padding="10dp"
-                android:src="@drawable/fab_add"
-                android:tint="@color/black"
+                android:src="@drawable/ic_baseline_add_24"
+                android:tint="@color/invertable_black"
                 app:layout_constraintBottom_toBottomOf="@+id/blacklistInputLayout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/blacklistInputLayout" />

@@ -131,7 +131,11 @@ class OpdsFragment : Fragment(),
     private fun handleBookmark() {
         if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
             viewModel.removeBookmark()
-            Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireActivity(),
+                getString(R.string.bookmark_removed_title),
+                Toast.LENGTH_SHORT
+            ).show()
             activity?.invalidateOptionsMenu()
             binding.addBookmarkBtn.setImageDrawable(
                 ResourcesCompat.getDrawable(
@@ -158,7 +162,7 @@ class OpdsFragment : Fragment(),
                 requireActivity(),
                 BookmarkHandler.instance.getBookmarkCategories(requireContext())
             )
-            AlertDialog.Builder(requireActivity())
+            AlertDialog.Builder(requireActivity(), R.style.dialogTheme)
                 .setTitle(getString(R.string.add_bookmark_title))
                 .setView(layout)
                 .setPositiveButton(getString(R.string.add_title)) { _, _ ->
@@ -245,7 +249,7 @@ class OpdsFragment : Fragment(),
             sortOptions[index]!!.name
         }
 
-        val builder = AlertDialog.Builder(requireActivity())
+        val builder = AlertDialog.Builder(requireActivity(), R.style.dialogTheme)
             .setTitle(getString(R.string.sort_list_by_title))
             .setSingleChoiceItems(searchArray, selectedOption) { dialog, selected ->
                 dialog.dismiss()
@@ -719,6 +723,7 @@ class OpdsFragment : Fragment(),
                 (activity as BrowserActivity).binding.includedBnv.bottomNavView.visibility =
                     View.GONE
                 binding.searchOptionsContainer.visibility = View.VISIBLE
+                binding.swipeLayout.isEnabled = false
                 showInputMethod(view.findFocus())
             } else {
                 (activity as BrowserActivity).binding.includedToolbar.appBarLayout.visibility =
@@ -727,6 +732,7 @@ class OpdsFragment : Fragment(),
                     View.VISIBLE
                 binding.bookSearchView.visibility = View.GONE
                 binding.searchOptionsContainer.visibility = View.GONE
+                binding.swipeLayout.isEnabled = true
             }
         }
 
@@ -994,7 +1000,6 @@ class OpdsFragment : Fragment(),
                 )
             }
         )
-
         binding.addBookmarkBtn.setOnClickListener {
             handleBookmark()
         }
@@ -1260,25 +1265,6 @@ class OpdsFragment : Fragment(),
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.odps_menu, menu)
-        // check when request link in bookmarks list
-        if (BookmarkHandler.instance.bookmarkInList(viewModel.getBookmarkLink())) {
-            val item = menu.findItem(R.id.action_add_bookmark)
-            item.icon = ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.ic_baseline_bookmark_border_24,
-                requireActivity().theme
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                item.icon.setTint(
-                    ResourcesCompat.getColor(
-                        resources,
-                        R.color.white,
-                        requireActivity().theme
-                    )
-                )
-            }
-            item.title = getString(R.string.remove_bookmark_title)
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -1478,6 +1464,27 @@ class OpdsFragment : Fragment(),
     private fun newRequestLaunched(request: RequestItem) {
         // disable filter
         if (!request.append) {
+            // промотаю страницу до верха
+            binding.resultsList.scrollToPosition(0)
+            // проверю закладки
+            if (BookmarkHandler.instance.bookmarkInList(request.request)) {
+                binding.addBookmarkBtn.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_bookmark_border_24,
+                        requireActivity().theme
+                    )
+                )
+            } else {
+                binding.addBookmarkBtn.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_baseline_bookmark_add_24,
+                        requireActivity().theme
+                    )
+                )
+            }
+
             (binding.resultsList.adapter as NewFoundItemAdapter?)?.clearList()
             showBadge(0)
         }
@@ -1503,7 +1510,7 @@ class OpdsFragment : Fragment(),
 
     private fun showSelectAuthorFromList(authors: ArrayList<FoundEntity>, item: FoundEntity?) {
         // создам диалоговое окно
-        val dialogBuilder = AlertDialog.Builder(requireContext())
+        val dialogBuilder = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
         dialogBuilder.setTitle(R.string.select_authors_choose_message)
         // получу сисок имён авторов
         val iterator: Iterator<FoundEntity> = authors.iterator()
@@ -1706,8 +1713,8 @@ class OpdsFragment : Fragment(),
             // если доступен возврат назад- возвращаюсь, если нет- закрываю приложение
             if (!HistoryHandler.instance.isEmpty) {
                 val lastResults = HistoryHandler.instance.lastPage
-                OpdsStatement.instance.load(lastResults)
                 (binding.resultsList.adapter as NewFoundItemAdapter?)?.clearList()
+                OpdsStatement.instance.load(lastResults)
                 (binding.resultsList.adapter as NewFoundItemAdapter?)?.setPressedId(lastResults?.pressedItemId)
                 if (PreferencesHandler.instance.saveOpdsHistory) {
                     if (lastResults?.nextPageLink != null) {
@@ -1847,7 +1854,7 @@ class OpdsFragment : Fragment(),
 
     @com.google.android.material.badge.ExperimentalBadgeUtils
     override fun drawBadges() {
-        requireActivity().runOnUiThread {
+        activity?.runOnUiThread {
             // добавлю бейджи сразу тут
             blockedBadgeDrawable = BadgeDrawable.create(requireActivity())
             BadgeUtils.attachBadgeDrawable(blockedBadgeDrawable!!, binding.showBlockedStateBtn)
@@ -1856,11 +1863,10 @@ class OpdsFragment : Fragment(),
             blockedBadgeDrawable!!.verticalOffset = 40
             blockedBadgeDrawable!!.horizontalOffset = 60
 
-            if(OpdsStatement.instance.getBlockedResultsSize() > 0){
+            if (OpdsStatement.instance.getBlockedResultsSize() > 0) {
                 blockedBadgeDrawable?.number = OpdsStatement.instance.getBlockedResultsSize()
                 blockedBadgeDrawable?.isVisible = true
-            }
-            else{
+            } else {
                 blockedBadgeDrawable?.isVisible = false
             }
 
@@ -1871,11 +1877,10 @@ class OpdsFragment : Fragment(),
             badgeDrawable!!.verticalOffset = 40
             badgeDrawable!!.horizontalOffset = 60
 
-            if(OpdsStatement.instance.results.size > 0){
+            if (OpdsStatement.instance.results.size > 0) {
                 badgeDrawable?.number = OpdsStatement.instance.results.size
                 badgeDrawable?.isVisible = true
-            }
-            else{
+            } else {
                 badgeDrawable?.isVisible = false
             }
 

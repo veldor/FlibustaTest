@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.relaunchBtn.setOnClickListener {
-            viewModel.launchConnection()
+            viewModel.relaunchConnection(this)
             resetTimer()
         }
 

@@ -235,6 +235,7 @@ class NewOpdsParser(private val text: String) {
                             if (filterResult.result) {
                                 OpdsStatement.instance.addParsedResult(foundedEntity)
                             } else {
+                                foundedEntity!!.filterResult = filterResult
                                 OpdsStatement.instance.addFilteredResult(foundedEntity!!)
                             }
                         } else {

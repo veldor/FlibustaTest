@@ -29,98 +29,97 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:gravity="center"
                 android:text="@{item.name}"
                 android:textColor="@color/book_name_color"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/authorName"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/firstBlockContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:singleLine="true"
-                android:text="@{item.author}"
-                android:textColor="@color/author_text_color"
-                android:textSize="11sp"
-                app:layout_constraintEnd_toStartOf="@id/translatorName"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/bookName" />
-
-            <TextView
-                android:id="@+id/translatorName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:singleLine="true"
-                android:text="@{item.translate}"
-                android:textColor="@color/translator_text_color"
-                android:textSize="11sp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@id/authorName"
-                app:layout_constraintTop_toBottomOf="@id/bookName" />
-
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/firstBarrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="authorName, translatorName" />
-
-            <TextView
-                android:id="@+id/sequenceName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:maxLines="2"
-                android:text="@{item.sequencesComplex}"
-                android:textColor="@color/sequences_text_color"
-                android:textSize="11sp"
-                app:layout_constraintEnd_toStartOf="@id/genreName"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
+                app:layout_constraintTop_toBottomOf="@id/bookName">
 
-            <TextView
-                android:id="@+id/genreName"
+                <TextView
+                    android:id="@+id/authorName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:text="@{item.author}"
+                    android:textColor="@color/author_text_color"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/translatorName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:text="@{item.translate}"
+                    android:textColor="@color/translator_text_color"
+                    android:textSize="11sp" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/secondBlockContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:maxLines="2"
-                android:text="@{item.genreComplex}"
-                android:textColor="@color/genre_text_color"
-                android:textSize="11sp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/sequenceName"
-                app:layout_constraintTop_toBottomOf="@id/firstBarrier" />
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/firstBlockContainer">
 
+                <TextView
+                    android:id="@+id/sequenceName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:text="@{item.sequencesComplex}"
+                    android:textColor="@color/sequences_text_color"
+                    android:textSize="11sp" />
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/secondBarrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="sequenceName, genreName" />
+                <TextView
+                    android:id="@+id/genreName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:text="@{item.genreComplex}"
+                    android:layout_weight="1"
+                    android:textColor="@color/genre_text_color"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
 
             <TextView
                 android:id="@+id/filterReason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:maxLines="2"
                 android:layout_marginEnd="10dp"
+                android:paddingBottom="10dp"
                 android:textColor="@color/book_name_color"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:paddingBottom="10dp"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/secondBarrier" />
+                app:layout_constraintTop_toBottomOf="@id/secondBlockContainer" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

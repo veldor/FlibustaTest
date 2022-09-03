@@ -9,6 +9,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FragmentDownloadScheduleListBinding
 import net.veldor.flibusta_test.model.adapter.DownloadScheduleAdapter
@@ -37,16 +38,27 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
     }
 
     private fun setupUI() {
-        if(PreferencesHandler.instance.isEInk){
-            binding.fab.backgroundTintList = ColorStateList.valueOf(ResourcesCompat.getColor(requireActivity().resources, R.color.black, requireActivity().theme))
+        if (PreferencesHandler.instance.isEInk) {
+            binding.fab.backgroundTintList = ColorStateList.valueOf(
+                ResourcesCompat.getColor(
+                    requireActivity().resources,
+                    R.color.black,
+                    requireActivity().theme
+                )
+            )
         }
 
         setHasOptionsMenu(true)
         activity?.invalidateOptionsMenu()
         val adapter =
-            DownloadScheduleAdapter(DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().allBooks, this, requireActivity())
+            DownloadScheduleAdapter(
+                DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().allBooks,
+                this,
+                requireActivity()
+            )
         binding.resultsList.layoutManager = LinearLayoutManager(requireContext())
         binding.resultsList.adapter = adapter
+        (binding.resultsList.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         binding.fab.setOnClickListener {
             if (DownloadHandler.instance.downloadInProgress.value == true) {
                 DownloadHandler.instance.cancelDownload()
@@ -61,8 +73,10 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.action_drop_all -> {viewModel.dropDownloadQueue()}
+        when (item.itemId) {
+            R.id.action_drop_all -> {
+                viewModel.dropDownloadQueue()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -76,19 +90,17 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
             viewLifecycleOwner
         ) {
             binding.emptyListText.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
-            if(it.isEmpty()){
+            if (it.isEmpty()) {
                 binding.fab.hide()
-            }
-            else{
+            } else {
                 binding.fab.show()
             }
             (binding.resultsList.adapter as DownloadScheduleAdapter).setList(it)
         }
-        DownloadHandler.instance.downloadInProgress.observe(viewLifecycleOwner){
-            if(it){
+        DownloadHandler.instance.downloadInProgress.observe(viewLifecycleOwner) {
+            if (it) {
                 binding.fab.setImageResource(R.drawable.ic_baseline_pause_24)
-            }
-            else{
+            } else {
                 binding.fab.setImageResource(R.drawable.ic_baseline_arrow_downward_24)
             }
         }
@@ -96,7 +108,7 @@ class DownloadScheduleListFragment : Fragment(), SomeButtonPressedDelegate {
 
 
     override fun buttonPressed(boundElement: Any) {
-        if(boundElement is BooksDownloadSchedule){
+        if (boundElement is BooksDownloadSchedule) {
             viewModel.deleteFromQueue(boundElement)
         }
     }

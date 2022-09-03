@@ -190,7 +190,7 @@ class NewFoundItemAdapter(
                 binding.mainView.background =
                     ResourcesCompat.getDrawable(
                         context.resources,
-                        R.color.sequences_background,
+                        R.color.card_background,
                         context.theme
                     )
             }

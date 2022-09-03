@@ -3,6 +3,7 @@ package net.veldor.flibusta_test.model.adapter
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
@@ -25,7 +26,6 @@ class MassDownloadAdapter(
 
     private var selectedFormat: String? = null
     private var values: ArrayList<FoundEntity> = arrayListOf()
-
 
     private var mLayoutInflater: LayoutInflater =
         LayoutInflater.from(context)
@@ -58,17 +58,25 @@ class MassDownloadAdapter(
             binding.root
         ) {
         init {
-            if(PreferencesHandler.instance.isEInk){
-                binding.bookName.setTextColor(ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.black,
-                    context.theme
-                ))
-                binding.authorName.setTextColor(ResourcesCompat.getColor(
-                    context.resources,
-                    R.color.black,
-                    context.theme
-                ))
+            if (PreferencesHandler.instance.isEInk) {
+                binding.bookName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.black,
+                        context.theme
+                    )
+                )
+                binding.authorName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.black,
+                        context.theme
+                    )
+                )
+            }
+
+            binding.root.setOnClickListener {
+                binding.checkBox.performClick()
             }
         }
 
@@ -87,6 +95,13 @@ class MassDownloadAdapter(
                     if (item.downloadLinks.isEmpty()) {
                         binding.checkBox.isChecked = false
                         binding.selectedFormat.text = "--"
+                        binding.selectedFormat.setTextColor(
+                            ResourcesCompat.getColor(
+                                context.resources,
+                                R.color.textColor,
+                                context.theme
+                            )
+                        )
                         Toast.makeText(
                             context,
                             context.getString(R.string.no_download_links_title),
@@ -147,12 +162,25 @@ class MassDownloadAdapter(
                 binding.selectedFormat.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
-                        R.color.black,
+                        R.color.textColor,
                         context.theme
                     )
                 )
                 binding.checkBox.isChecked = false
             }
+
+            // скрою элементы как в основном вью
+            binding.genreName.visibility =
+                if (PreferencesHandler.instance.showFoundBookGenres) View.VISIBLE else View.GONE
+
+            binding.sequenceName.visibility =
+                if (PreferencesHandler.instance.showFoundBookSequences) View.VISIBLE else View.GONE
+
+            binding.authorName.visibility =
+                if (PreferencesHandler.instance.showAuthors) View.VISIBLE else View.GONE
+
+            binding.translatorName.visibility =
+                if (PreferencesHandler.instance.showFoundBookTranslators) View.VISIBLE else View.GONE
         }
     }
 
@@ -164,7 +192,7 @@ class MassDownloadAdapter(
                     return@outer
                 }
             }
-            if (it.selectedLink == null && it.downloadLinks.isNotEmpty()) {
+            if (it.selectedLink == null && it.downloadLinks.isNotEmpty()  && !PreferencesHandler.instance.strictDownloadFormat) {
                 it.selectedLink = it.downloadLinks[0]
             }
         }
@@ -203,12 +231,15 @@ class MassDownloadAdapter(
                 it.selectedLink = null
             } else {
                 it.downloadLinks.forEach outer@{ link ->
-                    if (FormatHandler.isSame(link.mime, selectedFormat)) {
+                    if (FormatHandler.isSame(
+                            link.mime,
+                            selectedFormat)
+                    ) {
                         it.selectedLink = link
                         return@outer
                     }
                 }
-                if (it.selectedLink == null && it.downloadLinks.isNotEmpty()) {
+                if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.instance.strictDownloadFormat) {
                     it.selectedLink = it.downloadLinks[0]
                 }
             }
@@ -275,7 +306,7 @@ class MassDownloadAdapter(
             values[positon] = book
             // set checked
             book.selectedLink = null
-            if(book.downloadLinks.isNotEmpty()){
+            if (book.downloadLinks.isNotEmpty()) {
                 book.downloadLinks.forEach outer@{ link ->
                     if (FormatHandler.isSame(link.mime, selectedFormat)) {
                         book.selectedLink = link
@@ -286,9 +317,9 @@ class MassDownloadAdapter(
                 if (book.selectedLink == null) {
                     if (PreferencesHandler.instance.strictDownloadFormat || book.downloadLinks.isEmpty()) {
                         book.selectedLink = null
-                        if(book.name == null){
+                        if (book.name == null) {
                             book.downloadLinks.forEach outer@{ link ->
-                                if(link.name != null){
+                                if (link.name != null) {
                                     book.name = link.name!!
                                     notifyItemChanged(positon)
                                     return
@@ -299,7 +330,7 @@ class MassDownloadAdapter(
                         delegate.checked(false)
                     } else if (book.downloadLinks.isNotEmpty()) {
                         book.downloadLinks.forEach outer@{ link ->
-                            if(link.mime != null){
+                            if (link.mime != null) {
                                 book.selectedLink = link
                                 delegate.checked(true)
                                 notifyItemChanged(positon)
@@ -307,14 +338,12 @@ class MassDownloadAdapter(
                             }
                         }
                         book.name = "no links"
-                    }
-                    else{
+                    } else {
                         Log.d("surprise", "MassDownloadAdapter.kt 277: notify book has no links")
                         book.name = "no links"
                     }
                 }
-            }
-            else{
+            } else {
                 Log.d("surprise", "MassDownloadAdapter.kt 277: notify book has no links")
                 book.name = "no links"
             }

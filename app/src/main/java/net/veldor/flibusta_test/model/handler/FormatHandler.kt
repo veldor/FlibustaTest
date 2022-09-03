@@ -148,7 +148,7 @@ object FormatHandler {
                 )
             }
         }
-        return ResourcesCompat.getColor(context.resources, R.color.black, context.theme)
+        return ResourcesCompat.getColor(context.resources, R.color.invertable_black, context.theme)
     }
 
     fun isSame(mime: String?, type: String?): Boolean {

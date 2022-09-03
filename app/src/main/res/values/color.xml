@@ -53,5 +53,8 @@
 
     <color name="lightTextColor">#FFFFFF</color>
     <color name="fabColor">#3e5f75</color>
+    <color name="cardview_background">#EDE9E9</color>
+    <color name="opds_background">#DDDCDC</color>
+    <color name="card_background">#DDDCDC</color>
 
 </resources>

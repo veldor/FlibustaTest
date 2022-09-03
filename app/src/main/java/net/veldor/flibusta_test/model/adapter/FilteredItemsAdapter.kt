@@ -3,10 +3,12 @@ package net.veldor.flibusta_test.model.adapter
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.databinding.FilteredListViewBinding
+import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 
 class FilteredItemsAdapter(
@@ -50,6 +52,18 @@ class FilteredItemsAdapter(
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             binding.filterReason.text = item.filterResult?.toString()
+            // скрою элементы как в основном вью
+            binding.genreName.visibility =
+                if (PreferencesHandler.instance.showFoundBookGenres) View.VISIBLE else View.GONE
+
+            binding.sequenceName.visibility =
+                if (PreferencesHandler.instance.showFoundBookSequences) View.VISIBLE else View.GONE
+
+            binding.authorName.visibility =
+                if (PreferencesHandler.instance.showAuthors) View.VISIBLE else View.GONE
+
+            binding.translatorName.visibility =
+                if (PreferencesHandler.instance.showFoundBookTranslators) View.VISIBLE else View.GONE
         }
     }
 }

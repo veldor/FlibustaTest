@@ -34,8 +34,8 @@
     <TextView
         android:id="@+id/linkCheckProgressText"
         android:layout_width="wrap_content"
-        android:visibility="gone"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,102 +51,124 @@
         android:textColor="@color/textColor"
         app:layout_constraintTop_toBottomOf="@id/linkCheckProgressText" />
 
-    <Button
-        android:id="@+id/all_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/all_title"
-        android:textColor="@color/textColor"
-        app:layout_constraintEnd_toStartOf="@+id/none_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
-
-    <Button
-        android:id="@+id/none_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/none_title"
-        android:textColor="@color/textColor"
-        app:layout_constraintEnd_toStartOf="@+id/invert_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/all_btn"
-        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
-
-    <Button
-        android:id="@+id/invert_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/invert_title"
-        android:textColor="@color/textColor"
-        app:layout_constraintEnd_toStartOf="@+id/unloaded_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/none_btn"
-        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
-
-    <Button
-        android:id="@+id/unloaded_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/unloaded_title"
-        android:textColor="@color/textColor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/invert_btn"
-        app:layout_constraintTop_toBottomOf="@+id/startDownloadButton" />
-
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/strictFormatCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="20dp"
-        android:text="@string/strict_title"
-        app:layout_constraintBottom_toBottomOf="@+id/formatSpinner"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/formatSpinner" />
-
-    <net.veldor.flibusta_test.model.components.DownloadFormatSpinner
-        android:id="@+id/formatSpinner"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/strictFormatCheckbox"
-        app:layout_constraintTop_toBottomOf="@+id/unloaded_btn" />
-
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/saveAsFolderCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="9dp"
-        android:text="@string/save_as_sequence_title"
-        app:layout_constraintBottom_toBottomOf="@+id/customDirName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/customDirName" />
-
-    <EditText
-        android:id="@+id/customDirName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:hint="@string/enter_sequence_name_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/saveAsFolderCheckbox"
-        app:layout_constraintTop_toBottomOf="@+id/formatSpinner" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/resultsList"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScroll"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/customDirName"
-        tools:layout_editor_absoluteX="4dp" />
+        app:layout_constraintBottom_toBottomOf="@+id/resultsList"
+        app:layout_constraintTop_toBottomOf="@id/startDownloadButton">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/downloadOptionsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <Button
+                    android:id="@+id/all_btn"
+                    style="@style/Widget.AppCompat.Button.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/all_title"
+                    android:textColor="@color/invertedTextColor"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/none_btn"
+                    style="@style/Widget.AppCompat.Button.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/none_title"
+                    android:textColor="@color/invertedTextColor"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/invert_btn"
+                    style="@style/Widget.AppCompat.Button.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/invert_title"
+                    android:textColor="@color/invertedTextColor"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/unloaded_btn"
+                    style="@style/Widget.AppCompat.Button.Small"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/unloaded_title"
+                    android:textColor="@color/invertedTextColor"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/strictFormatCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="20dp"
+                android:text="@string/strict_title"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/formatSpinner"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/formatSpinner" />
+
+            <net.veldor.flibusta_test.model.components.DownloadFormatSpinner
+                android:id="@+id/formatSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/strictFormatCheckbox"
+                app:layout_constraintTop_toBottomOf="@+id/downloadOptionsContainer" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/saveAsFolderCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="15dp"
+                android:text="@string/save_as_sequence_title"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/customDirName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/customDirName" />
+
+            <EditText
+                android:id="@+id/customDirName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:hint="@string/enter_sequence_name_title"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/saveAsFolderCheckbox"
+                app:layout_constraintTop_toBottomOf="@+id/formatSpinner" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/resultsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:clipToPadding="false"
+                android:paddingBottom="120dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/customDirName"
+                tools:listitem="@layout/mass_download_list_view" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

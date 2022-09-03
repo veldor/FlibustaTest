@@ -266,7 +266,7 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
                     )
                 ) {
                     viewModel.removeBookmark()
-                    Toast.makeText(requireActivity(), "Bookmark removed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireActivity(), getString(R.string.bookmark_removed_title), Toast.LENGTH_SHORT).show()
                     activity?.invalidateOptionsMenu()
                 } else {
                     showAddBookmarkDialog()

@@ -439,8 +439,8 @@
     <string name="search_in_list_title">Поиск по списку</string>
     <string name="switch_layout_btn">Переключение вида сетки</string>
     <string name="select_result_layout_rows_title">Переключите для выбора размера сетки</string>
-    <string name="mark_as_no_downloaded_title">Книга не прочитана</string>
-    <string name="mark_as_downloaded_title">Книга прочитана</string>
+    <string name="mark_as_no_downloaded_title">Книга не загружена</string>
+    <string name="mark_as_downloaded_title">Книга загружена</string>
     <string name="cache_preferences">Настройки кеша</string>
     <string name="clear_cache_now_title">Очистить кеш</string>
     <string name="max_cache_size_title">Максимальный размер кеша</string>
@@ -604,7 +604,7 @@
     <string name="added_to_subscribes_list_title">Добавлено в подписки</string>
     <string name="layout_rows_count_title">Результатов в строке</string>
     <string name="blocked_entities_pattern">Заблокировано: %d</string>
-    <string name="filter_statistics_disabled_pattern">Заблокировано %d элементов\\nДля просмотра статистики активируйте функцию \"Отображение статистики\" в настройках фильтрации</string>
+    <string name="filter_statistics_disabled_pattern">Заблокировано %d элементов\nДля просмотра статистики активируйте функцию \"Отображение статистики\" в настройках фильтрации</string>
     <string name="item_hidden_title">Скрыто</string>
     <string name="item_displayed_title">Отображается</string>
     <string name="filtered_elements_title">Отфильтрованные элементы</string>
@@ -620,4 +620,6 @@
     <string name="switch_to_base_mirror">Использовать основное зеркало</string>
     <string name="onion_conflict_message">Вы пытаетесь подключиться к .onion зеркалу через VPN. Не все VPN сервисы поддерживают это действие. Вы можете продолжить попытку или переключиться на основное зеркало.</string>
     <string name="full_skip_test_btn_text">Пропустить тест</string>
+    <string name="bookmark_removed_title">Закладка удалена</string>
+    <string name="path_to_file_title">Путь к файлу</string>
 </resources>
