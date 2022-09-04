@@ -91,7 +91,7 @@ class BookmarksAdapter(
             if(PreferencesHandler.instance.isEInk){
                 binding.name.setTextColor(ResourcesCompat.getColor(
                     context.resources,
-                    R.color.black,
+                    R.color.invertable_black,
                     context.theme
                 ))
             }

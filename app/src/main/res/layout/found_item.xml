@@ -24,7 +24,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainView"
             android:layout_margin="5dp"
-            android:background="@color/card_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

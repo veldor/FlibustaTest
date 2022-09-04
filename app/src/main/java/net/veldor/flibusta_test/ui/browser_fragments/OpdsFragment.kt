@@ -82,7 +82,6 @@ class OpdsFragment : Fragment(),
     private var backdropFilterFragment: FilterBackdropFragment? = null
     private var bottomSheetBehavior: BottomSheetBehavior<View>? = null
     private var backdropFragment: OpdsDownloadBackdropFragment? = null
-    private var lastScrolled: Int = -1
     private var mLastQuery: String? = null
     private lateinit var binding: FragmentOpdsBinding
     private lateinit var viewModel: OpdsViewModel
@@ -503,6 +502,35 @@ class OpdsFragment : Fragment(),
     @SuppressLint("RestrictedApi")
     private fun setupUI() {
         if (PreferencesHandler.instance.isEInk) {
+            binding.root.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.white,
+                    requireActivity().theme
+                )
+            )
+            binding.showArrivalsBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.invertable_black,
+                    requireActivity().theme
+                )
+            )
+            binding.showEntitiesByAlphabetBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.invertable_black,
+                    requireActivity().theme
+                )
+            )
+            binding.doOpdsSearchBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.invertable_black,
+                    requireActivity().theme
+                )
+            )
+
             binding.fab.backgroundTintList = ColorStateList.valueOf(
                 ResourcesCompat.getColor(
                     requireActivity().resources,
@@ -567,22 +595,6 @@ class OpdsFragment : Fragment(),
             binding.searchGenre.supportButtonTintList = myColorStateList
             binding.searchSequence.supportButtonTintList = myColorStateList
 
-            binding.showArrivalsBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
-
-            binding.showEntitiesByAlphabetBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
-
             binding.resultsPagingSwitcher.setTextColor(
                 ResourcesCompat.getColor(
                     resources,
@@ -605,14 +617,6 @@ class OpdsFragment : Fragment(),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 binding.useFiltersSwitch.trackTintList = myColorStateList
             }
-
-            binding.doOpdsSearchBtn.setTextColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.text_light_color,
-                    requireActivity().theme
-                )
-            )
         }
 
         binding.bookSearchView.isSubmitButtonEnabled = false
@@ -1074,7 +1078,6 @@ class OpdsFragment : Fragment(),
         }
 
         binding.filterListView.setOnCloseListener {
-            lastScrolled -= 1
             (binding.resultsList.adapter as MyAdapterInterface).setFilterEnabled(false)
             binding.filterListView.visibility = View.GONE
             binding.filterByType.visibility = View.GONE
@@ -1465,7 +1468,6 @@ class OpdsFragment : Fragment(),
         // disable filter
         if (!request.append) {
             // промотаю страницу до верха
-            binding.resultsList.scrollToPosition(0)
             // проверю закладки
             if (BookmarkHandler.instance.bookmarkInList(request.request)) {
                 binding.addBookmarkBtn.setImageDrawable(
@@ -1717,6 +1719,9 @@ class OpdsFragment : Fragment(),
                 OpdsStatement.instance.load(lastResults)
                 (binding.resultsList.adapter as NewFoundItemAdapter?)?.setPressedId(lastResults?.pressedItemId)
                 if (PreferencesHandler.instance.saveOpdsHistory) {
+                    (binding.resultsList.adapter as NewFoundItemAdapter?)?.scrollToPressed()
+                    showBlockedBadge(OpdsStatement.instance.getBlockedResultsSize())
+                    updateDownloadBadge()
                     if (lastResults?.nextPageLink != null) {
                         binding.swipeLayout.isEnabled = true
                     }
@@ -1728,7 +1733,6 @@ class OpdsFragment : Fragment(),
                         append = false,
                         addToHistory = false
                     )
-                    Log.d("surprise", "keyPressed: request from history ${mLastRequest?.request}")
                     newRequestLaunched(mLastRequest!!)
                     viewModel.request(
                         mLastRequest
@@ -1776,14 +1780,12 @@ class OpdsFragment : Fragment(),
     private fun scrollDown() {
         val manager = binding.resultsList.layoutManager as LinearLayoutManager?
         if (manager != null) {
-            var position = manager.findFirstCompletelyVisibleItemPosition()
+            val position = manager.findFirstCompletelyVisibleItemPosition()
             val adapter = binding.resultsList.adapter
             if (adapter != null) {
                 if (position < adapter.itemCount - 1) {
                     manager.scrollToPositionWithOffset(position + 1, 10)
-                    position = manager.findLastCompletelyVisibleItemPosition()
                 }
-                lastScrolled = position
             }
         }
     }
@@ -1832,6 +1834,8 @@ class OpdsFragment : Fragment(),
         if (booksLeft > 0) {
             downloadBadgeDrawable?.isVisible = true
             downloadBadgeDrawable?.number = booksLeft
+        } else {
+            downloadBadgeDrawable?.isVisible = false
         }
     }
 
@@ -1892,6 +1896,16 @@ class OpdsFragment : Fragment(),
             downloadBadgeDrawable!!.horizontalOffset = 60
             downloadBadgeDrawable?.isVisible = false
 
+        }
+    }
+
+
+    private fun updateDownloadBadge() {
+        val currentProgress = DownloadHandler.instance.liveBookDownloadProgress.value
+        if (currentProgress != null) {
+            handleBookDownloadProgress(currentProgress)
+        } else {
+            downloadBadgeDrawable?.isVisible = false
         }
     }
 

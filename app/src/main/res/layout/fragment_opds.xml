@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/opds_background"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/opds_background">
 
     <net.veldor.flibusta_test.ui.components.SwipeUpLayout
         android:id="@+id/swipeLayout"
@@ -136,10 +137,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:visibility="gone"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
-                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -158,6 +159,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/filter_by_name_title"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
@@ -172,6 +174,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/search_author_message"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
@@ -186,6 +189,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/search_genre_message"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
@@ -200,6 +204,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/search_sequence_message"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
 
                 <androidx.appcompat.widget.AppCompatRadioButton
@@ -214,6 +219,7 @@
                     android:gravity="center"
                     android:singleLine="true"
                     android:text="@string/filter_option_translator"
+                    android:textColor="@color/black"
                     android:textSize="11sp" />
             </RadioGroup>
 
@@ -237,7 +243,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/firstBarrier" />
+                app:layout_constraintTop_toBottomOf="@+id/firstBarrier"
+                tools:listitem="@layout/found_item" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/searchOptionsContainer"
@@ -343,6 +350,7 @@
                             android:layout_marginTop="20dp"
                             android:layout_marginRight="50dp"
                             android:text="@string/new_books_title"
+                            android:textColor="@color/always_white"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="parent"
@@ -355,6 +363,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="50dp"
                             android:layout_marginRight="50dp"
+                            android:textColor="@color/always_white"
                             android:visibility="gone"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
@@ -391,6 +400,7 @@
                             android:layout_marginLeft="50dp"
                             android:layout_marginRight="50dp"
                             android:text="@string/do_search_title"
+                            android:textColor="@color/always_white"
                             app:layout_constraintTop_toBottomOf="@+id/use_filters_switch" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </ScrollView>

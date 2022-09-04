@@ -59,17 +59,42 @@ class MassDownloadAdapter(
         ) {
         init {
             if (PreferencesHandler.instance.isEInk) {
+                binding.cardView.setCardBackgroundColor(
+                    ResourcesCompat.getColor(context.resources, R.color.white, context.theme)
+                )
+
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
-                        R.color.black,
+                        R.color.invertable_black,
                         context.theme
                     )
                 )
                 binding.authorName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
-                        R.color.black,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.translatorName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.genreName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.einkTextColor,
+                        context.theme
+                    )
+                )
+                binding.sequenceName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.einkTextColor,
                         context.theme
                     )
                 )
@@ -83,6 +108,7 @@ class MassDownloadAdapter(
         fun bind(item: FoundEntity) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
+
             if (item.name == null) {
                 binding.root.showShimmer(true)
             } else {
@@ -140,7 +166,7 @@ class MassDownloadAdapter(
                     binding.selectedFormat.setTextColor(
                         ResourcesCompat.getColor(
                             context.resources,
-                            R.color.black,
+                            R.color.invertable_black,
                             context.theme
                         )
                     )
@@ -192,7 +218,7 @@ class MassDownloadAdapter(
                     return@outer
                 }
             }
-            if (it.selectedLink == null && it.downloadLinks.isNotEmpty()  && !PreferencesHandler.instance.strictDownloadFormat) {
+            if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.instance.strictDownloadFormat) {
                 it.selectedLink = it.downloadLinks[0]
             }
         }
@@ -233,7 +259,8 @@ class MassDownloadAdapter(
                 it.downloadLinks.forEach outer@{ link ->
                     if (FormatHandler.isSame(
                             link.mime,
-                            selectedFormat)
+                            selectedFormat
+                        )
                     ) {
                         it.selectedLink = link
                         return@outer

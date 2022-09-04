@@ -28,7 +28,7 @@
         android:layout_marginRight="30dp"
         android:textColor="@color/textColor"
         android:layout_marginBottom="30dp"
-        android:background="@drawable/transparent_bg_bordered_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/next_test_btn_text"
         app:layout_constraintBottom_toBottomOf="parent"

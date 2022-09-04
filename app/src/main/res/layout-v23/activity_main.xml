@@ -81,7 +81,7 @@
             android:shadowRadius="3"
             android:text="@string/start_connection_test_btn"
             android:textAlignment="center"
-            android:textColor="@color/textColor"
+            android:textColor="@color/invertedTextColor"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

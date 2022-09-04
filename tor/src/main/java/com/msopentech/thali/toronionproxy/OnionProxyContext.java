@@ -86,16 +86,18 @@ abstract public class OnionProxyContext {
         if (obfsFile.exists()) {
             boolean permissionGrantResult = obfsFile.setExecutable(true);
             if (torrcFile.exists()) {
+                Log.d("surprise", "installFiles 89:  configurete torrc");
                 // append bridges, if it exists, to current file
+                //todo append it
                 File filesDir = new File(workingDirectory.getParentFile(), "files");
                 File bridgesFile = new File(filesDir, "bridges");
-                //todo append it
                 if (bridgesFile.exists() && bridgesFile.isFile() && bridgesFile.length() > 0) {
-                FileOutputStream fileOutputStream = new FileOutputStream(torrcFile, true);
-                fileOutputStream.write("ClientTransportPlugin obfs4 exec ".getBytes());
-                fileOutputStream.write(obfsFile.getAbsolutePath().getBytes());
-                fileOutputStream.write("\n".getBytes());
-                // append bridges
+                    FileOutputStream fileOutputStream = new FileOutputStream(torrcFile, true);
+                    // append bridges
+                    fileOutputStream.write("ClientTransportPlugin obfs4 exec ".getBytes());
+                    fileOutputStream.write(obfsFile.getAbsolutePath().getBytes());
+                    fileOutputStream.write("\n".getBytes());
+                    Log.d("surprise", "installFiles 100:  write bridges");
                     try (BufferedReader br = new BufferedReader(new FileReader(bridgesFile))) {
                         for (String line; (line = br.readLine()) != null; ) {
                             if (!line.isEmpty()) {
@@ -105,15 +107,14 @@ abstract public class OnionProxyContext {
                             }
                         }
                     }
+                    Log.d("surprise", "installFiles 111:  write use bridges rule");
                     fileOutputStream.write("\n".getBytes());
                     fileOutputStream.write("UseBridges 1".getBytes());
                     fileOutputStream.write("\n".getBytes());
                     fileOutputStream.write("\n".getBytes());
                     fileOutputStream.close();
                 }
-            }
-            else{
-                Log.d("surprise", "installFiles 116:  skip add bridges, no file");
+                Log.d("surprise", "installFiles 117:  rule writed");
             }
         } else {
             Log.d("surprise", "installFiles: have no file");
@@ -256,7 +257,7 @@ abstract public class OnionProxyContext {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     return "tor_old";
                 }
-                return "libTor.so";
+                return "tor_new";
             case WINDOWS:
                 return "tor.exe";
             case MAC:

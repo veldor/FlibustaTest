@@ -59,7 +59,7 @@ class DownloadScheduleErrorAdapter(
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
-                        R.color.black,
+                        R.color.invertable_black,
                         context.theme
                     )
                 )

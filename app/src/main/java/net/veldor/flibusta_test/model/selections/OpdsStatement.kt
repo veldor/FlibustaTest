@@ -43,7 +43,6 @@ class OpdsStatement private constructor(val context: Context) {
     }
 
     fun setNextPageLink(value: String?) {
-        Log.d("surprise", "setNextPageLink: setting next page link on $value")
         nextPageLink = value
     }
 
@@ -108,7 +107,6 @@ class OpdsStatement private constructor(val context: Context) {
             // загружу данные
             nextPageLink = lastResults.nextPageLink
             currentRequest = lastResults.currentRequest
-            Log.d("surprise", "load: restore last request ${lastResults.currentRequest}")
             rawResults.clear()
             filteredCounter = 0
             blockedEntities.clear()

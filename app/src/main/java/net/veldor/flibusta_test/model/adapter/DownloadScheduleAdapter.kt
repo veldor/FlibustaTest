@@ -84,12 +84,12 @@ class DownloadScheduleAdapter(
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
-                        R.color.black,
+                        R.color.invertable_black,
                         context.theme
                     )
                 )
                 binding.actionBtn.setColorFilter(
-                    ResourcesCompat.getColor(context.resources, R.color.black, context.theme),
+                    ResourcesCompat.getColor(context.resources, R.color.invertable_black, context.theme),
                     PorterDuff.Mode.SRC_ATOP
                 )
             }

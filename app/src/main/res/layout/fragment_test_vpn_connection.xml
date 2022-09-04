@@ -68,15 +68,15 @@
 
             <Button
                 android:id="@+id/startTestBtn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textColor"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="@string/start_test_btn_text"
+                android:textColor="@color/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -108,10 +108,10 @@
 
             <ImageButton
                 android:id="@+id/error_description_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:contentDescription="@string/error_details_title"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:padding="20dp"
@@ -126,18 +126,18 @@
 
     <Button
         android:id="@+id/next_test_btn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
-        android:textColor="@color/textColor"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/transparent_bg_bordered_button"
         android:enabled="false"
         android:foreground="?android:attr/selectableItemBackground"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:text="@string/next_test_btn_text"
+        android:textColor="@color/textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

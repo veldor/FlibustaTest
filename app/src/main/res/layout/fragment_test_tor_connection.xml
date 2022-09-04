@@ -8,10 +8,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:paddingBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/back_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        android:paddingBottom="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -47,15 +47,15 @@
 
             <Button
                 android:id="@+id/launchTorBtn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:textColor="@color/textColor"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
                 android:text="@string/launch_message"
+                android:textColor="@color/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -63,10 +63,10 @@
 
             <Button
                 android:id="@+id/cancelLaunchTorBtn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:text="@string/fab_cancel_label"
                 android:visibility="gone"
@@ -77,10 +77,10 @@
 
             <ImageButton
                 android:id="@+id/error_description_btn"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:contentDescription="@string/error_details_title"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:padding="20dp"
@@ -94,10 +94,10 @@
 
             <Button
                 android:id="@+id/torFixActions"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/transparent_bg_bordered_button"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
@@ -123,11 +123,11 @@
             <TextView
                 android:id="@+id/test_status_text"
                 android:layout_width="match_parent"
-                android:gravity="center"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="30dp"
+                android:gravity="center"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -139,12 +139,12 @@
 
     <Button
         android:id="@+id/next_test_btn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/transparent_bg_bordered_button"
         android:enabled="false"
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/next_test_btn_text"
@@ -156,15 +156,15 @@
 
     <Button
         android:id="@+id/back_btn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginBottom="10dp"
-        android:textColor="@color/textColor"
-        android:background="@drawable/transparent_bg_bordered_button"
         android:enabled="true"
         android:foreground="?android:attr/selectableItemBackground"
         android:text="@string/backward"
+        android:textColor="@color/textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/next_test_btn"
         app:layout_constraintHorizontal_bias="0.5"

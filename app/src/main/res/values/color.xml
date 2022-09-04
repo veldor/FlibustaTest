@@ -56,5 +56,7 @@
     <color name="cardview_background">#EDE9E9</color>
     <color name="opds_background">#DDDCDC</color>
     <color name="card_background">#DDDCDC</color>
+    <color name="einkTextColor">#000000</color>
+    <color name="disabled">#C8C8C8</color>
 
 </resources>

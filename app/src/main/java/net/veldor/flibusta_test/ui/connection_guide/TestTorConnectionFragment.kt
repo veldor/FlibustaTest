@@ -108,7 +108,7 @@ class TestTorConnectionFragment : Fragment() {
                     )
                 )
             }
-            mTorFixDialog = AlertDialog.Builder(requireContext())
+            mTorFixDialog = AlertDialog.Builder(requireContext(), R.style.dialogTheme)
                 .setView(view)
                 .setTitle(getString(R.string.tor_fix_options_title))
                 .create()

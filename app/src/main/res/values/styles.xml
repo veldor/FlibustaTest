@@ -55,7 +55,9 @@
     </style>
 
     <style name="MyEinkActionBar" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
-        <item name="android:textColorPrimary">#000000</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
         <item name="colorControlNormal">#000000</item>
         <item name="android:textColorSecondary">#000000</item>
         <item name="tint">#000000</item>

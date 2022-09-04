@@ -5,8 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
+import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.FilteredListViewBinding
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
@@ -48,6 +50,47 @@ class FilteredItemsAdapter(
         RecyclerView.ViewHolder(
             binding.root
         ) {
+
+        init {
+            if (PreferencesHandler.instance.isEInk) {
+
+                binding.bookName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.authorName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.translatorName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    )
+                )
+                binding.genreName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.einkTextColor,
+                        context.theme
+                    )
+                )
+                binding.sequenceName.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.einkTextColor,
+                        context.theme
+                    )
+                )
+            }
+        }
         fun bind(item: FoundEntity) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()

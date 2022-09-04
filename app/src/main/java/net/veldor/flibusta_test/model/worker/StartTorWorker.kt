@@ -50,6 +50,7 @@ class StartTorWorker(context: Context, workerParams: WorkerParameters) :
         h.post(myRunnable)
 
         try {
+            Log.d("surprise", "doWork: launch TOR")
             TorHandler.instance.start()
             Log.d("surprise", "StartTorWorker.kt 14: tor is work")
         } catch (e: Throwable) {

@@ -149,11 +149,80 @@ class NewFoundItemAdapter(
             } else {
                 drawElement()
             }
+            if (PreferencesHandler.instance.isEInk) {
+                paintForEInk()
+            }
+        }
+
+        private fun paintForEInk() {
+            binding.rootView.setCardBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    context.theme
+                )
+            )
+            binding.mainView.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.white,
+                    context.theme
+                )
+            )
+            binding.centerActionBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
+            binding.name.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
+            binding.firstInfoBlockLeftParam.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
+            binding.firstInfoBlockRightParam.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
+            binding.secondInfoBlockLeftParam.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
+            binding.secondInfoBlockRightParam.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
         }
 
         fun bindButton() {
             // скрою все элементы кроме главной кнопки
             hideAllExceptMainBtn()
+            binding.centerActionBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                )
+            )
             binding.centerActionBtn.text = context.getString(R.string.show_more_title)
             binding.centerActionBtn.setOnClickListener {
                 delegate.loadMoreBtnClicked()
@@ -167,70 +236,68 @@ class NewFoundItemAdapter(
                 itemInAction = binding.item
                 delegate.buttonPressed(item)
                 item.buttonPressed = true
-                if (!PreferencesHandler.instance.isEInk)
-                    binding.centerActionBtn.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.dark_gray,
-                            context.theme
-                        )
+
+                binding.centerActionBtn.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.dark_gray,
+                        context.theme
                     )
+                )
             }
 
             // handle selected no-book item
             if (pressedItemId != null && item.link == pressedItemId) {
-                binding.mainView.setBackgroundColor(
+                binding.rootView.setCardBackgroundColor(
                     ResourcesCompat.getColor(
                         context.resources,
                         R.color.selected_item_background,
                         context.theme
                     )
                 )
-            } else if (!PreferencesHandler.instance.isEInk) {
-                binding.mainView.background =
-                    ResourcesCompat.getDrawable(
+            } else {
+                binding.rootView.setCardBackgroundColor(
+                    ResourcesCompat.getColor(
                         context.resources,
-                        R.color.card_background,
+                        R.color.cardview_background,
                         context.theme
                     )
+                )
             }
             // handle button pressed
             if (item.buttonPressed) {
-                if (!PreferencesHandler.instance.isEInk)
-                    binding.centerActionBtn.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.book_name_color,
-                            context.theme
-                        )
+                binding.centerActionBtn.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.book_name_color,
+                        context.theme
                     )
+                )
             } else {
-                if (!PreferencesHandler.instance.isEInk)
-                    binding.centerActionBtn.setTextColor(
-                        ResourcesCompat.getColor(
-                            context.resources,
-                            R.color.dark_gray,
-                            context.theme
-                        )
+                binding.centerActionBtn.setTextColor(
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.dark_gray,
+                        context.theme
                     )
+                )
             }
         }
 
 
         private fun drawBook() {
             showBookItems()
+            binding.centerActionBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.book_name_color,
+                    context.theme
+                )
+            )
             binding.name.setPadding(30, 10, 30, 10)
             binding.centerActionBtn.setOnLongClickListener(null)
             binding.rootView.setOnLongClickListener(null)
             binding.centerActionBtn.text = context.getString(R.string.download_message)
-            if (!PreferencesHandler.instance.isEInk)
-                binding.root.setBackgroundColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.background_color,
-                        context.theme
-                    )
-                )
             if (item.downloadLinks.isEmpty()) {
                 binding.centerActionBtn.visibility = View.INVISIBLE
             } else {
@@ -238,15 +305,13 @@ class NewFoundItemAdapter(
             }
             binding.rootView.setOnClickListener {}
             binding.name.visibility = View.VISIBLE
-            if (!PreferencesHandler.instance.isEInk) {
-                binding.name.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.book_name_color,
-                        context.theme
-                    )
+            binding.name.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.book_name_color,
+                    context.theme
                 )
-            }
+            )
             binding.name.isClickable = true
             makeSelectable(binding.name)
             binding.name.setOnClickListener {
@@ -446,14 +511,13 @@ class NewFoundItemAdapter(
             binding.thirdBlockLeftElement.text = item.format
             binding.thirdBlockCenterElement.text = item.downloadsCount
             binding.thirdBlockRightElement.text = item.size
-            if (!PreferencesHandler.instance.isEInk)
-                binding.centerActionBtn.setTextColor(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.book_name_color,
-                        context.theme
-                    )
+            binding.centerActionBtn.setTextColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.book_name_color,
+                    context.theme
                 )
+            )
             if (!item.read) {
                 binding.leftActionBtn.background.setColorFilter(
                     ResourcesCompat.getColor(
@@ -611,35 +675,54 @@ class NewFoundItemAdapter(
             } else {
                 makeNoSelectable(binding.name)
             }
-            if (!PreferencesHandler.instance.isEInk) {
-                when (item.type) {
-                    TYPE_GENRE -> {
-                        binding.name.setTextColor(
-                            ResourcesCompat.getColor(
-                                context.resources,
-                                R.color.genre_text_color,
-                                context.theme
-                            )
+            when (item.type) {
+                TYPE_GENRE -> {
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.genre_text_color,
+                            context.theme
                         )
-                    }
-                    TYPE_SEQUENCE -> {
-                        binding.name.setTextColor(
-                            ResourcesCompat.getColor(
-                                context.resources,
-                                R.color.sequences_text_color,
-                                context.theme
-                            )
+                    )
+                    binding.name.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.genre_text_color,
+                            context.theme
                         )
-                    }
-                    TYPE_AUTHOR, TYPE_AUTHORS -> {
-                        binding.name.setTextColor(
-                            ResourcesCompat.getColor(
-                                context.resources,
-                                R.color.author_text_color,
-                                context.theme
-                            )
+                    )
+                }
+                TYPE_SEQUENCE -> {
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.sequences_text_color,
+                            context.theme
                         )
-                    }
+                    )
+                    binding.name.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.sequences_text_color,
+                            context.theme
+                        )
+                    )
+                }
+                TYPE_AUTHOR, TYPE_AUTHORS -> {
+                    binding.centerActionBtn.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.author_text_color,
+                            context.theme
+                        )
+                    )
+                    binding.name.setTextColor(
+                        ResourcesCompat.getColor(
+                            context.resources,
+                            R.color.author_text_color,
+                            context.theme
+                        )
+                    )
                 }
             }
             if (PreferencesHandler.instance.showElementDescription) {

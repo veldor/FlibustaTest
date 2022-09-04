@@ -38,7 +38,9 @@
 
     <color name="lightTextColor">#A1A1A1</color>
     <color name="fabColor">#373737</color>
-    <color name="cardview_background">#ffffff</color>
+    <color name="cardview_background">#070707</color>
     <color name="opds_background">#000000</color>
     <color name="card_background">#51301660</color>
+    <color name="einkTextColor">#FFFFFF</color>
+    <color name="disabled">#373737</color>
 </resources>

@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/book_name_color</item>
-        <item name="android:textColorSecondary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/disabled</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:windowBackground">@color/background_color</item>
         <item name="windowActionBar">false</item>
@@ -16,7 +16,7 @@
         <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
     </style>
 
-    <style name="dialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+    <style name="dialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textColorPrimary">@color/textColor</item>
         <item name="colorPrimary">@color/colorPrimary</item>

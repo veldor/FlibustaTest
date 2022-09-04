@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,6 +56,12 @@ class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate, BookInfoAdded
     }
 
     private fun setupUI() {
+        if (PreferencesHandler.instance.isEInk) {
+            binding.allBtn.setTextColor(ResourcesCompat.getColor(resources, R.color.einkTextColor, requireActivity().theme))
+            binding.noneBtn.setTextColor(ResourcesCompat.getColor(resources, R.color.einkTextColor, requireActivity().theme))
+            binding.invertBtn.setTextColor(ResourcesCompat.getColor(resources, R.color.einkTextColor, requireActivity().theme))
+            binding.unloadedBtn.setTextColor(ResourcesCompat.getColor(resources, R.color.einkTextColor, requireActivity().theme))
+        }
         binding.saveAsFolderCheckbox.setOnCheckedChangeListener { _, state ->
             binding.customDirName.isEnabled = state
         }
@@ -178,7 +185,7 @@ class OpdsDownloadBackdropFragment : Fragment(), CheckboxDelegate, BookInfoAdded
     }
 
     override fun checkProgress(linksChecked: Int, currentProgress: Int, size: Int?) {
-        requireActivity().runOnUiThread{
+        requireActivity().runOnUiThread {
             if (size != null && size > 0) {
                 if (currentProgress <= size) {
                     binding.linksCheckProgress.visibility = View.VISIBLE

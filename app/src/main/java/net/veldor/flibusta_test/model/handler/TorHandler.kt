@@ -45,7 +45,9 @@ class TorHandler private constructor() {
     }
 
     fun start() {
+        Log.d("surprise", "start: launch connection")
         if (!startInProgress) {
+            Log.d("surprise", "start: process initialized")
             try {
                 startInProgress = true
                 if (tor == null) {
@@ -60,11 +62,17 @@ class TorHandler private constructor() {
                     BridgesHandler().getBridges()
                 }
                 tor!!.interruptLaunch()
+                Thread.sleep(1000)
+                Log.d("surprise", "start: TOR is starting")
                 tor!!.startWithRepeat(
                     TOTAL_SECONDS_PER_TOR_STARTUP,
                     TOTAL_TRIES_PER_TOR_STARTUP
                 )
+                Log.d("surprise", "start: DONE")
             } catch (e: Exception) {
+                Log.d("surprise", "start: have error on start")
+                Log.d("surprise", "start: ${e.message}")
+                e.printStackTrace()
                 UniversalWebClient.connectionError.postValue(e)
             }
             startInProgress = false
