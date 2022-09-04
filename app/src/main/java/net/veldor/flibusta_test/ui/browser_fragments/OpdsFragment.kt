@@ -1862,10 +1862,10 @@ class OpdsFragment : Fragment(),
             // добавлю бейджи сразу тут
             blockedBadgeDrawable = BadgeDrawable.create(requireActivity())
             BadgeUtils.attachBadgeDrawable(blockedBadgeDrawable!!, binding.showBlockedStateBtn)
-            blockedBadgeDrawable!!.maxCharacterCount = 5
-            blockedBadgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
-            blockedBadgeDrawable!!.verticalOffset = 40
-            blockedBadgeDrawable!!.horizontalOffset = 60
+            blockedBadgeDrawable?.maxCharacterCount = 5
+            blockedBadgeDrawable?.badgeGravity = BadgeDrawable.BOTTOM_END
+            blockedBadgeDrawable?.verticalOffset = 40
+            blockedBadgeDrawable?.horizontalOffset = 60
 
             if (OpdsStatement.instance.getBlockedResultsSize() > 0) {
                 blockedBadgeDrawable?.number = OpdsStatement.instance.getBlockedResultsSize()
@@ -1876,10 +1876,10 @@ class OpdsFragment : Fragment(),
 
             badgeDrawable = BadgeDrawable.create(requireContext())
             BadgeUtils.attachBadgeDrawable(badgeDrawable!!, binding.sortBtn)
-            badgeDrawable!!.maxCharacterCount = 5
-            badgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
-            badgeDrawable!!.verticalOffset = 40
-            badgeDrawable!!.horizontalOffset = 60
+            badgeDrawable?.maxCharacterCount = 5
+            badgeDrawable?.badgeGravity = BadgeDrawable.BOTTOM_END
+            badgeDrawable?.verticalOffset = 40
+            badgeDrawable?.horizontalOffset = 60
 
             if (OpdsStatement.instance.results.size > 0) {
                 badgeDrawable?.number = OpdsStatement.instance.results.size
@@ -1890,10 +1890,10 @@ class OpdsFragment : Fragment(),
 
             downloadBadgeDrawable = BadgeDrawable.create(requireActivity())
             BadgeUtils.attachBadgeDrawable(downloadBadgeDrawable!!, binding.downloadStateBtn)
-            downloadBadgeDrawable!!.maxCharacterCount = 5
-            downloadBadgeDrawable!!.badgeGravity = BadgeDrawable.BOTTOM_END
-            downloadBadgeDrawable!!.verticalOffset = 40
-            downloadBadgeDrawable!!.horizontalOffset = 60
+            downloadBadgeDrawable?.maxCharacterCount = 5
+            downloadBadgeDrawable?.badgeGravity = BadgeDrawable.BOTTOM_END
+            downloadBadgeDrawable?.verticalOffset = 40
+            downloadBadgeDrawable?.horizontalOffset = 60
             downloadBadgeDrawable?.isVisible = false
 
         }
@@ -1911,8 +1911,8 @@ class OpdsFragment : Fragment(),
 
     private fun showBadge(resultsCount: Int) {
         if (resultsCount > 0) {
-            badgeDrawable!!.isVisible = true
-            badgeDrawable!!.number = resultsCount
+            badgeDrawable?.isVisible = true
+            badgeDrawable?.number = resultsCount
         } else {
             badgeDrawable?.isVisible = false
         }
@@ -1920,8 +1920,8 @@ class OpdsFragment : Fragment(),
 
     private fun showBlockedBadge(count: Int) {
         if (count > 0) {
-            blockedBadgeDrawable!!.isVisible = true
-            blockedBadgeDrawable!!.number = count
+            blockedBadgeDrawable?.isVisible = true
+            blockedBadgeDrawable?.number = count
         } else {
             blockedBadgeDrawable?.isVisible = false
         }

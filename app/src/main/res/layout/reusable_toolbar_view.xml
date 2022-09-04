@@ -9,11 +9,10 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        app:title="test"
-        app:titleTextAppearance="@style/AppTheme.Toolbar.Title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:visibility="gone"
+        app:titleTextColor="@color/always_white"
+        android:layout_height="wrap_content"
         android:theme="@style/MyActionBar" />
 
     <androidx.appcompat.widget.Toolbar

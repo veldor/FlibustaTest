@@ -302,12 +302,10 @@ open class WebViewFragment : Fragment(), DownloadLinksDelegate, DownloadTaskAppe
             .setPositiveButton(getString(R.string.add_title)) { _, _ ->
                 val categoryTextView =
                     layout.findViewById<TextInputEditText>(R.id.addNewFolderText)
-                val category: BookmarkItem
-                if (categoryTextView.text?.isNotEmpty() == true) {
-                    category =
-                        BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
+                val category: BookmarkItem = if (categoryTextView.text?.isNotEmpty() == true) {
+                    BookmarkHandler.instance.addCategory(categoryTextView.text.toString())
                 } else {
-                    category = spinner.selectedItem as BookmarkItem
+                    spinner.selectedItem as BookmarkItem
                 }
                 viewModel.addBookmark(
                     category,
