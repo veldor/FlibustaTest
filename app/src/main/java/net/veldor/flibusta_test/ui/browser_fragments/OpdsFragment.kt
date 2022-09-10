@@ -736,6 +736,9 @@ class OpdsFragment : Fragment(),
                     View.VISIBLE
                 binding.bookSearchView.visibility = View.GONE
                 binding.searchOptionsContainer.visibility = View.GONE
+                if (OpdsStatement.instance.notInitialized) {
+                    binding.quickLinksPanel.visibility = View.VISIBLE
+                }
                 binding.swipeLayout.isEnabled = true
             }
         }
@@ -958,13 +961,13 @@ class OpdsFragment : Fragment(),
         binding.doOpdsSearchBtn.setOnClickListener {
             binding.bookSearchView.setQuery(binding.bookSearchView.query, true)
         }
+
         val a =
             NewFoundItemAdapter(OpdsStatement.instance.results, this, requireActivity())
         // recycler setup
         a.setHasStableIds(true)
         // load results if exists
         binding.resultsList.adapter = a
-        Log.d("surprise", "setupUI: pressed item is ${OpdsStatement.instance.getPressedItemId()}")
         a.setPressedId(OpdsStatement.instance.getPressedItemId())
         val rowsCount = PreferencesHandler.instance.opdsLayoutRowsCount
         if (rowsCount == 0) {
@@ -972,6 +975,10 @@ class OpdsFragment : Fragment(),
         } else {
             binding.resultsList.layoutManager =
                 GridLayoutManager(requireActivity(), rowsCount + 1)
+        }
+
+        if (OpdsStatement.instance.notInitialized) {
+            binding.quickLinksPanel.visibility = View.VISIBLE
         }
 
         if (linkForLoad != null) {
@@ -1105,6 +1112,87 @@ class OpdsFragment : Fragment(),
             PreferencesHandler.instance.toolbarViewConfigShown
         binding.nightModeSwitcher.isVisible = PreferencesHandler.instance.toolbarThemeShown
         binding.readerModeSwitcher.isVisible = PreferencesHandler.instance.toolbarEinkShown
+
+        binding.quickFoundBooksBtn.setOnClickListener {
+            binding.searchOptionsContainer.visibility = View.VISIBLE
+            binding.searchBook.performClick()
+            binding.bookSearchView.visibility = View.VISIBLE
+            binding.bookSearchView.isIconified = false
+            binding.bookSearchView.requestFocus()
+            binding.quickLinksPanel.visibility = View.GONE
+        }
+        binding.quickFoundAuthorsBtn.setOnClickListener {
+            binding.searchOptionsContainer.visibility = View.VISIBLE
+            binding.searchAuthor.performClick()
+            binding.bookSearchView.visibility = View.VISIBLE
+            binding.bookSearchView.isIconified = false
+            binding.bookSearchView.requestFocus()
+            binding.quickLinksPanel.visibility = View.GONE
+        }
+        binding.quickFoundGenresBtn.setOnClickListener {
+            binding.searchOptionsContainer.visibility = View.VISIBLE
+            binding.searchGenre.performClick()
+            binding.bookSearchView.visibility = View.VISIBLE
+            binding.bookSearchView.isIconified = false
+            binding.bookSearchView.requestFocus()
+            binding.quickLinksPanel.visibility = View.GONE
+        }
+        binding.quickFoundSequencesBtn.setOnClickListener {
+            binding.searchOptionsContainer.visibility = View.VISIBLE
+            binding.searchSequence.performClick()
+            binding.bookSearchView.visibility = View.VISIBLE
+            binding.bookSearchView.isIconified = false
+            binding.bookSearchView.requestFocus()
+            binding.quickLinksPanel.visibility = View.GONE
+        }
+        binding.quickShowNewBooks.setOnClickListener {
+            bookmarkReservedName = "Новинки"
+            mLastRequest = RequestItem(
+                "/opds/new/0/new",
+                append = false,
+                addToHistory = true
+            )
+            viewModel.request(
+                mLastRequest
+            )
+            newRequestLaunched(mLastRequest!!)
+        }
+        binding.quickShowNewAuthors.setOnClickListener {
+            bookmarkReservedName = "Новинки по авторам"
+            mLastRequest = RequestItem(
+                "/opds/newauthors",
+                append = false,
+                addToHistory = true
+            )
+            viewModel.request(
+                mLastRequest
+            )
+            newRequestLaunched(mLastRequest!!)
+        }
+        binding.quickShowNewGenres.setOnClickListener {
+            bookmarkReservedName = "Новинки по жанрам"
+            mLastRequest = RequestItem(
+                "/opds/newgenres",
+                append = false,
+                addToHistory = true
+            )
+            viewModel.request(
+                mLastRequest
+            )
+            newRequestLaunched(mLastRequest!!)
+        }
+        binding.quickShowNewSequences.setOnClickListener {
+            bookmarkReservedName = "Новинки по сериям"
+            mLastRequest = RequestItem(
+                "/opds/newsequences",
+                append = false,
+                addToHistory = true
+            )
+            viewModel.request(
+                mLastRequest
+            )
+            newRequestLaunched(mLastRequest!!)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -1297,7 +1385,7 @@ class OpdsFragment : Fragment(),
                     newRequestLaunched(mLastRequest!!)
                 } else {
                     // выдам список действий по автору
-                    showAuthorViewSelect(item, null)
+                    showAuthorViewSelect(item, item)
                 }
             }
             TYPE_BOOK -> {
@@ -1354,7 +1442,7 @@ class OpdsFragment : Fragment(),
                     )
                 } else {
                     // выдам список действий по автору
-                    showAuthorViewSelect(item, null)
+                    showAuthorViewSelect(item, item)
                 }
                 newRequestLaunched(mLastRequest!!)
             }
@@ -1465,6 +1553,8 @@ class OpdsFragment : Fragment(),
     }
 
     private fun newRequestLaunched(request: RequestItem) {
+        OpdsStatement.instance.notInitialized = false
+        binding.quickLinksPanel.visibility = View.GONE
         // disable filter
         if (!request.append) {
             // промотаю страницу до верха
@@ -1858,6 +1948,9 @@ class OpdsFragment : Fragment(),
 
     @com.google.android.material.badge.ExperimentalBadgeUtils
     override fun drawBadges() {
+        while (activity == null) {
+            Thread.sleep(200)
+        }
         activity?.runOnUiThread {
             // добавлю бейджи сразу тут
             blockedBadgeDrawable = BadgeDrawable.create(requireActivity())
@@ -1895,7 +1988,6 @@ class OpdsFragment : Fragment(),
             downloadBadgeDrawable?.verticalOffset = 40
             downloadBadgeDrawable?.horizontalOffset = 60
             downloadBadgeDrawable?.isVisible = false
-
         }
     }
 

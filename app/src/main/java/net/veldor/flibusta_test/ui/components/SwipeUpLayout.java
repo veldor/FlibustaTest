@@ -36,6 +36,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -706,27 +707,32 @@ public class SwipeUpLayout extends ViewGroup implements NestedScrollingParent3,
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int width = getMeasuredWidth();
-        final int height = getMeasuredHeight();
-        if (getChildCount() == 0) {
-            return;
+        try{
+            final int width = getMeasuredWidth();
+            final int height = getMeasuredHeight();
+            if (getChildCount() == 0) {
+                return;
+            }
+            if (mTarget == null) {
+                ensureTarget();
+            }
+            if (mTarget == null) {
+                return;
+            }
+            final View child = mTarget;
+            final int childLeft = getPaddingLeft();
+            final int childTop = getPaddingTop();
+            final int childWidth = width - getPaddingLeft() - getPaddingRight();
+            final int childHeight = height - getPaddingTop() - getPaddingBottom();
+            child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
+            int circleWidth = mCircleView.getMeasuredWidth();
+            int circleHeight = mCircleView.getMeasuredHeight();
+            mCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop,
+                    (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
         }
-        if (mTarget == null) {
-            ensureTarget();
+        catch (IndexOutOfBoundsException e){
+            Log.d("surprise", "onLayout 734:  error when scroll detected!");
         }
-        if (mTarget == null) {
-            return;
-        }
-        final View child = mTarget;
-        final int childLeft = getPaddingLeft();
-        final int childTop = getPaddingTop();
-        final int childWidth = width - getPaddingLeft() - getPaddingRight();
-        final int childHeight = height - getPaddingTop() - getPaddingBottom();
-        child.layout(childLeft, childTop, childLeft + childWidth, childTop + childHeight);
-        int circleWidth = mCircleView.getMeasuredWidth();
-        int circleHeight = mCircleView.getMeasuredHeight();
-        mCircleView.layout((width / 2 - circleWidth / 2), mCurrentTargetOffsetTop,
-                (width / 2 + circleWidth / 2), mCurrentTargetOffsetTop + circleHeight);
     }
 
     @Override

@@ -53,7 +53,7 @@ object UrlHelper {
         if (PreferencesHandler.instance.isCustomMirror) {
             val customMirror = PreferencesHandler.instance.customMirror
             if (customMirror.isNotEmpty()) {
-                return customMirror
+                return customMirror.trim()
             }
         }
         if (PreferencesHandler.instance.useTorMirror) {

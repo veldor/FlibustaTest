@@ -15,6 +15,7 @@ import net.veldor.flibusta_test.model.web.UniversalWebClient
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.net.SocketTimeoutException
 import kotlin.concurrent.thread
 
 
@@ -126,42 +127,45 @@ class CoverHandler {
         val response = UniversalWebClient().rawRequest(item.coverUrl!!, false)
         val status = response.statusCode
         if (status < 400) {
-            var tempFile: File? = null
-            when (val contentTypeHeader = response.headers!!["Content-Type"]) {
-                "image/jpeg" -> {
-                    tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
-                    tempFile.deleteOnExit()
-                    val out: OutputStream = FileOutputStream(tempFile)
-                    var read: Int
-                    val buffer = ByteArray(1024)
-                    while (response.inputStream!!.read(buffer).also { read = it } > 0) {
-                        out.write(buffer, 0, read)
+            try{
+                var tempFile: File? = null
+                when (val contentTypeHeader = response.headers!!["Content-Type"]) {
+                    "image/jpeg" -> {
+                        tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
+                        tempFile.deleteOnExit()
+                        val out: OutputStream = FileOutputStream(tempFile)
+                        var read: Int
+                        val buffer = ByteArray(1024)
+                        while (response.inputStream!!.read(buffer).also { read = it } > 0) {
+                            out.write(buffer, 0, read)
+                        }
+                        out.close()
+                        response.inputStream.close()
                     }
-                    out.close()
-                    response.inputStream.close()
-                }
-                "image/png" -> {
-                    tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "png")
-                    tempFile.deleteOnExit()
-                    val out: OutputStream = FileOutputStream(tempFile)
-                    var read: Int
-                    val buffer = ByteArray(1024)
-                    while (response.inputStream!!.read(buffer).also { read = it } > 0) {
-                        out.write(buffer, 0, read)
+                    "image/png" -> {
+                        tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "png")
+                        tempFile.deleteOnExit()
+                        val out: OutputStream = FileOutputStream(tempFile)
+                        var read: Int
+                        val buffer = ByteArray(1024)
+                        while (response.inputStream!!.read(buffer).also { read = it } > 0) {
+                            out.write(buffer, 0, read)
+                        }
+                        out.close()
+                        response.inputStream.close()
                     }
-                    out.close()
-                    response.inputStream.close()
+                    else -> {
+                        Log.d(
+                            "surprise",
+                            "loadPic: pic ${item.coverUrl} is ${contentTypeHeader}"
+                        )
+                    }
                 }
-                else -> {
-                    Log.d(
-                        "surprise",
-                        "loadPic: pic ${item.coverUrl} is ${contentTypeHeader}"
-                    )
+                if (tempFile != null && tempFile.isFile && tempFile.length() > 0) {
+                    item.cover = tempFile
                 }
             }
-            if (tempFile != null && tempFile.isFile && tempFile.length() > 0) {
-                item.cover = tempFile
-            }
+            catch (_: SocketTimeoutException){}
         }
     }
 }

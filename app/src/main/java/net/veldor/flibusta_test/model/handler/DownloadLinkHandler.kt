@@ -10,18 +10,20 @@ import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 object DownloadLinkHandler {
     fun addDownloadLink(link: DownloadLink) {
-        val newScheduleElement = BooksDownloadSchedule()
-        Log.d("surprise", "DownloadLinkHandler.kt 10: here")
-        newScheduleElement.bookId = link.id!!
-        newScheduleElement.author = link.author!!
-        newScheduleElement.link = link.url!!
-        newScheduleElement.format = link.mime!!
-        newScheduleElement.size = link.size ?: "0"
-        newScheduleElement.authorDirName = link.authorDirName!!
-        newScheduleElement.sequenceDirName = link.sequenceDirName!!
-        newScheduleElement.reservedSequenceName = link.reservedSequenceName
-        newScheduleElement.name = UrlHelper.getBookName(link)
-        DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().insert(newScheduleElement)
+        if (link.id != null) {
+            val newScheduleElement = BooksDownloadSchedule()
+            newScheduleElement.bookId = link.id!!
+            newScheduleElement.author = link.author!!
+            newScheduleElement.link = link.url!!
+            newScheduleElement.format = link.mime!!
+            newScheduleElement.size = link.size ?: "0"
+            newScheduleElement.authorDirName = link.authorDirName!!
+            newScheduleElement.sequenceDirName = link.sequenceDirName!!
+            newScheduleElement.reservedSequenceName = link.reservedSequenceName
+            newScheduleElement.name = UrlHelper.getBookName(link)
+            DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
+                .insert(newScheduleElement)
+        }
     }
 
     fun createDownloadLinkFromHref(link: String): DownloadLink? {
@@ -62,12 +64,14 @@ object DownloadLinkHandler {
                             aName = contentArray[0]
                             bName = clearName.replace(aName + "_", "")
                             // попробую найти имя серии
-                            if(bName.contains("_")){
+                            if (bName.contains("_")) {
                                 sName = bName.substringBeforeLast("_").substringBeforeLast("_")
                                 bName = bName.replace(sName + "_", "")
-                                Log.d("surprise", "DownloadLinkHandler.kt 69: sequence name is $sName")
-                            }
-                            else{
+                                Log.d(
+                                    "surprise",
+                                    "DownloadLinkHandler.kt 69: sequence name is $sName"
+                                )
+                            } else {
                                 sName = ""
                             }
 

@@ -1,6 +1,8 @@
 package net.veldor.flibusta_test.ui
 
 import android.graphics.BitmapFactory
+import android.graphics.ColorFilter
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -73,7 +75,10 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
         }
         sortShowSpinner = binding.sortShowSpinner
         if (PreferencesHandler.instance.rememberFavoriteFormat && PreferencesHandler.instance.favoriteFormat != null) {
-            Log.d("surprise", "setupUI: select with favorite format ${PreferencesHandler.instance.favoriteFormat}")
+            Log.d(
+                "surprise",
+                "setupUI: select with favorite format ${PreferencesHandler.instance.favoriteFormat}"
+            )
             sortShowSpinner.setSortList(
                 book!!.downloadLinks,
                 PreferencesHandler.instance.favoriteFormat
@@ -86,8 +91,7 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
         }
         sortShowSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>, view: View?
-                , pos: Int,
+                parent: AdapterView<*>, view: View?, pos: Int,
                 id: Long
             ) {
                 binding.formatAvailability.text = getString(R.string.checking_availability_title)
@@ -100,24 +104,29 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
                 )
                 val selectedValue = (parent.adapter as FormatAdapter).getItem(pos) as String
                 book?.downloadLinks?.forEach {
-                    if(FormatHandler.isSame(it.mime, selectedValue)){
+                    if (FormatHandler.isSame(it.mime, selectedValue)) {
                         selectedLink = it
                         return@forEach
                     }
                 }
 
-                if(selectedLink == null){
+                if (selectedLink == null) {
                     selectedLink = book?.downloadLinks?.get(0)
                 }
-                if(selectedLink != null){
+                if (selectedLink != null) {
+                    binding.formatAvailabilityProgress.visibility = View.VISIBLE
+                    binding.formatAvailability.setCompoundDrawables(null, null, null, null)
                     viewModel.checkFormatAvailability(selectedLink!!)
                     getDownloadedFileName()
                     if (sortShowSpinner.notFirstSelection) {
-                        (parent.adapter as FormatAdapter).setSelection(binding.sortShowSpinner.getItemAtPosition(pos) as String)
+                        (parent.adapter as FormatAdapter).setSelection(
+                            binding.sortShowSpinner.getItemAtPosition(
+                                pos
+                            ) as String
+                        )
                         if (PreferencesHandler.instance.rememberFavoriteFormat) {
                             PreferencesHandler.instance.favoriteFormat =
                                 FormatHandler.getShortFromFullMimeWithoutZip(selectedLink!!.mime)
-                            Log.d("surprise", "onItemSelected: saved ${PreferencesHandler.instance.favoriteFormat}")
                         }
                     }
                 }
@@ -129,23 +138,24 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
             }
         }
         binding.startDownloadButton.setOnClickListener {
-            if(selectedLink != null && selectedLink?.id != null){
+            if (selectedLink != null && selectedLink?.id != null) {
                 // download book in current format
                 viewModel.addToDownloadQueue(selectedLink)
                 if (PreferencesHandler.instance.rememberFavoriteFormat) {
                     Log.d("surprise", "setupUI: save here")
-                    PreferencesHandler.instance.favoriteFormat = FormatHandler.getShortFromFullMimeWithoutZip(selectedLink!!.mime!!)
+                    PreferencesHandler.instance.favoriteFormat =
+                        FormatHandler.getShortFromFullMimeWithoutZip(selectedLink!!.mime!!)
                 }
                 finish()
-            }
-            else{
-                Toast.makeText(this, getString(R.string.no_download_links_title), Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(this, getString(R.string.no_download_links_title), Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }
 
     private fun getDownloadedFileName() {
-        if(selectedLink != null){
+        if (selectedLink != null) {
             binding.pathToFile.text = UrlHelper.getDownloadedBookPath(selectedLink!!, true)
         }
     }
@@ -170,12 +180,19 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
 
     override fun formatAvailable(size: String?) {
         runOnUiThread {
+            binding.formatAvailabilityProgress.visibility = View.INVISIBLE
+            val img = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_check_24, theme)
+            img!!.setColorFilter(
+                ResourcesCompat.getColor(resources, R.color.darkGreen, theme),
+                PorterDuff.Mode.SRC_ATOP
+            )
+            binding.formatAvailability.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
             binding.formatAvailability.text =
                 String.format(Locale.ENGLISH, getString(R.string.format_available_pattern), size)
             binding.formatAvailability.setTextColor(
                 ResourcesCompat.getColor(
                     App.instance.resources,
-                    R.color.sequences_text_color,
+                    R.color.darkGreen,
                     null
                 )
             )
@@ -184,11 +201,18 @@ class DownloadBookSetupActivity : AppCompatActivity(), Preference.OnPreferenceCh
 
     override fun formatUnavailable() {
         runOnUiThread {
+            binding.formatAvailabilityProgress.visibility = View.INVISIBLE
+            val img = ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_block_24, theme)
+            img!!.setColorFilter(
+                ResourcesCompat.getColor(resources, R.color.darkRed, theme),
+                PorterDuff.Mode.SRC_ATOP
+            )
+            binding.formatAvailability.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
             binding.formatAvailability.text = getString(R.string.format_not_available_title)
             binding.formatAvailability.setTextColor(
                 ResourcesCompat.getColor(
                     App.instance.resources,
-                    R.color.book_name_color,
+                    R.color.darkRed,
                     null
                 )
             )

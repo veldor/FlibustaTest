@@ -24,6 +24,9 @@ class TorLogFragment : Fragment(){
     private fun setupUI() {
         OnionProxyManagerEventHandler.liveLastLog.observe(viewLifecycleOwner){
             binding.currentLogMessage.text = it
+            if(it.contains("%")){
+                binding.currentProgressMessage.text = it
+            }
             binding.fullTextLog.append("$it\n")
         }
     }

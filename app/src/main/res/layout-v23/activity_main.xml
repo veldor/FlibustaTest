@@ -187,7 +187,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="75dp"
+        app:behavior_peekHeight="120dp"
         app:behavior_skipCollapsed="false"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 

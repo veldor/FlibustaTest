@@ -137,10 +137,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:visibility="gone"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -404,6 +404,133 @@
                             app:layout_constraintTop_toBottomOf="@+id/use_filters_switch" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </ScrollView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/quickLinksPanel"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/quickLinksTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/quick_links_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/quickLinksTitle">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/quick_show_new_books"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/new_books_title" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_authors"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/new_authors_title" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_genres"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/new_genres_title" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_sequences"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/new_sequences_title" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/quick_found_books_btn"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/find_books_title" />
+                        <Button
+                            android:id="@+id/quick_found_authors_btn"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/find_authors_title" />
+                        <Button
+                            android:id="@+id/quick_found_genres_btn"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/find_genres_title" />
+                        <Button
+                            android:id="@+id/quick_found_sequences_btn"
+                            android:layout_width="match_parent"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_marginLeft="20dp"
+                            android:textSize="12sp"
+                            android:layout_marginRight="20dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/find_sequences_title" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+                </androidx.appcompat.widget.LinearLayoutCompat>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

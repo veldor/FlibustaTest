@@ -673,8 +673,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetTimer() {
-        mCdt?.cancel()
-        mProgressCounter = 0
-        startTimer()
+        if(this::binding.isInitialized){
+            mCdt?.cancel()
+            mProgressCounter = 0
+            startTimer()
+        }
     }
 }

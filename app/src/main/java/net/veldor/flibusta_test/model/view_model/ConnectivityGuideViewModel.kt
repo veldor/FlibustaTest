@@ -21,6 +21,7 @@ import net.veldor.flibusta_test.model.utils.FlibustaChecker.Companion.STATE_AVAI
 import net.veldor.flibusta_test.model.utils.FlibustaChecker.Companion.STATE_UNAVAILABLE
 import net.veldor.flibusta_test.model.web.UniversalWebClient
 import java.net.InetAddress
+import java.net.UnknownHostException
 
 
 class ConnectivityGuideViewModel : ViewModel() {
@@ -47,8 +48,13 @@ class ConnectivityGuideViewModel : ViewModel() {
                 _testConnectionState.postValue(STATE_FAILED)
                 return@launch
             }
-            val ipAddr: InetAddress = InetAddress.getByName("google.com")
-            if (ipAddr.equals("")) {
+            try {
+                val ipAddr: InetAddress = InetAddress.getByName("google.com")
+                if (ipAddr.equals("")) {
+                    _testConnectionState.postValue(STATE_FAILED)
+                    return@launch
+                }
+            } catch (e: UnknownHostException) {
                 _testConnectionState.postValue(STATE_FAILED)
                 return@launch
             }
@@ -126,10 +132,9 @@ class ConnectivityGuideViewModel : ViewModel() {
     }
 
     fun cancelTorLaunch(context: Context) {
-        try{
+        try {
             TorHandler.instance.cancelLaunch(context)
-        }
-        catch (t: Throwable){
+        } catch (t: Throwable) {
             t.printStackTrace()
         }
         initTorJob?.cancel()

@@ -7,6 +7,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 
 class BridgesHandler {
@@ -37,38 +38,43 @@ class BridgesHandler {
         }
     }*/
     fun getBridges() {
-        // make a request, read file and return data from it
-        val altLink =
-            URL("https://t.me/s/mosty_tor")
+        try {
+            // make a request, read file and return data from it
+            val altLink =
+                URL("https://t.me/s/mosty_tor")
 
-        val connection = altLink.openConnection() as HttpURLConnection
-        connection.apply {
-            requestMethod = "GET"
-            connectTimeout = 3000
-            readTimeout = 3000
-            setRequestProperty(
-                "User-Agent",
-                "Mozilla/5.0 (Windows NT 6.1; rv:60.0) Gecko/20100101 Firefox/60.0"
-            )
-            connect()
-        }
-        val code = connection.responseCode
-        if (code == 200) {
-            // get text
-            val reader = BufferedReader(connection.inputStream.reader())
-            reader.use { read ->
-                val bridges = read.readText()
-                val parsed = Jsoup.parse(bridges)
-                val codeElements = parsed.getElementsByTag("code")
-                if(codeElements.isNotEmpty()){
-                    val bridgesText = codeElements.last().text().replace("obfs4", "\nobfs4")
-                    if(bridgesText.isNotEmpty()){
-                        Log.d("surprise", "getAltBridges: save bridges $bridgesText")
-                        saveBridgesToFile(bridgesText)
-                        Log.d("surprise", "getAltBridges: bridges saved!")
+            val connection = altLink.openConnection() as HttpURLConnection
+            connection.apply {
+                requestMethod = "GET"
+                connectTimeout = 3000
+                readTimeout = 3000
+                setRequestProperty(
+                    "User-Agent",
+                    "Mozilla/5.0 (Windows NT 6.1; rv:60.0) Gecko/20100101 Firefox/60.0"
+                )
+                connect()
+            }
+            val code = connection.responseCode
+            if (code == 200) {
+                // get text
+                val reader = BufferedReader(connection.inputStream.reader())
+                reader.use { read ->
+                    val bridges = read.readText()
+                    val parsed = Jsoup.parse(bridges)
+                    val codeElements = parsed.getElementsByTag("code")
+                    if(codeElements.isNotEmpty()){
+                        val bridgesText = codeElements.last().text().replace("obfs4", "\nobfs4")
+                        if(bridgesText.isNotEmpty()){
+                            Log.d("surprise", "getAltBridges: save bridges $bridgesText")
+                            saveBridgesToFile(bridgesText)
+                            Log.d("surprise", "getAltBridges: bridges saved!")
+                        }
                     }
                 }
             }
+        }
+        catch (_:Exception){
+
         }
     }
 

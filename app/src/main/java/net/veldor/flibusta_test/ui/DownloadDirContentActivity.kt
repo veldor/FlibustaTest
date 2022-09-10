@@ -192,7 +192,7 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
             .setItems(bookSortOptions) { _: DialogInterface?, which: Int ->
                 binding.waiter.visibility = View.VISIBLE
                 viewModel.sortList(
-                    (binding.showDirContent.adapter as ExplorerAdapter).getList(),
+                    (binding.showDirContent.adapter as ExplorerAdapter?)?.getList(),
                     which,
                     this
                 )
@@ -231,7 +231,7 @@ class DownloadDirContentActivity : BaseActivity(), FileItemClickedDelegate, Some
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        (binding.showDirContent.adapter as ExplorerAdapter).filter.filter(newText)
+        (binding.showDirContent.adapter as ExplorerAdapter?)?.filter?.filter(newText)
         return false
     }
 

@@ -30,6 +30,7 @@ import net.veldor.flibusta_test.model.web.UniversalWebClient
 
 
 open class OpdsViewModel : ViewModel() {
+    private var checkWork: Job? = null
     private var checkBooksWork: Job? = null
     private var bookInfoDelegate: BookInfoAddedDelegate? = null
     private var currentWork: Job? = null
@@ -105,19 +106,21 @@ open class OpdsViewModel : ViewModel() {
     }
 
     fun checkFormatAvailability(item: DownloadLink) {
-        Log.d("surprise", "OpdsViewModel.kt 172: check ${item.url}")
-        viewModelScope.launch(Dispatchers.IO) {
+        currentWork?.cancel()
+        checkWork = viewModelScope.launch(Dispatchers.IO) {
             // get information about link
             val result = UniversalWebClient().rawRequest(item.url!!, false)
-            if (result.statusCode == 200 && result.contentLength > 0) {
-                formatDelegate?.formatAvailable(
-                    Formatter.formatFileSize(
-                        App.instance,
-                        result.contentLength.toLong()
+            if(isActive){
+                if (result.statusCode == 200 && result.contentLength > 0) {
+                    formatDelegate?.formatAvailable(
+                        Formatter.formatFileSize(
+                            App.instance,
+                            result.contentLength.toLong()
+                        )
                     )
-                )
-            } else {
-                formatDelegate?.formatUnavailable()
+                } else {
+                    formatDelegate?.formatUnavailable()
+                }
             }
         }
     }
@@ -191,7 +194,6 @@ open class OpdsViewModel : ViewModel() {
                 if (book.name == null) {
                     book.downloadLinks.forEach { link ->
                         if (!this.isActive || checkBooksWork?.isCancelled == true) {
-                            Log.d("surprise", "OpdsViewModel.kt 246: cancelled")
                             return@launch
                         }
                         if (link.url != null) {
@@ -209,7 +211,7 @@ open class OpdsViewModel : ViewModel() {
                                 if (book.name == null) {
                                     book.name = link.name
                                     book.author = link.author
-                                    book.sequencesComplex = link.sequenceDirName!!
+                                    book.sequencesComplex = link.sequenceDirName?: ""
                                 }
                             }
                         }

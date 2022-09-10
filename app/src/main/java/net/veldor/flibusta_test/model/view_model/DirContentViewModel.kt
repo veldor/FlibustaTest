@@ -46,8 +46,7 @@ class DirContentViewModel : ViewModel() {
                     fileItem.size = GrammarHandler.getTextSize(df.length())
                     if (fileItem.name.endsWith(".zip")) {
                         fileItem.type = fileItem.name.dropLast(4).substringAfterLast(".")
-                    }
-                    else{
+                    } else {
                         fileItem.type = fileItem.name.substringAfterLast(".")
                     }
                 }
@@ -56,12 +55,14 @@ class DirContentViewModel : ViewModel() {
         return answer
     }
 
-    fun sortList(list: java.util.ArrayList<FileItem>, which: Int, delegate: SomeActionDelegate) {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.d("surprise", "sortList: start sort")
-            SortHandler().sortFiles(list, which)
-            Log.d("surprise", "sortList: finish sort")
-            delegate.actionDone()
+    fun sortList(list: java.util.ArrayList<FileItem>?, which: Int, delegate: SomeActionDelegate) {
+        if (list != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                Log.d("surprise", "sortList: start sort")
+                SortHandler().sortFiles(list, which)
+                Log.d("surprise", "sortList: finish sort")
+                delegate.actionDone()
+            }
         }
     }
 }

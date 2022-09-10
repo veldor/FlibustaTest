@@ -622,4 +622,9 @@
     <string name="full_skip_test_btn_text">Пропустить тест</string>
     <string name="bookmark_removed_title">Закладка удалена</string>
     <string name="path_to_file_title">Путь к файлу</string>
+    <string name="quick_links_title">Быстрые действия</string>
+    <string name="find_books_title">Найти книги</string>
+    <string name="find_authors_title">Найти авторов</string>
+    <string name="find_genres_title">Найти жанры</string>
+    <string name="find_sequences_title">Найти серии</string>
 </resources>

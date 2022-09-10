@@ -100,7 +100,7 @@ class FlibustaChecker {
 
     fun isAlive(url: String): Int {
         val httpclient: CloseableHttpClient = HttpClients.createDefault()
-        var httpget = HttpGet("https://check-host.net/check-http?host=$url&max_nodes=3")
+        var httpget = HttpGet("https://check-host.net/check-http?host=${url.trim()}&max_nodes=3")
         httpget.addHeader("Accept", "application/json")
         try {
             var response = httpclient.execute(httpget)

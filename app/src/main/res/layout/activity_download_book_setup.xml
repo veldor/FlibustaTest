@@ -7,9 +7,9 @@
     tools:context=".ui.DownloadBookSetupActivity">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/pathToFileCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/pathToFileCard"
         android:layout_margin="5dp"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="5dp">
@@ -111,18 +111,28 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/formatLabel" />
 
-            <TextView
-                android:id="@+id/formatAvailability"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:paddingStart="30dp"
-                android:paddingEnd="30dp"
-                android:textSize="15sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
+            <ProgressBar
+                android:id="@+id/formatAvailabilityProgress"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="20dp"
+                android:indeterminate="true"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sortShowSpinner" />
+
+            <TextView
+                android:id="@+id/formatAvailability"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="15sp"
+                app:layout_constraintTop_toTopOf="@id/formatAvailabilityProgress"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/formatAvailabilityProgress"
+                app:layout_constraintBottom_toBottomOf="@id/formatAvailabilityProgress" />
 
             <TextView
                 android:id="@+id/preferences_title"

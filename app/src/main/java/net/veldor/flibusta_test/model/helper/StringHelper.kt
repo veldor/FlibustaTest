@@ -8,9 +8,13 @@ object StringHelper {
         if (inputStream == null) {
             return null
         }
-        val reader = BufferedReader(inputStream.reader())
-        reader.use { read ->
-            return read.readText()
+        try {
+            val reader = BufferedReader(inputStream.reader())
+            reader.use { read ->
+                return read.readText()
+            }
+        } catch (_: Throwable) {
+            return null
         }
     }
 }

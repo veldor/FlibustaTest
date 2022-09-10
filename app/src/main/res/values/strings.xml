@@ -628,4 +628,9 @@ Later you can change this parameter in Catalog settings</string>
     <string name="full_skip_test_btn_text">Skip test</string>
     <string name="bookmark_removed_title">Bookmark removed</string>
     <string name="path_to_file_title">Path to file</string>
+    <string name="quick_links_title">Quick links</string>
+    <string name="find_books_title">Find books</string>
+    <string name="find_authors_title">Find authors</string>
+    <string name="find_genres_title">Find genres</string>
+    <string name="find_sequences_title">Find sequences</string>
 </resources>

@@ -14,6 +14,9 @@ import net.veldor.flibusta_test.model.parser.NewOpdsParser
 import net.veldor.flibusta_test.model.selections.opds.FoundEntity
 
 class OpdsStatement private constructor(val context: Context) {
+
+    var notInitialized = true
+
     private var filteredCounter: Int = 0
     private var pressedItemId: String? = null
     var delegate: OpdsObserverDelegate? = null
