@@ -121,7 +121,7 @@ If you have problems with connection, maybe you must use VPN mode</string>
     <string name="go_to_test_message">Beta versions</string>
     <string name="buy_me_coffee">Donate</string>
     <string name="share_app_menu">Share app</string>
-    <string name="navigation_header_text">Stop war</string>
+    <string name="navigation_header_text">**** ***!</string>
     <string name="navigation_drawer_open">Drawer open</string>
     <string name="navigation_drawer_close">Drawer closed</string>
     <string name="application_version_message">Application version is %s</string>

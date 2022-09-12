@@ -15,6 +15,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -131,8 +132,13 @@ open class BaseActivity : AppCompatActivity() {
 
         val jokeText = mNavigationView.getHeaderView(0)
 
+        if(PreferencesHandler.instance.isEInk){
+            jokeText.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.white, theme))
+        }
+
         jokeText?.setOnClickListener {
-            showDisableJokeDialog()
+            Toast.makeText(this, "ММ, звёздочки! Что бы это могло означать ¯\\_(ツ)_/¯", Toast.LENGTH_LONG).show()
+            //showDisableJokeDialog()
         }
     }
 

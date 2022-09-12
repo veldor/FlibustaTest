@@ -96,7 +96,23 @@ class ExplorerAdapter(
         }
 
         fun bind(item: FileItem, position: Int) {
-            Log.d("surprise", "ExplorerAdapter.kt 77: bind ${item.name}")
+            if(PreferencesHandler.instance.isEInk){
+                binding.name.setTextColor(ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                ))
+                binding.authorName.setTextColor(ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                ))
+                binding.fileSize.setTextColor(ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.invertable_black,
+                    context.theme
+                ))
+            }
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             val sdf = SimpleDateFormat("dd MMM yyyy hh:mm:ss", Locale.ENGLISH)
