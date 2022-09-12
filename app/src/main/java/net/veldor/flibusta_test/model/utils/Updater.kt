@@ -137,16 +137,17 @@ object Updater {
                 val q = DownloadManager.Query()
                 q.setFilterById(downloadID)
                 val cursor: Cursor = downloadManager.query(q)
-                cursor.moveToFirst()
-                val bytesDownloaded: Int = cursor.getInt(
-                    cursor
-                        .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
-                )
-                if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                    downloading = false
-                    liveCurrentDownloadProgress.postValue(-1)
+                if (cursor.moveToFirst()) {
+                    val bytesDownloaded: Int = cursor.getInt(
+                        cursor
+                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
+                    )
+                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                        downloading = false
+                        liveCurrentDownloadProgress.postValue(-1)
+                    }
+                    liveCurrentDownloadProgress.postValue(bytesDownloaded)
                 }
-                liveCurrentDownloadProgress.postValue(bytesDownloaded)
                 cursor.close()
             }
             liveCurrentDownloadProgress.postValue(-1)

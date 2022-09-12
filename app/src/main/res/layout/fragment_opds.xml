@@ -450,6 +450,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/new_books_title" />
@@ -460,6 +461,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/new_authors_title" />
@@ -470,6 +472,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/new_genres_title" />
@@ -479,6 +482,7 @@
                             android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
+                            android:textColor="@color/textColor"
                             android:textSize="12sp"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
@@ -497,6 +501,7 @@
                             android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
+                            android:textColor="@color/textColor"
                             android:textSize="12sp"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
@@ -507,6 +512,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/find_authors_title" />
@@ -516,6 +522,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/find_genres_title" />
@@ -525,6 +532,7 @@
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_marginLeft="20dp"
                             android:textSize="12sp"
+                            android:textColor="@color/textColor"
                             android:layout_marginRight="20dp"
                             android:layout_height="wrap_content"
                             android:text="@string/find_sequences_title" />

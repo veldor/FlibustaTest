@@ -2,6 +2,7 @@ package net.veldor.flibusta_test.ui.browser_fragments
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -1930,6 +1931,9 @@ class OpdsFragment : Fragment(),
     }
 
     override fun itemInserted(item: FoundEntity) {
+        while (binding.resultsList.isComputingLayout) {
+            Thread.sleep(200)
+        }
         requireActivity().runOnUiThread {
             val resultsCount = (binding.resultsList.adapter as NewFoundItemAdapter).addItem(item)
             showBadge(resultsCount)
@@ -1952,7 +1956,9 @@ class OpdsFragment : Fragment(),
             Thread.sleep(200)
         }
         activity?.runOnUiThread {
-            // добавлю бейджи сразу тут
+            if (!isAdded) {
+                return@runOnUiThread
+            }
             blockedBadgeDrawable = BadgeDrawable.create(requireActivity())
             BadgeUtils.attachBadgeDrawable(blockedBadgeDrawable!!, binding.showBlockedStateBtn)
             blockedBadgeDrawable?.maxCharacterCount = 5

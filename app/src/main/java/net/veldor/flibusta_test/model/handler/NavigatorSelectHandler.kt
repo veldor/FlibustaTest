@@ -6,6 +6,8 @@ import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.net.Uri
 import android.os.Build
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.work.OneTimeWorkRequest
@@ -19,6 +21,9 @@ import net.veldor.flibusta_test.ui.*
 
 class NavigatorSelectHandler(private val mContext: Activity) :
     NavigationView.OnNavigationItemSelectedListener {
+    private var lastAppVersionClick: Long = 0
+    private var lastAppVersionClicked: Int = 0
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.goBrowse -> {
@@ -78,6 +83,36 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                     mContext.finishAffinity()
                 }
                 Runtime.getRuntime().exit(0)
+            }
+            R.id.appVersion -> {
+                if(lastAppVersionClick > 0){
+                    if(lastAppVersionClick + 500 > System.currentTimeMillis()){
+                        lastAppVersionClick = System.currentTimeMillis()
+                        ++lastAppVersionClicked
+                        if(lastAppVersionClicked > 10){
+                            if(PreferencesHandler.instance.savingLogs){
+                                Toast.makeText(mContext, "Not required, you are tester yet :)", Toast.LENGTH_LONG).show()
+                            }
+                            else{
+                                PreferencesHandler.instance.savingLogs = true
+                                mContext.invalidateOptionsMenu()
+                                LogHandler.getInstance()!!.initLog()
+                                mContext.recreate()
+                                Toast.makeText(mContext, "You are tester now! Welcome to family", Toast.LENGTH_LONG).show()
+                            }
+                            lastAppVersionClick = 0
+                            lastAppVersionClicked = 0
+                        }
+                    }
+                    else{
+                        lastAppVersionClick = 0
+                        lastAppVersionClicked = 0
+                    }
+                }
+                else{
+                    lastAppVersionClick = System.currentTimeMillis()
+                    lastAppVersionClicked = 1
+                }
             }
         }
         return false

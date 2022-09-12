@@ -174,8 +174,11 @@ class PreferencesHandler private constructor() {
     val sendToKindle: Boolean
         get() = preferences.getBoolean(PREF_SEND_TO_KINDLE, false)
 
-    val savingLogs: Boolean
+    var savingLogs: Boolean
         get() = preferences.getBoolean(PREF_SAVING_LOGS, false)
+        set(state) {
+            preferences.edit().putBoolean(PREF_SAVING_LOGS, state).apply()
+        }
 
     val longMaxCacheSize: Long
         get() = maxCacheSize.toLong() * 1000 * 1000
