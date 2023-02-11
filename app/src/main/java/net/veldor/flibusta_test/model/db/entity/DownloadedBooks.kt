@@ -8,4 +8,6 @@ class DownloadedBooks {
     @PrimaryKey(autoGenerate = true)
     var id = 0
     var bookId = ""
+    var destination: String? = null
+    var relativePath: String? = null
 }

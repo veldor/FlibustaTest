@@ -8,11 +8,11 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
-import net.veldor.flibusta_test.model.selections.SortOption
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.FoundEntity
+import net.veldor.flibusta_test.model.selection.SortOption
 import java.util.ArrayList
 
-class SelectedSortTypeHandler private constructor() {
+object SelectedSortTypeHandler {
     private var selectedBookSortOption: SortOption? =
         SortHandler().getBookSortOptions(App.instance.applicationContext)[0]
     private var selectedAuthorSortOption: SortOption? =
@@ -137,12 +137,5 @@ class SelectedSortTypeHandler private constructor() {
                     }
                 }
         return -1
-    }
-
-    companion object {
-
-        @JvmStatic
-        var instance: SelectedSortTypeHandler = SelectedSortTypeHandler()
-            private set
     }
 }

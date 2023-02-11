@@ -6,7 +6,6 @@ import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.net.Uri
 import android.os.Build
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,7 +16,7 @@ import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.dialog.DonationDialog
 import net.veldor.flibusta_test.model.worker.SendLogWorker
-import net.veldor.flibusta_test.ui.*
+import net.veldor.flibusta_test.view.*
 
 class NavigatorSelectHandler(private val mContext: Activity) :
     NavigationView.OnNavigationItemSelectedListener {
@@ -27,7 +26,7 @@ class NavigatorSelectHandler(private val mContext: Activity) :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.goBrowse -> {
-                val intent = Intent(mContext, BrowserActivity::class.java)
+                val intent = Intent(mContext, SearchActivity::class.java)
                 intent.flags = FLAG_ACTIVITY_CLEAR_TOP
                 mContext.startActivity(intent)
                 mContext.finish()
@@ -37,13 +36,18 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
-            R.id.goToFileList -> {
-                val intent = Intent(mContext, DownloadDirContentActivity::class.java)
+            R.id.goToSubscriptions -> {
+                val intent = Intent(mContext, SubscriptionActivity::class.java)
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
-            R.id.goToSubscriptions -> {
-                val intent = Intent(mContext, SubscribesActivity::class.java)
+            R.id.goToFileList -> {
+            val intent = Intent(mContext, DownloadedBooksViewActivity::class.java)
+            mContext.startActivity(intent)
+            tryCloseDrawer()
+        }
+            R.id.goToSettings -> {
+                val intent = Intent(mContext, PreferencesActivity::class.java)
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
@@ -57,11 +61,6 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 mContext.startActivity(intent)
                 tryCloseDrawer()
             }
-            R.id.goToSettings -> {
-                val intent = Intent(mContext, PreferencesActivity::class.java)
-                mContext.startActivity(intent)
-                tryCloseDrawer()
-            }
             R.id.buyCoffee -> {
                 DonationDialog.Builder(mContext).build().show()
                 tryCloseDrawer()
@@ -72,15 +71,15 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                 mContext.startActivity(intent)
             }
             R.id.sendLog -> {
-                val work = OneTimeWorkRequest.Builder(SendLogWorker::class.java).build()
-                WorkManager.getInstance(App.instance).enqueue(work)
-                tryCloseDrawer()
-            }
+            val work = OneTimeWorkRequest.Builder(SendLogWorker::class.java).build()
+            WorkManager.getInstance(App.instance).enqueue(work)
+            tryCloseDrawer()
+        }
             R.id.exitApp -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     mContext.finishAndRemoveTask()
                 } else {
-                    mContext.finishAffinity()
+                    CloseAppHandler.closeApp(mContext)
                 }
                 Runtime.getRuntime().exit(0)
             }
@@ -90,13 +89,13 @@ class NavigatorSelectHandler(private val mContext: Activity) :
                         lastAppVersionClick = System.currentTimeMillis()
                         ++lastAppVersionClicked
                         if(lastAppVersionClicked > 10){
-                            if(PreferencesHandler.instance.savingLogs){
+                            if(PreferencesHandler.savingLogs){
                                 Toast.makeText(mContext, "Not required, you are tester yet :)", Toast.LENGTH_LONG).show()
                             }
                             else{
-                                PreferencesHandler.instance.savingLogs = true
+                                PreferencesHandler.savingLogs = true
                                 mContext.invalidateOptionsMenu()
-                                LogHandler.getInstance()!!.initLog()
+                                LogHandler.initLog()
                                 mContext.recreate()
                                 Toast.makeText(mContext, "You are tester now! Welcome to family", Toast.LENGTH_LONG).show()
                             }

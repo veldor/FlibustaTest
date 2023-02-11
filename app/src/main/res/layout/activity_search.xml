@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:theme="@style/AppTheme"
+    style="@style/AppTheme"
+    android:layout_height="match_parent">
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/included_toolbar"
+                layout="@layout/reusable_toolbar_view" />
+
+            <include
+                android:id="@+id/included_bnv"
+                layout="@layout/reusable_bottom_navigation_view" />
+        </RelativeLayout>
+
+        <include
+            android:id="@+id/reusable_navigation"
+            layout="@layout/reusable_navigation_view" />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+    <fragment
+        android:id="@+id/opdsBackdropFragment"
+        android:name="net.veldor.flibusta_test.view.search_fragment.OpdsDownloadBackdropFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="100dp"
+        app:behavior_skipCollapsed="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    <fragment
+        android:id="@+id/downloadStateFragment"
+        android:name="net.veldor.flibusta_test.view.download_fragments.DownloadScheduleStatementFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="185dp"
+        app:behavior_skipCollapsed="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    <fragment
+        android:id="@+id/coverBackdropFragment"
+        android:name="net.veldor.flibusta_test.view.search_fragment.CoverBackdropFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_skipCollapsed="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    <fragment
+        android:id="@+id/filterBackdropFragment"
+        android:name="net.veldor.flibusta_test.view.search_fragment.FilterBackdropFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="185dp"
+        app:behavior_skipCollapsed="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

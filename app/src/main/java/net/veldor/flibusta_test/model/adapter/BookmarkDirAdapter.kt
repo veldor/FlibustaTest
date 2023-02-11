@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.SpinnerAdapter
 import android.widget.TextView
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.selections.BookmarkItem
+import net.veldor.flibusta_test.model.selection.BookmarkItem
 
 class BookmarkDirAdapter(val context: Context, private val bookmarks: List<BookmarkItem>) : SpinnerAdapter {
 

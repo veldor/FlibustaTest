@@ -2,24 +2,27 @@
 
 <com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/appBarLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".view.BaseActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        app:titleTextColor="@color/always_white"
         android:layout_height="wrap_content"
-        android:theme="@style/MyActionBar" />
+        app:subtitleTextColor="@color/inactive"
+        android:theme="@style/MyActionBar"
+        android:visibility="gone"
+        app:titleTextColor="@color/alwaysWhite" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/einkToolbar"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/MyEinkActionBar" />
+        android:theme="@style/MyEinkActionBar"
+        android:visibility="gone" />
 
 </com.google.android.material.appbar.AppBarLayout>

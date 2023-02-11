@@ -1,7 +1,9 @@
 package net.veldor.flibusta_test.model.view_model
 
+import android.content.Context
 import android.text.format.Formatter
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -9,32 +11,30 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.veldor.flibusta_test.App
+import net.veldor.flibusta_test.R
+import net.veldor.flibusta_test.model.connection.Connector
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.db.entity.DownloadedBooks
 import net.veldor.flibusta_test.model.db.entity.ReadedBooks
 import net.veldor.flibusta_test.model.delegate.BookInfoAddedDelegate
-import net.veldor.flibusta_test.model.delegate.FormatAvailabilityCheckDelegate
 import net.veldor.flibusta_test.model.delegate.OpdsObserverDelegate
 import net.veldor.flibusta_test.model.delegate.PictureLoadedDelegate
 import net.veldor.flibusta_test.model.handler.*
-import net.veldor.flibusta_test.model.helper.StringHelper
+import net.veldor.flibusta_test.model.helper.MimeHelper
 import net.veldor.flibusta_test.model.helper.UrlHelper
-import net.veldor.flibusta_test.model.parser.NewOpdsParser
-import net.veldor.flibusta_test.model.selections.BookmarkItem
-import net.veldor.flibusta_test.model.selections.DownloadLink
-import net.veldor.flibusta_test.model.selections.OpdsStatement
-import net.veldor.flibusta_test.model.selections.RequestItem
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import net.veldor.flibusta_test.model.utils.CacheUtils
-import net.veldor.flibusta_test.model.web.UniversalWebClient
+import net.veldor.flibusta_test.model.parser.OpdsParser
+import net.veldor.flibusta_test.model.selection.*
+import net.veldor.tor_client.model.helper.StringHelper
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 open class OpdsViewModel : ViewModel() {
+    private var lastDialog: AlertDialog? = null
     private var checkWork: Job? = null
     private var checkBooksWork: Job? = null
     private var bookInfoDelegate: BookInfoAddedDelegate? = null
     private var currentWork: Job? = null
-    private var formatDelegate: FormatAvailabilityCheckDelegate? = null
 
     fun request(
         request: RequestItem?
@@ -42,14 +42,12 @@ open class OpdsViewModel : ViewModel() {
         if (request == null) {
             return
         }
-        OpdsStatement.instance.requestLaunched()
+        OpdsStatement.requestLaunched()
         if (request.addToHistory) {
             // add current condition to history
-            OpdsStatement.instance.saveToHistory()
-        } else {
-            CacheUtils.requestClearCache()
+            OpdsStatement.saveToHistory()
         }
-        OpdsStatement.instance.setCurrentRequest(request.request)
+        OpdsStatement.setCurrentRequest(request.request)
         CoverHandler.dropPreviousLoading()
         if (currentWork != null) {
             currentWork!!.cancel()
@@ -58,16 +56,15 @@ open class OpdsViewModel : ViewModel() {
             // получу результаты запроса
             getData(request)
             if (currentWork?.isCancelled != true) {
-                OpdsStatement.instance.requestFinished()
+                OpdsStatement.requestFinished()
             }
         }
     }
 
     private fun getData(request: RequestItem) {
-        Log.d("surprise", "getData: request data")
-        val response = UniversalWebClient().rawRequest(request.request, false)
+        val response = Connector().rawRequest(request.request, false)
         if (currentWork?.isCancelled == true) {
-            OpdsStatement.instance.requestCancelled()
+            OpdsStatement.requestCancelled()
             return
         }
         if (response.inputStream != null) {
@@ -75,17 +72,17 @@ open class OpdsViewModel : ViewModel() {
             // check what answer string is opds
             if (!answerString.isNullOrEmpty() && answerString.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>")) {
                 // сохраню строку в список результатов
-                OpdsStatement.instance.addRawResults(answerString)
+                OpdsStatement.addRawResults(answerString)
                 // получу результаты запроса
-                val parser = NewOpdsParser(answerString)
+                val parser = OpdsParser(answerString)
                 parser.parse(currentWork)
-            }else {
+            } else {
                 // ошибка запроса
-                OpdsStatement.instance.requestFailed()
+                OpdsStatement.requestFailed(request, response)
             }
         } else {
             // ошибка запроса
-            OpdsStatement.instance.requestFailed()
+            OpdsStatement.requestFailed(request, response)
         }
     }
 
@@ -95,7 +92,7 @@ open class OpdsViewModel : ViewModel() {
 
     fun cancelSearch() {
         currentWork?.cancel()
-        OpdsStatement.instance.requestCancelled()
+        OpdsStatement.requestCancelled()
     }
 
     fun downloadPic(book: FoundEntity, delegate: PictureLoadedDelegate) {
@@ -105,75 +102,78 @@ open class OpdsViewModel : ViewModel() {
         }
     }
 
-    fun checkFormatAvailability(item: DownloadLink) {
-        currentWork?.cancel()
+    fun checkFormatAvailability(context: Context, item: DownloadLink, callback: (String) -> Unit) {
+        checkWork?.cancel()
         checkWork = viewModelScope.launch(Dispatchers.IO) {
             // get information about link
-            val result = UniversalWebClient().rawRequest(item.url!!, false)
-            if(isActive){
+            val result = Connector().rawRequest(item.url!!, false)
+            if (isActive) {
                 if (result.statusCode == 200 && result.contentLength > 0) {
-                    formatDelegate?.formatAvailable(
-                        Formatter.formatFileSize(
-                            App.instance,
-                            result.contentLength.toLong()
+                    callback(
+                        String.format(
+                            Locale.ENGLISH,
+                            context.getString(R.string.format_available_pattern),
+                            MimeHelper.getDownloadMime(item.mime!!),
+                            Formatter.formatFileSize(
+                                App.instance,
+                                result.contentLength.toLong()
+                            )
                         )
+
                     )
                 } else {
-                    formatDelegate?.formatUnavailable()
+                    callback(context.getString(R.string.format_unavailable_message))
                 }
             }
         }
     }
 
-    fun setFormatDelegate(delegate: FormatAvailabilityCheckDelegate) {
-        formatDelegate = delegate
-    }
 
     fun addToDownloadQueue(selectedLink: DownloadLink?) {
         if (selectedLink != null) {
             DownloadLinkHandler.addDownloadLink(selectedLink)
-            if (PreferencesHandler.instance.downloadAutostart) {
-                DownloadHandler.instance.startDownload()
+            if (PreferencesHandler.downloadAutostart) {
+                DownloadHandler.startDownload()
             }
         }
     }
 
     fun markRead(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (item.id != null && DatabaseInstance.instance.mDatabase.readBooksDao()
+            if (item.id != null && DatabaseInstance.mDatabase.readBooksDao()
                     .getBookById(item.id) == null
             ) {
                 val newItem = ReadedBooks()
                 newItem.bookId = item.id!!
-                DatabaseInstance.instance.mDatabase.readBooksDao().insert(newItem)
+                DatabaseInstance.mDatabase.readBooksDao().insert(newItem)
             }
         }
     }
 
     fun markDownloaded(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (item.id != null && DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+            if (item.id != null && DatabaseInstance.mDatabase.downloadedBooksDao()
                     .getBookById(item.id) == null
             ) {
                 val newItem = DownloadedBooks()
                 newItem.bookId = item.id!!
-                DatabaseInstance.instance.mDatabase.downloadedBooksDao().insert(newItem)
+                DatabaseInstance.mDatabase.downloadedBooksDao().insert(newItem)
             }
         }
     }
 
     fun markUnread(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.mDatabase.readBooksDao()
-                .delete(DatabaseInstance.instance.mDatabase.readBooksDao().getBookById(item.id))
+            DatabaseInstance.mDatabase.readBooksDao()
+                .delete(DatabaseInstance.mDatabase.readBooksDao().getBookById(item.id))
         }
     }
 
     fun markNoDownloaded(item: FoundEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.mDatabase.downloadedBooksDao()
+            DatabaseInstance.mDatabase.downloadedBooksDao()
                 .delete(
-                    DatabaseInstance.instance.mDatabase.downloadedBooksDao().getBookById(item.id)
+                    DatabaseInstance.mDatabase.downloadedBooksDao().getBookById(item.id)
                 )
         }
     }
@@ -211,7 +211,7 @@ open class OpdsViewModel : ViewModel() {
                                 if (book.name == null) {
                                     book.name = link.name
                                     book.author = link.author
-                                    book.sequencesComplex = link.sequenceDirName?: ""
+                                    book.sequencesComplex = link.sequenceDirName ?: ""
                                 }
                             }
                         }
@@ -241,39 +241,54 @@ open class OpdsViewModel : ViewModel() {
         checkBooksWork?.cancel()
     }
 
-    fun addBookmark(category: BookmarkItem, name: String, link: String) {
-        BookmarkHandler.instance.addBookmark(category, name, link)
-    }
-
     fun readyToCreateBookmark(): Boolean {
-        return OpdsStatement.instance.getCurrentRequest() != null
+        return OpdsStatement.getCurrentRequest() != null
     }
 
     fun getBookmarkLink(): String? {
-        return OpdsStatement.instance.getCurrentRequest()
+        return OpdsStatement.getCurrentRequest()
     }
 
     fun removeBookmark() {
-        BookmarkHandler.instance.deleteBookmark(OpdsStatement.instance.getCurrentRequest())
-    }
-
-    fun addBlacklistItem(item: FoundEntity, target: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            FilterHandler.addToBlacklist(item, target)
-        }
-    }
-
-    fun addSubscribeItem(item: FoundEntity, target: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            SubscribesHandler.addSubscribe(item, target)
-        }
+        BookmarkHandler.deleteBookmark(OpdsStatement.getCurrentRequest())
     }
 
     fun drawBadges(delegate: OpdsObserverDelegate) {
         viewModelScope.launch(Dispatchers.IO) {
-        Thread.sleep(500)
+            Thread.sleep(500)
             delegate.drawBadges()
+        }
+
     }
 
+    fun restoreLastDialog(): AlertDialog? {
+        return lastDialog
+    }
+
+    fun login(login: String, password: String, callback: (result: Boolean) -> Unit?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result = Connector().requestLogin(login, password)
+                Log.d("surprise", "OpdsViewModel: 270 ${result.statusCode}")
+                if (result.statusCode != 401) {
+                    val string = StringHelper.streamToString(result.inputStream)
+                    Log.d("surprise", "OpdsViewModel: 275 $string")
+                    if (string?.startsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>") == true) {
+                        result.headers.forEach {
+                            if (it.key == "Set-Cookie") {
+                                // save session cookie
+                                val cookie = it.value.substringBefore(";")
+                                Log.d("surprise", "OpdsViewModel: 281 saving cookie $cookie")
+                                PreferencesHandler.authCookie = cookie
+                            }
+                        }
+                        callback(true)
+                        return@launch
+                    }
+                }
+            } catch (_: Throwable) {
+            }
+            callback(false)
+        }
     }
 }

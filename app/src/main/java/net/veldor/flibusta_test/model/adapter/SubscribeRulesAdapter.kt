@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.databinding.SubscribeItemBinding
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
-import net.veldor.flibusta_test.model.selections.subscribe.SubscribeItem
+import net.veldor.flibusta_test.model.selection.subscribe.SubscribeItem
 
 class SubscribeRulesAdapter(
     private var mItems: ArrayList<SubscribeItem>,
@@ -86,8 +86,9 @@ class SubscribeRulesAdapter(
         mBinding.root
     ) {
         fun bind(item: SubscribeItem) {
-            mBinding.setVariable(BR.subscribe, item)
+            mBinding.setVariable(BR.item, item)
             mBinding.executePendingBindings()
+            mBinding.name.text = item.name
             mBinding.rootView.setOnClickListener {
                 delegate.actionDone(mBinding.rootView, item)
             }

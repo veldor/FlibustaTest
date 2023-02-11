@@ -9,7 +9,7 @@ import net.veldor.flibusta_test.model.db.entity.*
 
 @Database(
     entities = [ReadedBooks::class, DownloadedBooks::class, BooksDownloadSchedule::class, Bookmark::class, DownloadError::class],
-    version = 9,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -103,6 +103,20 @@ abstract class AppDatabase : RoomDatabase() {
                             "error TEXT NOT NULL" +
                             ");"
                 )
+            }
+        }
+        @JvmField
+        val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DownloadedBooks ADD COLUMN destination TEXT DEFAULT \"\"")
+
+            }
+        }
+        @JvmField
+        val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE DownloadedBooks ADD COLUMN relativePath TEXT DEFAULT \"\"")
+
             }
         }
     }

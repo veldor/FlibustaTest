@@ -1,108 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="net.veldor.flibusta_test"
-    android:installLocation="preferExternal">
+    android:installLocation="preferExternal"
+    package="net.veldor.flibusta_test">
 
+    <uses-sdk tools:overrideLibrary="androidx.core.splashscreen, com.google.zxing.client.android" />
+
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission
-        android:name="android.permission.READ_LOGS"
-        tools:ignore="ProtectedPermissions" />
-
 
     <application
         android:name=".App"
-        android:allowBackup="false"
-        android:hardwareAccelerated="false"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:largeHeap="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Launcher"
+        android:label="@string/app_name"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning"
-        tools:replace="android:allowBackup"
-        tools:targetApi="q">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.App.Starting"
+        tools:targetApi="33">
+        <receiver
+            android:name=".model.receiver.MiscReceiver"
+            android:enabled="true"
+            android:exported="false"/>
 
         <activity
-            android:name=".ui.SetTorBridgesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.BookmarksActivity"
-            android:exported="false"
-            android:label="@string/navigation_go_bookmarks" />
-        <activity
-            android:name=".ui.DownloadDirContentActivity"
-            android:exported="false"
-            android:label="@string/navigation_go_file_list" />
-        <activity
-            android:name=".ui.SubscribesActivity"
-            android:exported="false"
-            android:label="@string/navigation_go_subscriptions" />
+            android:name=".view.ErrorActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
 
         <receiver
             android:name=".model.receiver.DownloadBookProcessReceiver"
             android:enabled="true"
             android:exported="false" />
-
         <activity
-            android:name=".ui.DownloadedBooksActionsActivity"
+            android:name=".view.DownloadBookSetupActivity"
+            android:exported="false" />
+        <activity
+            android:name=".view.DownloadedBooksActionsActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.DownloadScheduleActivity"
+            android:name=".view.SearchActivity"
             android:exported="false"
-            android:label="@string/navigation_go_downloads_list" />
+            android:theme="@style/AppTheme" />
         <activity
-            android:name=".ui.DownloadBookSetupActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.FilterActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.PreferencesActivity"
-            android:exported="false"
-            android:label="@string/navigation_go_settings" />
-        <activity
-            android:name=".ui.BaseActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.FirstUseGuideActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.ConnectivityGuideActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.BrowserActivity"
-            android:exported="false"
-            android:label=""
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".ui.MainActivity"
-            android:configChanges="keyboardHidden|orientation"
+            android:name=".view.MainActivity"
             android:exported="true"
-            android:theme="@style/AppTheme">
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" />
-                <data android:host="flibusta.is" />
-                <data android:scheme="https" />
-                <data android:host="flibustahezeous3.onion" />
-            </intent-filter>
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
         </activity>
+        <activity android:name=".view.SelectDirActivity" />
+        <activity android:name=".view.DownloadScheduleActivity" />
+        <activity android:name=".view.SubscriptionActivity" />
+        <activity android:name=".view.DownloadedBooksViewActivity" />
+        <activity android:name=".view.PreferencesActivity" />
+        <activity android:name="net.veldor.flibusta_test.view.FilterActivity" />
+        <activity android:name="net.veldor.flibusta_test.view.CheckUpdateActivity" />
+        <activity android:name="net.veldor.flibusta_test.view.QrScanActivity" />
+        <activity android:name="net.veldor.flibusta_test.view.BookmarksActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -115,4 +91,15 @@
         </provider>
     </application>
 
+    <queries>
+    <intent>
+        <action android:name="android.intent.action.OPEN_DOCUMENT_TREE" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.ACTION_OPEN_DOCUMENT" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+    </intent>
+    </queries>
 </manifest>

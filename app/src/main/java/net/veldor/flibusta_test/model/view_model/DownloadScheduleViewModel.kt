@@ -12,33 +12,33 @@ import net.veldor.flibusta_test.model.db.entity.DownloadError
 class DownloadScheduleViewModel : ViewModel() {
     fun reloadAllErrors() {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.reloadDownloadErrors()
+            DatabaseInstance.reloadDownloadErrors()
         }
     }
 
     fun dropErrorQueue() {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.dropDownloadErrorsQueue()
+            DatabaseInstance.dropDownloadErrorsQueue()
         }
     }
 
     fun dropDownloadQueue() {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.dropDownloadQueue()
+            DatabaseInstance.dropDownloadQueue()
         }
     }
 
     fun deleteFromQueue(book: BooksDownloadSchedule) {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao().delete(book)
+            DatabaseInstance.mDatabase.booksDownloadScheduleDao().delete(book)
         }
     }
 
     fun reloadError(downloadError: DownloadError) {
         viewModelScope.launch(Dispatchers.IO) {
-            DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
+            DatabaseInstance.mDatabase.booksDownloadScheduleDao()
                 .insert(downloadError as BooksDownloadSchedule)
-            DatabaseInstance.instance.mDatabase.downloadErrorDao().delete(downloadError)
+            DatabaseInstance.mDatabase.downloadErrorDao().delete(downloadError)
         }
     }
 }

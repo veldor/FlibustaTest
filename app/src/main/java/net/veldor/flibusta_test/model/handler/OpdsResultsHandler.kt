@@ -3,9 +3,9 @@ package net.veldor.flibusta_test.model.handler
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import net.veldor.flibusta_test.model.selections.opds.SearchResult
+import net.veldor.flibusta_test.model.selection.SearchResult
 
-class OpdsResultsHandler private constructor() {
+object OpdsResultsHandler {
     fun clear() {
         _requestResult = arrayListOf()
     }
@@ -14,7 +14,7 @@ class OpdsResultsHandler private constructor() {
         Log.d("surprise", "OpdsResultsHandler.kt 14: adding to previously loaded results")
         _requestResult.add(roundResult)
         // count all results, if it is too much- notify about it
-        if (PreferencesHandler.instance.saveOpdsHistory && !PreferencesHandler.instance.disableHistoryMessageViewed) {
+        if (PreferencesHandler.saveOpdsHistory && !PreferencesHandler.disableHistoryMessageViewed) {
             var counter = 0
             _requestResult.forEach {
                 it.results.forEach { _ ->
@@ -37,9 +37,4 @@ class OpdsResultsHandler private constructor() {
     val livePossibleMemoryOverflow: LiveData<Boolean> = _livePossibleMemoryOverflow
     private var _requestResult: ArrayList<SearchResult> = arrayListOf()
 
-    companion object {
-        @kotlin.jvm.JvmStatic
-        var instance: OpdsResultsHandler = OpdsResultsHandler()
-            private set
-    }
 }

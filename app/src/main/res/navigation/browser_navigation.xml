@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_opds"
-        android:name="net.veldor.flibusta_test.ui.browser_fragments.OpdsFragment"
+        android:name="net.veldor.flibusta_test.view.search_fragment.OpdsFragment"
         android:label="@string/navigation_go_opds"
         tools:layout="@layout/fragment_opds" />
 
     <fragment
         android:id="@+id/navigation_web_view"
-        android:name="net.veldor.flibusta_test.ui.browser_fragments.WebViewFragment"
+        android:name="net.veldor.flibusta_test.view.search_fragment.WebViewFragment"
         android:label="@string/title_browser"
         tools:layout="@layout/fragment_web_view" />
 </navigation>

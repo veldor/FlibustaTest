@@ -5,13 +5,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
+import android.util.Log
 import androidx.annotation.RequiresApi
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.handler.FormatHandler
 import net.veldor.flibusta_test.model.handler.GrammarHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.selections.DownloadLink
+import net.veldor.flibusta_test.model.selection.DownloadLink
+import net.veldor.flibusta_test.model.selection.FoundEntity
 
 object UrlHelper {
     @kotlin.jvm.JvmStatic
@@ -50,16 +52,19 @@ object UrlHelper {
 
     @kotlin.jvm.JvmStatic
     fun getBaseUrl(): String {
-        if (PreferencesHandler.instance.isCustomMirror) {
-            val customMirror = PreferencesHandler.instance.customMirror
+        if (PreferencesHandler.isCustomMirror) {
+            val customMirror = PreferencesHandler.customMirror
             if (customMirror.isNotEmpty()) {
                 return customMirror.trim()
             }
         }
-        if (PreferencesHandler.instance.useTorMirror) {
+        if (PreferencesHandler.useTorMirror) {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
-                return PreferencesHandler.BASE_TOR_COMPAT_URL
+                return PreferencesHandler.BASE_TOR_URL
             }
+            return PreferencesHandler.BASE_TOR_URL
+        }
+        if (PreferencesHandler.connectionType == PreferencesHandler.CONNECTION_MODE_TOR) {
             return PreferencesHandler.BASE_TOR_URL
         }
         return PreferencesHandler.BASE_URL
@@ -85,23 +90,27 @@ object UrlHelper {
 
     fun getDownloadedBookPath(link: DownloadLink, handleName: Boolean): String {
         val sb = StringBuffer()
-        val rootDir = PreferencesHandler.instance.getDownloadDirLocation()
+        val root = PreferencesHandler.rootDownloadDir
         val bookName = if (handleName) getBookName(link) else link.name
-        // получу конечное расположение файла
-        sb.append(PreferencesHandler.instance.getDownloadDirLocation())
-        if (link.reservedSequenceName.isNotEmpty()) {
-            return "$rootDir${link.reservedSequenceName}/$bookName"
+        var rootPath = root.path
+        if (!rootPath.endsWith("/")) {
+            rootPath += "/"
         }
-        if (!PreferencesHandler.instance.createSequenceDir &&
-            !PreferencesHandler.instance.createAuthorDir
+        // получу конечное расположение файла
+        if (link.reservedSequenceName.isNotEmpty()) {
+            return "$rootPath${link.reservedSequenceName}/$bookName"
+        }
+        sb.append(rootPath)
+        if (!PreferencesHandler.createSequenceDir &&
+            !PreferencesHandler.createAuthorDir
         ) {
             //==== папки не нужны, сохраняю в корень
-            return "$rootDir$bookName"
-        } else if (PreferencesHandler.instance.createAuthorDir
-            && !PreferencesHandler.instance.createSequenceDir
+            return "$rootPath$bookName"
+        } else if (PreferencesHandler.createAuthorDir
+            && !PreferencesHandler.createSequenceDir
         ) {
             //==== создаю только папку автора
-            if (PreferencesHandler.instance.createDifferentDirs) {
+            if (PreferencesHandler.createDifferentDirs) {
                 sb.append("Авторы/")
             }
             if (link.authorDirName != null) {
@@ -109,13 +118,13 @@ object UrlHelper {
             }
             sb.append(bookName)
             return sb.toString()
-        } else if (!PreferencesHandler.instance.createAuthorDir
-            && PreferencesHandler.instance.createSequenceDir
+        } else if (!PreferencesHandler.createAuthorDir
+            && PreferencesHandler.createSequenceDir
         ) {
             //==== создаю только папку серии
             // придётся копировать файл в папку каждой серии по отдельности
             if (link.sequenceDirName != null) {
-                if (PreferencesHandler.instance.createDifferentDirs) {
+                if (PreferencesHandler.createDifferentDirs) {
                     sb.append("Серии/")
                 }
                 val subDirs = link.sequenceDirName!!.split("$|$")
@@ -130,15 +139,15 @@ object UrlHelper {
                 return sb.toString()
             }
         } else if (
-            PreferencesHandler.instance.createAuthorDir &&
-            PreferencesHandler.instance.createSequenceDir
+            PreferencesHandler.createAuthorDir &&
+            PreferencesHandler.createSequenceDir
         ) {
             // если есть серия
-            if (link.sequenceDirName != null) {
+            if (link.sequenceDirName != null && link.sequenceDirName!!.isNotEmpty()) {
                 // если выбрано сохранение серий внутри папки автора- сохраню внутри
-                if (PreferencesHandler.instance.sequencesInAuthorDir) {
-                    if (PreferencesHandler.instance.createDifferentDirs) {
-                        if (PreferencesHandler.instance.createDifferentDirs) {
+                if (PreferencesHandler.sequencesInAuthorDir) {
+                    if (PreferencesHandler.createDifferentDirs) {
+                        if (PreferencesHandler.createDifferentDirs) {
                             sb.append("Авторы/")
                         }
                     }
@@ -153,8 +162,8 @@ object UrlHelper {
                         return sb.toString()
                     }
                 } else {
-                    if (PreferencesHandler.instance.createDifferentDirs) {
-                        if (PreferencesHandler.instance.createDifferentDirs) {
+                    if (PreferencesHandler.createDifferentDirs) {
+                        if (PreferencesHandler.createDifferentDirs) {
                             sb.append("Серии/")
                         }
                     }
@@ -167,8 +176,8 @@ object UrlHelper {
                     }
                 }
             } else {
-                if (PreferencesHandler.instance.createDifferentDirs) {
-                    if (PreferencesHandler.instance.createDifferentDirs) {
+                if (PreferencesHandler.createDifferentDirs) {
+                    if (PreferencesHandler.createDifferentDirs) {
                         sb.append("Авторы/")
                     }
                 }
@@ -183,11 +192,12 @@ object UrlHelper {
     }
 
     fun getBookName(link: DownloadLink): String {
+        if (link.editedName != null) {
+            return link.editedName!!
+        }
         var bookName =
-            link.name!!.replace("[^\\d\\w- ]".toRegex(), "")
-        val bookMime = FormatHandler.getShortFromFullMime(link.mime!!)
-
-        if (PreferencesHandler.instance.isAuthorInBookName) {
+            link.name!!
+        if (PreferencesHandler.isAuthorInBookName) {
             if (link.author.isNullOrEmpty()) {
                 bookName = "Без автора_$bookName"
             } else {
@@ -196,7 +206,7 @@ object UrlHelper {
                 }
             }
         }
-        if (PreferencesHandler.instance.isSequenceInBookName) {
+        if (PreferencesHandler.isSequenceInBookName) {
             if (!link.nameInSequence.isNullOrEmpty()) {
                 if (bookName.length / 2 + link.nameInSequence!!.length / 2 < 110) {
                     bookName = bookName + "_" + link.nameInSequence
@@ -206,8 +216,36 @@ object UrlHelper {
         if (bookName.length / 2 > 220) {
             bookName = bookName.substring(0, 110) + "..."
         }
-        bookName = "$bookName ${link.id}.$bookMime"
+        bookName = "${bookName.replace("[^\\d\\w- /\\\\]".toRegex(), "")} ${link.id}"
         return bookName
+    }
+
+    fun getBookNameWithoutExtension(book: FoundEntity): String {
+        var bookName =
+            book.name!!.replace("[^\\d\\w- ]".toRegex(), "")
+
+        if (PreferencesHandler.isAuthorInBookName) {
+            if (book.author.isNullOrEmpty()) {
+                bookName = "Без автора_$bookName"
+            } else {
+                if (bookName.length / 2 + book.author!!.length / 2 < 110) {
+                    bookName = GrammarHandler.getAuthorLastName(book.author) + "_" + bookName
+                }
+            }
+        }
+        if (PreferencesHandler.isSequenceInBookName) {
+            if (!book.sequencesComplex.isEmpty()) {
+                if (bookName.length / 2 + book.sequencesComplex.trim()
+                        .replace("Серия: ", "").length / 2 < 110
+                ) {
+                    bookName = bookName + "_" + book.sequencesComplex.trim().replace("Серия: ", "")
+                }
+            }
+        }
+        if (bookName.length / 2 > 220) {
+            bookName = bookName.substring(0, 110) + "..."
+        }
+        return "$bookName ${book.id}"
     }
 
     fun getDownloadedBookPath(link: BooksDownloadSchedule): String {
@@ -222,6 +260,6 @@ object UrlHelper {
     }
 
     fun isBookDownloadLink(requestString: String): Boolean {
-        return requestString.matches(Regex(".+/b/\\d+/.+"))
+        return requestString.matches(Regex("/b/\\d+/.+"))
     }
 }

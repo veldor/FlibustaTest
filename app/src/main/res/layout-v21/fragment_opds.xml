@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    tools:context=".view.SearchActivity"
+    android:layout_height="match_parent"
+    android:background="@color/opds_background">
+
+    <net.veldor.flibusta_test.view.components.SwipeUpLayout
+        android:id="@+id/swipeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/bookSearchView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:iconifiedByDefault="false"
+                android:imeOptions="flagNoExtractUi"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <HorizontalScrollView
+                android:id="@+id/quickSettingsPanel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bookSearchView">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ImageButton
+                        android:id="@+id/connectionOptionBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/download_state_btn_desc"
+                        android:drawableLeft="@drawable/tor_drawable"
+                        android:src="@drawable/tor_drawable" />
+
+                    <ImageButton
+                        android:id="@+id/useFilterBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/use_filter_button_desc"
+                        android:src="@drawable/ic_baseline_filter_alt_24" />
+
+                    <ImageButton
+                        android:id="@+id/sortBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/sort_list_btn_desc"
+                        android:src="@drawable/ic_sort_white_24dp" />
+
+                    <ImageButton
+                        android:id="@+id/show_blocked_state_btn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/show_blocked_state_btn_description"
+                        android:drawableLeft="@drawable/ic_baseline_block_24"
+                        android:src="@drawable/ic_baseline_block_24" />
+
+                    <ImageButton
+                        android:id="@+id/downloadStateBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/download_state_btn_desc"
+                        android:drawableLeft="@drawable/ic_baseline_arrow_downward_24"
+                        android:src="@drawable/ic_baseline_arrow_downward_24" />
+
+
+                    <ImageButton
+                        android:id="@+id/addBookmarkBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/add_bookmark_title"
+                        android:src="@drawable/ic_baseline_bookmark_add_24" />
+
+                    <ImageButton
+                        android:id="@+id/switchResultsLayoutBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/switch_layout_btn"
+                        android:src="@drawable/ic_baseline_grid_on_24" />
+
+                    <ImageButton
+                        android:id="@+id/nightModeSwitcher"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/night_view_mode_title"
+                        android:src="@drawable/ic_baseline_brightness_6_24" />
+
+                    <ImageButton
+                        android:id="@+id/readerModeSwitcher"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/e_ink_app_view_title"
+                        android:src="@drawable/ic_baseline_chrome_reader_mode_24" />
+
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </HorizontalScrollView>
+
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/filterListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginLeft="40dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:imeOptions="flagNoExtractUi"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:queryHint="@string/search_in_list_title" />
+
+
+            <RadioGroup
+                android:id="@+id/filter_by_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/filterListView">
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/filterName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/filter_by_name_title"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    app:buttonCompat="@null" />
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/filterAuthor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/search_author_message"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    app:buttonCompat="@null" />
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/filterGenre"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/search_genre_message"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    app:buttonCompat="@null" />
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/filterSequence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/search_sequence_message"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    app:buttonCompat="@null" />
+
+                <androidx.appcompat.widget.AppCompatRadioButton
+                    android:id="@+id/filterTranslator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/radio_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/filter_option_translator"
+                    android:textColor="@color/black"
+                    android:textSize="11sp"
+                    app:buttonCompat="@null" />
+            </RadioGroup>
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/firstBarrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="quickSettingsPanel,filterListView, filter_by_type" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/resultsList"
+                style="@style/Theme.AppCompat.DayNight"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:clipToPadding="false"
+                android:scrollbarStyle="outsideOverlay"
+                android:theme="@style/Theme.AppCompat.DayNight"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/firstBarrier"
+                tools:listitem="@layout/found_item" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/searchOptionsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:paddingTop="10dp"
+                android:textColor="@color/app_bar_icons_color"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/bookSearchView">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <RadioGroup
+                            android:id="@+id/search_type"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/searchBook"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_selector"
+                                android:button="@null"
+                                android:checked="true"
+                                android:gravity="center"
+                                android:singleLine="true"
+                                android:text="@string/search_book_message"
+                                android:textColor="@color/black"
+                                app:buttonCompat="@null" />
+
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/searchAuthor"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_selector"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:singleLine="true"
+                                android:text="@string/search_author_message"
+                                android:textColor="@color/black"
+                                app:buttonCompat="@null" />
+
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/searchGenre"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_selector"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:singleLine="true"
+                                android:text="@string/search_genre_message"
+                                android:textColor="@color/black"
+                                app:buttonCompat="@null" />
+
+                            <androidx.appcompat.widget.AppCompatRadioButton
+                                android:id="@+id/searchSequence"
+                                android:layout_width="wrap_content"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginLeft="5dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/radio_selector"
+                                android:button="@null"
+                                android:gravity="center"
+                                android:singleLine="true"
+                                android:text="@string/search_sequence_message"
+                                android:textColor="@color/black"
+                                app:buttonCompat="@null" />
+                        </RadioGroup>
+
+                        <Button
+                            android:id="@+id/showArrivalsBtn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="50dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_marginRight="50dp"
+                            android:text="@string/new_books_title"
+                            android:textColor="@color/alwaysWhite"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/search_type" />
+
+                        <Button
+                            android:id="@+id/showEntitiesByAlphabetBtn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="50dp"
+                            android:layout_marginRight="50dp"
+                            android:textColor="@color/alwaysWhite"
+                            android:visibility="gone"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/showArrivalsBtn" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/results_paging_switcher"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/load_by_pages_title"
+                            android:textOff="@string/load_all_results_title"
+                            android:textOn="@string/load_by_pages_title"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/showEntitiesByAlphabetBtn" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/use_filters_switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/use_filter_title"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.5"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/results_paging_switcher" />
+
+                        <Button
+                            android:id="@+id/doOpdsSearchBtn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="50dp"
+                            android:layout_marginRight="50dp"
+                            android:text="@string/do_search_title"
+                            android:textColor="@color/alwaysWhite"
+                            app:layout_constraintTop_toBottomOf="@+id/use_filters_switch" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </ScrollView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/quickLinksPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/quickLinksTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/quick_links_title"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/quickLinksTitle">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/quick_show_new_books"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_books_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_authors"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_authors_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_genres"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_genres_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_show_new_sequences"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_sequences_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Button
+                            android:id="@+id/quick_found_books_btn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_books_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_found_authors_btn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_authors_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_found_genres_btn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_genres_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/quick_found_sequences_btn"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_sequences_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:contentDescription="@string/cancel_search_title"
+                android:src="@drawable/ic_baseline_cancel_24"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/massLoadFab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/fabColor"
+                android:text="@string/mass_load_title"
+                android:textColor="@color/lightTextColor"
+                android:theme="@style/Theme.MaterialComponents.Light"
+                app:icon="@drawable/ic_baseline_arrow_downward_24"
+                app:iconTint="@color/lightTextColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </net.veldor.flibusta_test.view.components.SwipeUpLayout>
+
+
+    <TextView
+        android:id="@+id/noSearchResultsFoundTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_results_found_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="20dp"
+        android:visibility="gone"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

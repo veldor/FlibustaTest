@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.SpinnerAdapter
 import android.widget.TextView
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.selections.DownloadFormat
+import net.veldor.flibusta_test.model.selection.DownloadFormat
 
 class DownloadFormatAdapter(list: List<DownloadFormat?>?, context: Context, selectedMime: String?) :
     SpinnerAdapter {
@@ -85,7 +85,7 @@ class DownloadFormatAdapter(list: List<DownloadFormat?>?, context: Context, sele
         if (convertView == null) {
             view = inflater.inflate(R.layout.format_dropdown_list_view, parent, false)
         }
-        if (formatList.isNullOrEmpty()) {
+        if (formatList.isEmpty()) {
             view!!.findViewById<TextView>(R.id.itemName).text =
                 context.getString(R.string.no_options_title)
         } else {

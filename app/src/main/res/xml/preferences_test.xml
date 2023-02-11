@@ -7,4 +7,8 @@
         android:summaryOn="@string/logs_saving"
         android:title="@string/saving_logs_pref"
         app:key="saving log files" />
+
+    <Preference
+        android:key="send log now"
+        android:title="@string/send_log_now_title"/>
 </PreferenceScreen>

@@ -6,9 +6,8 @@ import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_SEQUENCE
-import net.veldor.flibusta_test.model.selections.FileItem
-import net.veldor.flibusta_test.model.selections.SortOption
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.FoundEntity
+import net.veldor.flibusta_test.model.selection.SortOption
 
 class SortHandler {
     fun getBookSortOptions(context: Context): List<SortOption?> {
@@ -77,7 +76,7 @@ class SortHandler {
     }
 
     private fun compareBooks(lhs: FoundEntity, rhs: FoundEntity): Int {
-        when (SelectedSortTypeHandler.instance.getBookSortOption()) {
+        when (SelectedSortTypeHandler.getBookSortOption()) {
             0 -> return compareStrings(lhs.name, rhs.name, false)
             11 -> return compareStrings(lhs.name, rhs.name, true)
             1 -> return compareIntValues(lhs.size, rhs.size, false)
@@ -108,7 +107,7 @@ class SortHandler {
 
     private fun compareAuthors(lhs: FoundEntity, rhs: FoundEntity): Int {
 
-        when (SelectedSortTypeHandler.instance.getAuthorSortOption()) {
+        when (SelectedSortTypeHandler.getAuthorSortOption()) {
             0 -> return compareStrings(lhs.name, rhs.name, false)
             1 -> return compareStrings(lhs.name, rhs.name, true)
             2 -> return compareIntValues(lhs.content, rhs.content, false)
@@ -118,7 +117,7 @@ class SortHandler {
     }
 
     private fun compareGenres(lhs: FoundEntity, rhs: FoundEntity): Int {
-        when (SelectedSortTypeHandler.instance.getGenreSortOption()) {
+        when (SelectedSortTypeHandler.getGenreSortOption()) {
             0 -> compareStrings(lhs.name, rhs.name, false)
             1 -> compareStrings(lhs.name, rhs.name, true)
         }
@@ -126,7 +125,7 @@ class SortHandler {
     }
 
     private fun compareSequences(lhs: FoundEntity, rhs: FoundEntity): Int {
-        when (SelectedSortTypeHandler.instance.getSequenceSortOption()) {
+        when (SelectedSortTypeHandler.getSequenceSortOption()) {
             0 -> return compareStrings(lhs.name, rhs.name, false)
             1 -> return compareStrings(lhs.name, rhs.name, true)
         }
@@ -175,116 +174,4 @@ class SortHandler {
         return if (lhsValue < rhsValue) 1 else -1
     }
 
-    fun sortFiles(arrayList: ArrayList<FileItem>, which: Int) {
-        when (which) {
-            0 -> {
-                // name
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    return@sort lhs.name.compareTo(rhs.name)
-                }
-            }
-            1 -> {
-
-                // name reverse
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    return@sort rhs.name.compareTo(lhs.name)
-                }
-            }
-            2 -> {
-                //size
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    if (rhs.file.length() == lhs.file.length()) {
-                        return@sort 0
-                    }
-                    if (rhs.file.length() > lhs.file.length()) {
-                        return@sort 1
-                    }
-                    return@sort -1
-                }
-            }
-
-            3 -> {
-                //size reverse
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    if (rhs.file.length() == lhs.file.length()) {
-                        return@sort 0
-                    }
-                    if (rhs.file.length() < lhs.file.length()) {
-                        return@sort 1
-                    }
-                    return@sort -1
-                }
-            }
-            4 -> {
-                //type
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    return@sort lhs.type.compareTo(rhs.type)
-                }
-            }
-            5 -> {
-                //type
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.isDirectory && rhs.file.isFile) {
-                        return@sort -1
-                    }
-                    if (rhs.file.isDirectory && lhs.file.isFile) {
-                        return@sort 1
-                    }
-                    return@sort rhs.type.compareTo(lhs.type)
-                }
-            }
-            6 -> {
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.lastModified() > rhs.file.lastModified()) {
-                        return@sort -1
-                    }
-                    if (lhs.file.lastModified() < rhs.file.lastModified()) {
-                        return@sort 1
-                    }
-                    return@sort 0
-                }
-            }
-            7 -> {
-                arrayList.sortWith sort@{ lhs: FileItem, rhs: FileItem ->
-                    if (lhs.file.lastModified() < rhs.file.lastModified()) {
-                        return@sort -1
-                    }
-                    if (lhs.file.lastModified() > rhs.file.lastModified()) {
-                        return@sort 1
-                    }
-                    return@sort 0
-                }
-            }
-        }
-    }
 }

@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.db.entity.DownloadError
 
 @Dao

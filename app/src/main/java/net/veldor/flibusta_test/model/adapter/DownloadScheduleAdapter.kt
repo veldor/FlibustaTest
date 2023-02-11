@@ -16,7 +16,8 @@ import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
-import net.veldor.flibusta_test.model.selections.BooksDownloadProgress
+import net.veldor.flibusta_test.model.selection.BooksDownloadProgress
+import java.util.*
 
 class DownloadScheduleAdapter(
     arrayList: List<BooksDownloadSchedule>?,
@@ -67,7 +68,8 @@ class DownloadScheduleAdapter(
             }
             if (pos >= 0) {
                 loadedBookName = progress.currentlyLoadedBookName
-                val percentDone: Double = progress.bookLoadedSize.toDouble() / progress.bookFullSize.toDouble() * 100
+                val percentDone: Double =
+                    progress.bookLoadedSize.toDouble() / progress.bookFullSize.toDouble() * 100
                 loadedBookProgress = percentDone
                 notifyItemChanged(pos)
             }
@@ -80,7 +82,7 @@ class DownloadScheduleAdapter(
         ) {
 
         init {
-            if (PreferencesHandler.instance.isEInk) {
+            if (PreferencesHandler.isEInk) {
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
@@ -89,7 +91,11 @@ class DownloadScheduleAdapter(
                     )
                 )
                 binding.actionBtn.setColorFilter(
-                    ResourcesCompat.getColor(context.resources, R.color.invertable_black, context.theme),
+                    ResourcesCompat.getColor(
+                        context.resources,
+                        R.color.invertable_black,
+                        context.theme
+                    ),
                     PorterDuff.Mode.SRC_ATOP
                 )
             }
@@ -99,6 +105,8 @@ class DownloadScheduleAdapter(
         fun bind(item: BooksDownloadSchedule) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
+            binding.link.text =
+                String.format(Locale.ENGLISH, "%s%s", UrlHelper.getBaseUrl(), item.link)
             binding.pathToFile.text = UrlHelper.getDownloadedBookPath(item)
             binding.actionBtn.setOnClickListener {
                 delegate.buttonPressed(item)
@@ -111,8 +119,7 @@ class DownloadScheduleAdapter(
                 } else {
                     binding.bookDownloadProgress.progress = loadedBookProgress.toInt()
                 }
-            }
-            else{
+            } else {
                 binding.bookDownloadProgress.visibility = View.GONE
             }
         }

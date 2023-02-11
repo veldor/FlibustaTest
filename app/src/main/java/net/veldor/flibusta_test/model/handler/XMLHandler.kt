@@ -5,10 +5,11 @@ import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.db.entity.*
+import net.veldor.flibusta_test.model.helper.MimeHelper
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
-import net.veldor.flibusta_test.model.selections.BookmarkItem
-import net.veldor.flibusta_test.model.selections.DownloadLink
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.BookmarkItem
+import net.veldor.flibusta_test.model.selection.DownloadLink
+import net.veldor.flibusta_test.model.selection.FoundEntity
 import org.jsoup.Jsoup
 import org.w3c.dom.Document
 import org.w3c.dom.Node
@@ -133,43 +134,60 @@ object XMLHandler {
         return false
     }
 
-    fun searchDownloadLinks(textStream: InputStream): ArrayList<FoundEntity> {
-        val result: ArrayList<FoundEntity> = arrayListOf()
+    fun searchDownloadLinks(textStream: InputStream): HashMap<String, FoundEntity> {
         val booksList = HashMap<String, FoundEntity>()
         val dom: org.jsoup.nodes.Document
         val url = "http://flibusta.is"
         dom = Jsoup.parse(textStream, "UTF-8", url)
         val links = dom.select("a")
         var href: String?
-        var bookId: String?
+        var bookId: String? = null
         var downloadLink: DownloadLink
         val downloadLinkPattern = Regex("/b/\\d+/.+")
+        val bookNamePattern = Regex("/b/\\d+")
         links.forEach { link ->
             href = link.attr("href")
-            if (href != null && href!!.matches(downloadLinkPattern) && !href!!.endsWith("read")) {
-                // found link
+            if (href != null) {
                 bookId = href!!.replace("fb2", "").filter { it.isDigit() }
-                if (bookId != null) {
+                if (href!!.matches(bookNamePattern)) {
                     // create book entity if not exists
                     if (!booksList.containsKey(bookId)) {
                         booksList[bookId!!] = FoundEntity()
                         booksList[bookId]?.id = bookId
                         booksList[bookId]?.type = TYPE_BOOK
+                        booksList[bookId]?.name = link.text()
                     }
                 }
-                downloadLink = DownloadLink()
-                downloadLink.url = href
-                booksList[bookId]?.downloadLinks?.add(downloadLink)
+                else if (href!!.matches(downloadLinkPattern) && !href!!.endsWith("read")) {
+                    // found link
+                    if(booksList[bookId] == null){
+                        val bookName = dom.select("div#main h1.title")
+                        booksList[bookId!!] = FoundEntity()
+                        booksList[bookId]?.id = bookId
+                        booksList[bookId]?.type = TYPE_BOOK
+                        booksList[bookId]?.name = bookName[0].text()
+                    }
+                    downloadLink = DownloadLink()
+                    downloadLink.url = href
+                    downloadLink.id = bookId
+                    downloadLink.name = booksList[bookId]?.name
+                    downloadLink.mime = MimeHelper.getMimeFromLink(href!!)
+                    booksList[bookId]?.downloadLinks?.add(downloadLink)
+                }
             }
         }
-        Log.d("surprise", "XMLHandler.kt 159: books in result ${booksList.size}")
-        result.addAll(booksList.values)
-        return result
+        //now, remove all items without download links
+       val iterator = booksList.iterator()
+        iterator.forEach {
+            if(it.value.downloadLinks.isEmpty()){
+                iterator.remove()
+            }
+        }
+        return booksList
     }
 
     @kotlin.jvm.JvmStatic
     fun handleBackup(zin: ZipInputStream) {
-        Log.d("surprise", "XMLHandler.kt 172: restoring")
         try {
             val s = StringBuilder()
             val buffer = ByteArray(1024)
@@ -193,10 +211,10 @@ object XMLHandler {
                     val id = node.attributes.getNamedItem("id").textContent
                     val rb = ReadedBooks()
                     rb.bookId = id
-                    if (DatabaseInstance.instance.mDatabase.readBooksDao()
+                    if (DatabaseInstance.mDatabase.readBooksDao()
                             .getBookById(id) == null
                     ) {
-                        DatabaseInstance.instance.mDatabase.readBooksDao().insert(rb)
+                        DatabaseInstance.mDatabase.readBooksDao().insert(rb)
                     }
                     ++counter
                 }
@@ -215,11 +233,10 @@ object XMLHandler {
                 while (counter < entriesLen) {
                     node = entries.item(counter)
                     // получу идентификатор книги
-                    val id = node.attributes.getNamedItem("id").textContent
-                    Log.d("surprise", "handleBackup: book id is $id")
                     val rb = DownloadedBooks()
-                    rb.bookId = id
-                   DatabaseInstance.instance.mDatabase.downloadedBooksDao().insert(rb)
+                    rb.bookId = node.attributes.getNamedItem("id").textContent
+                    rb.destination = node.attributes.getNamedItem("destination").textContent
+                    DatabaseInstance.mDatabase.downloadedBooksDao().insert(rb)
                     ++counter
                 }
                 return
@@ -257,14 +274,12 @@ object XMLHandler {
                     scheduleElement.authorDirName = authorDirName
                     scheduleElement.sequenceDirName = sequenceDirName
                     scheduleElement.reservedSequenceName = reservedSequenceName
-                    DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
+                    DatabaseInstance.mDatabase.booksDownloadScheduleDao()
                         .insert(scheduleElement)
                     ++counter
                 }
                 return
             }
-            Log.d("surprise", "XMLHandler.kt 259: search errors...")
-            Log.d("surprise", "XMLHandler.kt 260: $xml")
             entries = xPath.evaluate(
                 "/download_schedule_errors/link",
                 document,
@@ -299,7 +314,7 @@ object XMLHandler {
                     scheduleElement.authorDirName = authorDirName
                     scheduleElement.sequenceDirName = sequenceDirName
                     scheduleElement.reservedSequenceName = reservedSequenceName
-                    DatabaseInstance.instance.mDatabase.downloadErrorDao().insert(scheduleElement)
+                    DatabaseInstance.mDatabase.downloadErrorDao().insert(scheduleElement)
                     ++counter
                 }
                 return
@@ -317,7 +332,7 @@ object XMLHandler {
                     // получу идентификатор книги
                     val name = node.attributes.getNamedItem("name").textContent
                     val link = node.attributes.getNamedItem("link").textContent
-                    BookmarkHandler.instance.addBookmark(
+                    BookmarkHandler.addBookmark(
                         BookmarkItem(
                             "",
                             App.instance.getString(R.string.no_category_title),

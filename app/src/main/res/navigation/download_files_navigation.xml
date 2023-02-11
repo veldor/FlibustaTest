@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/downloadFilesNavigation"
+    app:startDestination="@+id/navigation_files_in_dir">
+
+    <fragment
+        android:id="@+id/navigation_files_in_dir"
+        android:name="net.veldor.flibusta_test.view.download_files_fragments.FilesInDirFragment"
+        android:label="@string/navigation_go_opds"
+        tools:layout="@layout/fragment_files_in_db" />
+
+    <fragment
+        android:id="@+id/navigation_files_from_db"
+        android:name="net.veldor.flibusta_test.view.download_files_fragments.FilesInDbFragment"
+        android:label="@string/title_browser"
+        tools:layout="@layout/fragment_files_in_dir" />
+</navigation>

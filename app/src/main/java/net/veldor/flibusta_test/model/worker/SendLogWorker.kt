@@ -10,7 +10,7 @@ import androidx.core.content.FileProvider
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import net.veldor.flibusta_test.App
-import net.veldor.flibusta_test.model.utils.ZipManager
+import net.veldor.flibusta_test.model.util.ZipManager
 import java.io.File
 
 
@@ -51,9 +51,6 @@ class SendLogWorker(context: Context, workerParams: WorkerParameters) :
                             "Отправить лог"
                         ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
-                }
-                else{
-                    Toast.makeText(App.instance, "Не удалось сохранить лог-файл", Toast.LENGTH_SHORT).show()
                 }
                 if (existentFiles.isNotEmpty()) {
                     for (f in existentFiles) {

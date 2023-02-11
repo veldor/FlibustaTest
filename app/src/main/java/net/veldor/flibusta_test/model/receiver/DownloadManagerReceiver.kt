@@ -10,9 +10,10 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.FileProvider
 import net.veldor.flibusta_test.BuildConfig
-import net.veldor.flibusta_test.model.utils.Updater
+import net.veldor.flibusta_test.model.handler.UpdateHandler
 import java.io.File
 
+@Suppress("DEPRECATION")
 class DownloadManagerReceiver(private val downloadManager: DownloadManager, private val downloadID: Long) :
     BroadcastReceiver() {
 
@@ -39,41 +40,52 @@ class DownloadManagerReceiver(private val downloadManager: DownloadManager, priv
                     if (status == DownloadManager.STATUS_SUCCESSFUL) {
                         Log.d("surprise", "DownloadManagerReceiver.kt 40: here2")
                         val fullPath: String?
-                        val source: File?
+                        var source: File? = null
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            fullPath = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
-                            source = File(Uri.parse(fullPath).getPath())
+                            val index = c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                            if(index >= 0){
+                                fullPath = c.getString(index)
+                                if(fullPath != null){
+                                    source = Uri.parse(fullPath).path?.let { File(it) }
+                                }
+                            }
                         } else {
-                            fullPath =
-                                c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME))
-                            source = File(fullPath)
+                            val index = c.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME)
+                            if(index >= 0){
+                                fullPath = c.getString(index)
+                                if(fullPath != null){
+                                    source = Uri.parse(fullPath).path?.let { File(it) }
+                                }
+                            }
+                        }
+                        if(source != null){
+                            //open the downloaded file
+                            val install = Intent(Intent.ACTION_VIEW)
+                            install.flags =
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            var downloadUri: Uri? = UpdateHandler.updateDownloadUri
+                            if (Build.VERSION.SDK_INT >= 24) {
+                                downloadUri = FileProvider.getUriForFile(
+                                    context, BuildConfig.APPLICATION_ID + ".provider",
+                                    source
+                                )
+                            }
+                            install.setDataAndType(
+                                downloadUri,
+                                downloadManager.getMimeTypeForDownloadedFile(downloadID)
+                            )
+                            Log.d("surprise", "DownloadReceiver onReceive: trying install update")
+                            context.startActivity(install)
                         }
 
-                        //open the downloaded file
-                        val install = Intent(Intent.ACTION_VIEW)
-                        install.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        var downloadUri: Uri? = Updater.updateDownloadUri
-                        if (Build.VERSION.SDK_INT >= 24) {
-                            downloadUri = FileProvider.getUriForFile(
-                                context, BuildConfig.APPLICATION_ID + ".provider",
-                                source
-                            )
-                        }
-                        install.setDataAndType(
-                            downloadUri,
-                            downloadManager.getMimeTypeForDownloadedFile(downloadID)
-                        )
-                        Log.d("surprise", "DownloadReceiver onReceive: trying install update")
-                        context.startActivity(install)
                         context.unregisterReceiver(this)
                     }
                     else{
-                        Updater.liveCurrentDownloadProgress.postValue(-2)
+                        UpdateHandler.liveCurrentDownloadProgress.postValue(-2)
                     }
                 }
                 else{
-                    Updater.liveCurrentDownloadProgress.postValue(-2)
+                    UpdateHandler.liveCurrentDownloadProgress.postValue(-2)
                 }
                 c.close()
             }

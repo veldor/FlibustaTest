@@ -10,8 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.veldor.flibusta_test.App
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import net.veldor.flibusta_test.model.web.UniversalWebClient
+import net.veldor.flibusta_test.model.connection.Connector
+import net.veldor.flibusta_test.model.selection.FoundEntity
+import net.veldor.tor_client.model.managers.ConnectionManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -66,46 +67,40 @@ class CoverHandler {
         }
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val response = UniversalWebClient().rawRequest(foundedEntity.coverUrl!!, false)
+                val response = Connector().rawRequest(foundedEntity.coverUrl!!, false)
                 val status = response.statusCode
                 if (status < 400) {
                     var tempFile: File? = null
-                    when (val contentTypeHeader = response.headers!!["Content-Type"]) {
-                        "image/jpeg" -> {
-                            tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
-                            tempFile.deleteOnExit()
-                            val out: OutputStream = FileOutputStream(tempFile)
-                            var read: Int
-                            val buffer = ByteArray(1024)
-                            while (response.inputStream!!.read(buffer)
-                                    .also { read = it } > 0
-                            ) {
-                                out.write(buffer, 0, read)
-                            }
-                            out.close()
-                            response.inputStream.close()
+                    if (response.headers["Content-Type"]?.contains("image/jpeg") == true) {
+                        tempFile =
+                            File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
+                        tempFile.deleteOnExit()
+                        val out: OutputStream = FileOutputStream(tempFile)
+                        var read: Int
+                        val buffer = ByteArray(1024)
+                        while (response.inputStream!!.read(buffer)
+                                .also { read = it } > 0
+                        ) {
+                            out.write(buffer, 0, read)
                         }
-                        "image/png" -> {
-                            tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "png")
-                            tempFile.deleteOnExit()
-                            val out: OutputStream = FileOutputStream(tempFile)
-                            var read: Int
-                            val buffer = ByteArray(1024)
-                            while (response.inputStream!!.read(buffer)
-                                    .also { read = it } > 0
-                            ) {
-                                out.write(buffer, 0, read)
-                            }
-                            out.close()
-                            response.inputStream.close()
+                        out.close()
+                        response.inputStream?.close()
+                    } else if (response.headers["Content-Type"]?.contains("image/png") == true) {
+                        tempFile =
+                            File.createTempFile(GrammarHandler.longRandom.toString(), "png")
+                        tempFile.deleteOnExit()
+                        val out: OutputStream = FileOutputStream(tempFile)
+                        var read: Int
+                        val buffer = ByteArray(1024)
+                        while (response.inputStream!!.read(buffer)
+                                .also { read = it } > 0
+                        ) {
+                            out.write(buffer, 0, read)
                         }
-                        else -> {
-                            Log.d(
-                                "surprise",
-                                "loadPic: pic ${foundedEntity.coverUrl} is $contentTypeHeader"
-                            )
-                        }
+                        out.close()
+                        response.inputStream?.close()
                     }
+
                     if (tempFile != null && tempFile.isFile && tempFile.exists() && tempFile.canRead() && tempFile.length() > 0) {
                         val compressedImageFile = Compressor.compress(App.instance, tempFile) {
                             resolution(100, 143)
@@ -124,48 +119,41 @@ class CoverHandler {
     }
 
     fun downloadFullPic(item: FoundEntity) {
-        val response = UniversalWebClient().rawRequest(item.coverUrl!!, false)
+        val response = Connector().rawRequest(item.coverUrl!!, false)
         val status = response.statusCode
         if (status < 400) {
-            try{
+            try {
                 var tempFile: File? = null
-                when (val contentTypeHeader = response.headers!!["Content-Type"]) {
-                    "image/jpeg" -> {
-                        tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
-                        tempFile.deleteOnExit()
-                        val out: OutputStream = FileOutputStream(tempFile)
-                        var read: Int
-                        val buffer = ByteArray(1024)
-                        while (response.inputStream!!.read(buffer).also { read = it } > 0) {
-                            out.write(buffer, 0, read)
-                        }
-                        out.close()
-                        response.inputStream.close()
+                if (response.headers["Content-Type"]?.contains("image/jpeg") == true) {
+
+                    tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "jpg")
+                    tempFile.deleteOnExit()
+                    val out: OutputStream = FileOutputStream(tempFile)
+                    var read: Int
+                    val buffer = ByteArray(1024)
+                    while (response.inputStream!!.read(buffer).also { read = it } > 0) {
+                        out.write(buffer, 0, read)
                     }
-                    "image/png" -> {
-                        tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "png")
-                        tempFile.deleteOnExit()
-                        val out: OutputStream = FileOutputStream(tempFile)
-                        var read: Int
-                        val buffer = ByteArray(1024)
-                        while (response.inputStream!!.read(buffer).also { read = it } > 0) {
-                            out.write(buffer, 0, read)
-                        }
-                        out.close()
-                        response.inputStream.close()
+                    out.close()
+                    response.inputStream?.close()
+                } else if (response.headers["Content-Type"]?.contains("image/png") == true) {
+
+                    tempFile = File.createTempFile(GrammarHandler.longRandom.toString(), "png")
+                    tempFile.deleteOnExit()
+                    val out: OutputStream = FileOutputStream(tempFile)
+                    var read: Int
+                    val buffer = ByteArray(1024)
+                    while (response.inputStream!!.read(buffer).also { read = it } > 0) {
+                        out.write(buffer, 0, read)
                     }
-                    else -> {
-                        Log.d(
-                            "surprise",
-                            "loadPic: pic ${item.coverUrl} is ${contentTypeHeader}"
-                        )
-                    }
+                    out.close()
+                    response.inputStream?.close()
                 }
                 if (tempFile != null && tempFile.isFile && tempFile.length() > 0) {
                     item.cover = tempFile
                 }
+            } catch (_: SocketTimeoutException) {
             }
-            catch (_: SocketTimeoutException){}
         }
     }
 }

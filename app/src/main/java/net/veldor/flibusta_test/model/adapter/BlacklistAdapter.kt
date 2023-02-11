@@ -9,8 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.databinding.BlacklistItemBinding
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
-import net.veldor.flibusta_test.model.selections.blacklist.BlacklistItem
-import net.veldor.flibusta_test.model.selections.subscribe.SubscribeItem
+import net.veldor.flibusta_test.model.selection.filter.BlacklistItem
 
 class BlacklistAdapter(
     private var mItems: ArrayList<BlacklistItem>,

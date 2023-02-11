@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color"
-    tools:context=".ui.BrowserActivity">
+    tools:context=".view.SearchActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -48,6 +48,7 @@
             android:background="@color/colorPrimary"
             android:backgroundTint="@color/colorPrimary"
             android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -63,7 +64,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
-                    android:tint="@color/white"
                     app:layout_constraintEnd_toStartOf="@+id/switchViewRightBtn"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread"
@@ -74,7 +74,6 @@
                     android:id="@+id/currentViewName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -89,7 +88,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    android:tint="@color/white"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/switchViewLeftBtn"
@@ -104,7 +102,6 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="30dp"
                     android:src="@drawable/ic_baseline_check_24"
-                    android:tint="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -114,7 +111,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <net.veldor.flibusta_test.model.components.MyWebView
+        <net.veldor.flibusta_test.view.components.MyWebView
             android:id="@+id/myWebView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -137,8 +134,6 @@
             android:textColor="@color/lightTextColor"
             android:theme="@style/Theme.MaterialComponents.Light"
             android:visibility="gone"
-            app:fab_hideAnimation="@anim/fab_slide_down_animation"
-            app:fab_showAnimation="@anim/fab_slide_up_animation"
             app:icon="@drawable/ic_baseline_arrow_downward_24"
             app:iconTint="@color/lightTextColor"
             app:layout_constraintBottom_toTopOf="@id/viewSwitcherContainer"

@@ -4,17 +4,15 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.handler.DownloadHandler
 import net.veldor.flibusta_test.model.handler.NotificationHandler
-import net.veldor.flibusta_test.ui.DownloadedBooksActionsActivity
+import net.veldor.flibusta_test.view.DownloadedBooksActionsActivity
 
 class DownloadBookProcessReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("surprise", "onReceive: received action")
         val intentId = intent.getIntExtra(DownloadedBooksActionsActivity.EXTRA_NOTIFICATION_ID, 0)
         if (intentId > 0) {
             val notificationManager =
@@ -23,22 +21,22 @@ class DownloadBookProcessReceiver : BroadcastReceiver() {
         }
         when (intent.getStringExtra(EXTRA_ACTION)) {
             ACTION_PAUSE_MASS_DOWNLOAD -> {
-                DownloadHandler.instance.cancelDownload()
-                NotificationHandler.instance.showDownloadPausedNotification()
+                DownloadHandler.cancelDownload()
+                NotificationHandler.showDownloadPausedNotification()
             }
             ACTION_DROP_DOWNLOAD_QUEUE -> {
-                DownloadHandler.instance.cancelDownload()
-                DatabaseInstance.instance.dropDownloadQueue()
+                DownloadHandler.cancelDownload()
+                DatabaseInstance.dropDownloadQueue()
             }
             ACTION_RELOAD -> {
-                DatabaseInstance.instance.reloadDownloadErrorByBookId(
+                DatabaseInstance.reloadDownloadErrorByBookId(
                     intent.getStringExtra(
                         EXTRA_BOOK_ID
                     )
                 )
             }
             ACTION_DELETE -> {
-                DatabaseInstance.instance.deleteDownloadErrorByBookId(
+                DatabaseInstance.deleteDownloadErrorByBookId(
                     intent.getStringExtra(
                         EXTRA_BOOK_ID
                     )

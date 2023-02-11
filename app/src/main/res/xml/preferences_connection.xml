@@ -2,12 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <SwitchPreferenceCompat
-        android:defaultValue="true"
-        android:summaryOff="@string/skip_server_check_title"
-        android:summaryOn="@string/server_check_enabled_title"
-        android:title="@string/check_server_on_start"
-        app:key="check availability" />
-    <SwitchPreferenceCompat
         android:defaultValue="false"
         android:summaryOff="@string/normally_load_app_title"
         android:summaryOn="@string/skip_load_screen_summary"
@@ -18,19 +12,16 @@
         android:summaryOff="@string/show_connection_options_disabled_title"
         android:summaryOn="@string/show_connection_options_enabled_title"
         android:title="@string/show_connection_options_message"
-        app:key="show connection options" />
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:summaryOff="@string/use_tor_titile"
-        android:summaryOn="@string/use_vpn_title"
-        app:key="external vpn"
-        app:title="@string/use_vpn_pref_title" />
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:summaryOff="@string/use_http_mirror_title"
-        android:summaryOn="@string/use_tor_mirror_title"
-        android:title="@string/main_mirror_tor_title"
-        app:key="use tor mirror" />
+        app:key="offer connection switch" />
+
+    <DropDownPreference
+        app:key="connect mode"
+        android:entries="@array/connection_options_entries"
+        android:defaultValue="Tor"
+        app:useSimpleSummaryProvider="true"
+        android:entryValues="@array/connection_options_values"
+        android:title="@string/select_connection_type_title" />
+
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:summaryOff="@string/default_server_url_use_title"
@@ -39,18 +30,10 @@
         app:key="use custom mirror" />
     <EditTextPreference
         android:summary="@string/custom_mirror_hint"
-        android:title="Назначить зеркало Флибусты"
+        android:title="@string/set_custom_mirror_title"
         app:key="custom flibusta mirror" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:summaryOff="@string/use_routine_bridges_title"
-        android:summaryOn="@string/use_custom_bridges_title"
-        android:title="@string/custom_bridges_title"
-        app:key="use custom bridges" />
-
     <Preference
-        android:dependency="use custom bridges"
-        android:key="custom bridges"
-        android:title="@string/custom_bridges" />
+        android:title="@string/setup_bridges_title"
+        app:key="setup bridges" />
 </PreferenceScreen>

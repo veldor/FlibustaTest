@@ -1,14 +1,14 @@
 package net.veldor.flibusta_test.model.handler
 
-import android.content.Context
+import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHOR
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_AUTHORS
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
 import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_GENRE
-import net.veldor.flibusta_test.model.selections.blacklist.BlacklistType.Companion.getDocument
+import net.veldor.flibusta_test.model.selection.filter.BlacklistType
 import java.io.*
-import java.util.ArrayList
 
 object FilesHandler {
     private const val SEARCH_VALUE_NAME = "string"
@@ -19,17 +19,9 @@ object FilesHandler {
     private const val SEARCH_AUTOCOMPLETE_NEW =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><search> </search>"
 
-    fun dropTorCache() {
-        val file = App.instance.getDir(TorHandler.TOR_FILES_LOCATION, Context.MODE_PRIVATE)
-        if (file.isDirectory) {
-            file.deleteRecursively()
-        }
-        file.mkdir()
-    }
-
     fun getSearchAutocomplete(type: String): ArrayList<String> {
         val searchValues = ArrayList<String>()
-        val searchList = getDocument(getSearchAutocompleteString(type))
+        val searchList = BlacklistType.getDocument(getSearchAutocompleteString(type))
         // найду значения строк
         if (searchList != null) {
             val values = searchList.getElementsByTagName(SEARCH_VALUE_NAME)
@@ -64,7 +56,7 @@ object FilesHandler {
             else -> File(App.instance.filesDir, SEARCH_SEQUENCE_AUTOCOMPLETE_FILE)
         }
 
-        if(autocompleteFile.length() == 0L){
+        if (autocompleteFile.length() == 0L) {
             autocompleteFile.delete()
         }
 
@@ -95,5 +87,29 @@ object FilesHandler {
             else -> File(App.instance.filesDir, SEARCH_SEQUENCE_AUTOCOMPLETE_FILE)
         }
         makeFile(autocompleteFile, value)
+    }
+
+    fun getBookRelativePath(file: DocumentFile): String {
+        val root = PreferencesHandler.rootDownloadDir
+        if (root.root != null) {
+            var path = file.name
+            var parent = file.parentFile
+            while (parent != null && parent.uri != root.root?.uri) {
+                Log.d("surprise", "FilesHandler: 97 parent file is ${parent.uri}")
+                Log.d("surprise", "FilesHandler: 99 root file is ${root.root?.uri}")
+                path = "${parent.name}/$path"
+                parent = parent.parentFile
+            }
+            return path!!
+        }
+        return file.name!!
+    }
+
+    fun getBookRelativePath(file: File): String {
+        val root = PreferencesHandler.rootDownloadDir
+        if(root.compatRoot != null){
+            return file.absolutePath.replace(root.compatRoot!!.absolutePath, "")
+        }
+        return file.name
     }
 }

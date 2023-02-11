@@ -13,8 +13,8 @@
         app:key="max cache size"
         android:title="@string/max_cache_size_title"
         android:summary="1 mb"
-        app:min="1"
-        android:max="1001"/>
+        android:max="3000"
+        app:min="1"/>
     <Preference
         android:key="clear cache now"
         android:title="@string/clear_cache_now_title"/>

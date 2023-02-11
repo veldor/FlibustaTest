@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/grantAccessLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/select_preferences_for_backup_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupBasePreferencesSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_base_preferences_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupDownloadedBooksSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_downloaded_books_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupReadBooksSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_read_books_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupSearchAutofillSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_search_autofill_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupBookmarksListSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_bookmarks_list_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupSubscriptionsListSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_subscriptions_list_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupFiltersListSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_filters_list_title" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/backupDownloadScheduleSwitcher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp"
+            android:checked="true"
+            android:text="@string/backup_download_schedule_title" />
+
+        <Button
+            android:id="@+id/doBackupBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="@string/backup_preferences_title" />
+
+        <Button
+            android:id="@+id/shareFileBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:drawableStart="@drawable/ic_share_white_24dp"
+            android:drawablePadding="10dp"
+            android:enabled="false"
+            android:text="@string/share_preferences_backup_title" />
+
+        <Button
+            android:id="@+id/saveFileBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:drawableStart="@drawable/ic_cloud_download_white_24dp"
+            android:drawablePadding="10dp"
+            android:enabled="false"
+            android:text="@string/save_preferences_backup_title" />
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

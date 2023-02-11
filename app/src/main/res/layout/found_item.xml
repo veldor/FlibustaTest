@@ -10,7 +10,7 @@
 
         <variable
             name="item"
-            type="net.veldor.flibusta_test.model.selections.opds.FoundEntity" />
+            type="net.veldor.flibusta_test.model.selection.FoundEntity" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -18,14 +18,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        app:cardBackgroundColor="@color/cardview_background"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="@color/cardview_background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainView"
-            android:layout_margin="5dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp">
 
             <ImageView
                 android:id="@+id/previewImage"
@@ -46,12 +46,12 @@
                 android:paddingStart="30dp"
                 android:paddingLeft="30dp"
                 android:paddingTop="10dp"
-                android:paddingEnd="10dp"
-                android:paddingRight="10dp"
+                android:paddingEnd="30dp"
+                android:paddingRight="30dp"
                 android:text="@{item.name}"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/menuButton"
+                app:layout_constraintEnd_toStartOf="@id/menuButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -183,13 +183,13 @@
                 android:paddingBottom="5dp"
                 android:textColor="@color/textColor"
                 android:visibility="visible"
-                app:layout_constraintEnd_toStartOf="@+id/third_block_right_element"
+                app:layout_constraintEnd_toStartOf="@+id/thirdBlockRightElement"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/thirdBlockLeftElement"
                 app:layout_constraintTop_toBottomOf="@id/thirdBarrier" />
 
             <TextView
-                android:id="@+id/third_block_right_element"
+                android:id="@+id/thirdBlockRightElement"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -207,19 +207,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="bottom"
-                app:constraint_referenced_ids="thirdBlockLeftElement,thirdBlockCenterElement,@+id/third_block_right_element" />
+                app:constraint_referenced_ids="thirdBlockLeftElement,thirdBlockCenterElement,thirdBlockRightElement" />
 
-            <TextView
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/availableLinkFormats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
+                android:gravity="center"
                 android:paddingTop="10dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/textColor"
-                android:textStyle="bold"
+                android:orientation="horizontal"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintTop_toBottomOf="@id/fourthBarrier" />
+                app:layout_constraintTop_toBottomOf="@id/fourthBarrier"/>
 
 
             <ImageButton
@@ -227,7 +226,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/ic_readed_24dp"
+                android:background="@drawable/ic_read_24dp"
                 android:contentDescription="@string/book_read_message"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:padding="15dp"

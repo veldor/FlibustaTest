@@ -5,8 +5,7 @@ import androidx.room.Room
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
 
-class DatabaseInstance
-private constructor() {
+object DatabaseInstance {
     fun dropDownloadQueue() {
         val schedule = mDatabase.booksDownloadScheduleDao().allBooks
         if (schedule != null && schedule.isNotEmpty()) {
@@ -64,14 +63,10 @@ private constructor() {
             AppDatabase.MIGRATION_5_6,
             AppDatabase.MIGRATION_6_7,
             AppDatabase.MIGRATION_7_8,
-            AppDatabase.MIGRATION_8_9
+            AppDatabase.MIGRATION_8_9,
+            AppDatabase.MIGRATION_9_10,
+            AppDatabase.MIGRATION_10_11,
         )
         .allowMainThreadQueries()
         .build()
-
-    companion object {
-        @JvmStatic
-        var instance: DatabaseInstance = DatabaseInstance()
-            private set
-    }
 }

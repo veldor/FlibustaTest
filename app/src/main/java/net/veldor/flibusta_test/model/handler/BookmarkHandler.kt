@@ -3,14 +3,14 @@ package net.veldor.flibusta_test.model.handler
 import android.content.Context
 import android.util.Log
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.file.MyFileReader
-import net.veldor.flibusta_test.model.selections.BookmarkItem
-import net.veldor.flibusta_test.model.selections.blacklist.BlacklistType
-import net.veldor.flibusta_test.model.utils.RandomString
+import net.veldor.flibusta_test.model.selection.BookmarkItem
+import net.veldor.flibusta_test.model.selection.filter.BlacklistType
+import net.veldor.flibusta_test.model.util.MyFileReader
+import net.veldor.flibusta_test.model.util.RandomString
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 
-class BookmarkHandler private constructor() {
+object BookmarkHandler {
 
     fun getBookmarkCategories(context: Context): List<BookmarkItem> {
         // read data from XML
@@ -257,14 +257,6 @@ class BookmarkHandler private constructor() {
         return parent.attributes.getNamedItem("name").textContent
     }
 
-
-    companion object {
-        @kotlin.jvm.JvmStatic
-        var instance: BookmarkHandler = BookmarkHandler()
-            private set
-
-
-        const val TYPE_CATEGORY = "category"
-        const val TYPE_BOOKMARK = "bookmark"
-    }
+    const val TYPE_CATEGORY = "category"
+    const val TYPE_BOOKMARK = "bookmark"
 }

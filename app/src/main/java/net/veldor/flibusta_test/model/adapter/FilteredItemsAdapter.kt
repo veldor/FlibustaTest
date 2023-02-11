@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.model.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,9 +10,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.databinding.FilteredListViewBinding
+import net.veldor.flibusta_test.databinding.FilteredListItemBinding
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.FoundEntity
 
 class FilteredItemsAdapter(
     private val values: ArrayList<FoundEntity>,
@@ -25,7 +26,7 @@ class FilteredItemsAdapter(
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val binding = FilteredListViewBinding.inflate(
+        val binding = FilteredListItemBinding.inflate(
             mLayoutInflater, viewGroup, false
         )
         return ViewHolder(binding)
@@ -40,19 +41,20 @@ class FilteredItemsAdapter(
         return values.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun requireUpdate() {
         Log.d("surprise", "requireUpdate: i updating this list of ${values.size}")
         notifyDataSetChanged()
     }
 
 
-    inner class ViewHolder(private val binding: FilteredListViewBinding) :
+    inner class ViewHolder(private val binding: FilteredListItemBinding) :
         RecyclerView.ViewHolder(
             binding.root
         ) {
 
         init {
-            if (PreferencesHandler.instance.isEInk) {
+            if (PreferencesHandler.isEInk) {
 
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
@@ -97,16 +99,16 @@ class FilteredItemsAdapter(
             binding.filterReason.text = item.filterResult?.toString()
             // скрою элементы как в основном вью
             binding.genreName.visibility =
-                if (PreferencesHandler.instance.showFoundBookGenres) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookGenres) View.VISIBLE else View.GONE
 
             binding.sequenceName.visibility =
-                if (PreferencesHandler.instance.showFoundBookSequences) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookSequences) View.VISIBLE else View.GONE
 
             binding.authorName.visibility =
-                if (PreferencesHandler.instance.showAuthors) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showAuthors) View.VISIBLE else View.GONE
 
             binding.translatorName.visibility =
-                if (PreferencesHandler.instance.showFoundBookTranslators) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookTranslators) View.VISIBLE else View.GONE
         }
     }
 }

@@ -18,7 +18,7 @@ import java.util.*
  *
  * Created by bendaf on 2016-04-28
  */
-class LogHandler private constructor() {
+object LogHandler {
     fun initLog() {
         val isLogStarted = false
         if (!isLogStarted && shouldLog) {
@@ -55,21 +55,12 @@ class LogHandler private constructor() {
         val work = OneTimeWorkRequest.Builder(SendLogWorker::class.java).build()
         WorkManager.getInstance(App.instance).enqueue(work)
     }
+
     fun sendLogsToMail() {
         // запущу рабочего, который подготовит лог и отправит его
         val work = OneTimeWorkRequest.Builder(SendLogToMailWorker::class.java).build()
         WorkManager.getInstance(App.instance).enqueue(work)
     }
 
-    companion object {
-        private const val shouldLog = true //TODO: set to false in final version of the app
-        private var mInstance: LogHandler? = null
-        @kotlin.jvm.JvmStatic
-        fun getInstance(): LogHandler? {
-            if (mInstance == null) {
-                mInstance = LogHandler()
-            }
-            return mInstance
-        }
-    }
+    private const val shouldLog = true //TODO: set to false in final version of the app
 }

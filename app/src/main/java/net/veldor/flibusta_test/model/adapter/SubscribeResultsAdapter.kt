@@ -9,7 +9,7 @@ import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.SubscribeResultBinding
 import net.veldor.flibusta_test.model.delegate.FoundItemActionDelegate
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.FoundEntity
 
 class SubscribeResultsAdapter(
     private val context: Context,

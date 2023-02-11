@@ -23,7 +23,6 @@
             android:layout_marginStart="30dp"
             android:layout_marginLeft="30dp"
             android:background="@android:color/transparent"
-            android:hint="@string/change_filter_msg"
             android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLength="150"

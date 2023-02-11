@@ -7,4 +7,9 @@
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@android:string/search_go"
         yourapp:showAsAction="always" />
+    <item
+        android:id="@+id/action_login"
+        android:icon="@drawable/baseline_vpn_key_24"
+        android:title="@string/login_button_title"
+        yourapp:showAsAction="ifRoom"/>
 </menu>

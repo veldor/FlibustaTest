@@ -6,7 +6,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="10dp"
-    tools:context=".ui.BrowserActivity">
+    tools:context=".view.SearchActivity">
 
     <ScrollView
         android:layout_width="match_parent"

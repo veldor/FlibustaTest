@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    tools:context=".view.SearchActivity"
     android:layout_height="match_parent"
     android:background="@color/opds_background">
 
-    <net.veldor.flibusta_test.ui.components.SwipeUpLayout
+    <net.veldor.flibusta_test.view.components.SwipeUpLayout
         android:id="@+id/swipeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -44,9 +45,20 @@
 
 
                     <ImageButton
+                        android:id="@+id/connectionOptionBtn"
+                        style="?android:attr/buttonBarButtonStyle"
+                        android:layout_width="50dp"
+                        app:tint="@color/textColor"
+                        android:layout_height="50dp"
+                        android:contentDescription="@string/download_state_btn_desc"
+                        android:drawableLeft="@drawable/tor_drawable"
+                        android:src="@drawable/tor_drawable" />
+
+                    <ImageButton
                         android:id="@+id/useFilterBtn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/use_filter_button_desc"
                         android:src="@drawable/ic_baseline_filter_alt_24" />
@@ -55,6 +67,7 @@
                         android:id="@+id/sortBtn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/sort_list_btn_desc"
                         android:src="@drawable/ic_sort_white_24dp" />
@@ -63,6 +76,7 @@
                         android:id="@+id/show_blocked_state_btn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/show_blocked_state_btn_description"
                         android:drawableLeft="@drawable/ic_baseline_block_24"
@@ -73,6 +87,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:tint="@color/textColor"
                         android:contentDescription="@string/download_state_btn_desc"
                         android:drawableLeft="@drawable/ic_baseline_arrow_downward_24"
                         android:src="@drawable/ic_baseline_arrow_downward_24" />
@@ -82,6 +97,7 @@
                         android:id="@+id/addBookmarkBtn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/add_bookmark_title"
                         android:src="@drawable/ic_baseline_bookmark_add_24" />
@@ -90,6 +106,7 @@
                         android:id="@+id/switchResultsLayoutBtn"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/switch_layout_btn"
                         android:src="@drawable/ic_baseline_grid_on_24" />
@@ -99,6 +116,7 @@
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:tint="@color/textColor"
                         android:contentDescription="@string/night_view_mode_title"
                         android:src="@drawable/ic_baseline_brightness_6_24" />
 
@@ -106,6 +124,7 @@
                         android:id="@+id/readerModeSwitcher"
                         style="?android:attr/buttonBarButtonStyle"
                         android:layout_width="50dp"
+                        android:tint="@color/textColor"
                         android:layout_height="50dp"
                         android:contentDescription="@string/e_ink_app_view_title"
                         android:src="@drawable/ic_baseline_chrome_reader_mode_24" />
@@ -152,6 +171,7 @@
                     android:layout_height="30dp"
                     android:layout_marginStart="5dp"
                     android:layout_marginLeft="5dp"
+                    app:buttonCompat="@null"
                     android:layout_weight="1"
                     android:background="@drawable/radio_selector"
                     android:button="@null"
@@ -167,6 +187,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_marginStart="5dp"
+                    app:buttonCompat="@null"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/radio_selector"
@@ -183,6 +204,7 @@
                     android:layout_height="30dp"
                     android:layout_marginStart="5dp"
                     android:layout_marginLeft="5dp"
+                    app:buttonCompat="@null"
                     android:layout_weight="1"
                     android:background="@drawable/radio_selector"
                     android:button="@null"
@@ -197,6 +219,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_marginStart="5dp"
+                    app:buttonCompat="@null"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
                     android:background="@drawable/radio_selector"
@@ -211,6 +234,7 @@
                     android:id="@+id/filterTranslator"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
+                    app:buttonCompat="@null"
                     android:layout_marginStart="5dp"
                     android:layout_marginLeft="5dp"
                     android:layout_weight="1"
@@ -287,6 +311,7 @@
                                 android:id="@+id/searchBook"
                                 android:layout_width="wrap_content"
                                 android:layout_height="30dp"
+                                app:buttonCompat="@null"
                                 android:layout_marginStart="5dp"
                                 android:layout_marginLeft="5dp"
                                 android:layout_weight="1"
@@ -303,6 +328,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="30dp"
                                 android:layout_marginStart="5dp"
+                                app:buttonCompat="@null"
                                 android:layout_marginLeft="5dp"
                                 android:layout_weight="1"
                                 android:background="@drawable/radio_selector"
@@ -319,6 +345,7 @@
                                 android:layout_marginStart="5dp"
                                 android:layout_marginLeft="5dp"
                                 android:layout_weight="1"
+                                app:buttonCompat="@null"
                                 android:background="@drawable/radio_selector"
                                 android:button="@null"
                                 android:gravity="center"
@@ -333,6 +360,7 @@
                                 android:layout_marginStart="5dp"
                                 android:layout_marginLeft="5dp"
                                 android:layout_weight="1"
+                                app:buttonCompat="@null"
                                 android:background="@drawable/radio_selector"
                                 android:button="@null"
                                 android:gravity="center"
@@ -350,7 +378,7 @@
                             android:layout_marginTop="20dp"
                             android:layout_marginRight="50dp"
                             android:text="@string/new_books_title"
-                            android:textColor="@color/always_white"
+                            android:textColor="@color/alwaysWhite"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
                             app:layout_constraintStart_toStartOf="parent"
@@ -363,7 +391,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="50dp"
                             android:layout_marginRight="50dp"
-                            android:textColor="@color/always_white"
+                            android:textColor="@color/alwaysWhite"
                             android:visibility="gone"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintHorizontal_bias="0.5"
@@ -400,7 +428,7 @@
                             android:layout_marginLeft="50dp"
                             android:layout_marginRight="50dp"
                             android:text="@string/do_search_title"
-                            android:textColor="@color/always_white"
+                            android:textColor="@color/alwaysWhite"
                             app:layout_constraintTop_toBottomOf="@+id/use_filters_switch" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </ScrollView>
@@ -410,8 +438,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/quickLinksPanel"
                 android:layout_width="match_parent"
-                android:visibility="gone"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -446,47 +474,47 @@
 
                         <Button
                             android:id="@+id/quick_show_new_books"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/new_books_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_books_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
                         <Button
                             android:id="@+id/quick_show_new_authors"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/new_authors_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_authors_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
                         <Button
                             android:id="@+id/quick_show_new_genres"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/new_genres_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_genres_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
                         <Button
                             android:id="@+id/quick_show_new_sequences"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textColor="@color/textColor"
-                            android:textSize="12sp"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/new_sequences_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/new_sequences_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -498,44 +526,47 @@
 
                         <Button
                             android:id="@+id/quick_found_books_btn"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textColor="@color/textColor"
-                            android:textSize="12sp"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/find_books_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_books_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
                         <Button
                             android:id="@+id/quick_found_authors_btn"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/find_authors_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_authors_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
                         <Button
                             android:id="@+id/quick_found_genres_btn"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/find_genres_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_genres_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
+
                         <Button
                             android:id="@+id/quick_found_sequences_btn"
-                            android:layout_width="match_parent"
                             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="12sp"
-                            android:textColor="@color/textColor"
-                            android:layout_marginRight="20dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/find_sequences_title" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="20dp"
+                            android:text="@string/find_sequences_title"
+                            android:textColor="@color/textColor"
+                            android:textSize="12sp" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
                 </androidx.appcompat.widget.LinearLayoutCompat>
@@ -550,11 +581,9 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:contentDescription="@string/cancel_search_title"
-                android:src="@drawable/fp_ic_action_cancel"
+                android:src="@drawable/ic_baseline_cancel_24"
                 android:theme="@style/Theme.MaterialComponents.Light"
                 android:visibility="invisible"
-                app:fab_hideAnimation="@anim/fab_slide_down_animation"
-                app:fab_showAnimation="@anim/fab_slide_up_animation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
@@ -565,17 +594,28 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:backgroundTint="@color/fabColor"
                 android:text="@string/mass_load_title"
-                android:textColor="@color/lightTextColor"
                 android:theme="@style/Theme.MaterialComponents.Light"
-                app:fab_hideAnimation="@anim/fab_slide_down_animation"
-                app:fab_showAnimation="@anim/fab_slide_up_animation"
                 app:icon="@drawable/ic_baseline_arrow_downward_24"
-                app:iconTint="@color/lightTextColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </net.veldor.flibusta_test.ui.components.SwipeUpLayout>
+    </net.veldor.flibusta_test.view.components.SwipeUpLayout>
+
+
+    <TextView
+        android:id="@+id/noSearchResultsFoundTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_results_found_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

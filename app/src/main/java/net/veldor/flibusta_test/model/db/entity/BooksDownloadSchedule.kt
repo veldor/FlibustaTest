@@ -1,10 +1,7 @@
 package net.veldor.flibusta_test.model.db.entity
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import kotlinx.serialization.Serializable
-import net.veldor.flibusta_test.model.selections.CurrentBookDownloadProgress
 
 @Entity
 open class BooksDownloadSchedule {

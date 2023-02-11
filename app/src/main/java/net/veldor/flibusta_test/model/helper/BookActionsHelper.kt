@@ -1,10 +1,10 @@
 package net.veldor.flibusta_test.model.helper
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.DocumentsContract
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -12,7 +12,8 @@ import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.utils.TransportUtils.intentCanBeHandled
+import net.veldor.flibusta_test.model.handler.FormatHandler
+import net.veldor.flibusta_test.model.util.TransportUtils
 import java.io.File
 
 object BookActionsHelper {
@@ -23,7 +24,7 @@ object BookActionsHelper {
             file.type
         )
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (intentCanBeHandled(intent)) {
+        if (TransportUtils.intentCanBeHandled(intent)) {
             App.instance.startActivity(
                 Intent.createChooser(
                     intent,
@@ -41,70 +42,27 @@ object BookActionsHelper {
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun shareBook(file: DocumentFile) {
-        if (file.type != "application/x-mobipocket-ebook") {
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.putExtra(Intent.EXTRA_STREAM, file.uri)
-            shareIntent.type = file.type
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-            App.instance.startActivity(
-                Intent.createChooser(
-                    shareIntent,
-                    App.instance.getString(R.string.share_with_title)
-                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        } else {
-            Log.d("surprise", "shareFile: try share mobi as file")
-            val docId = DocumentsContract.getDocumentId(file.uri)
-            val split = docId.split(":").toTypedArray()
-            // получу файл из documentFile и отправлю его
-            var file1 = getFileFromDocumentFile(file)
-            if (file1 != null) {
-                if (!file1.exists()) {
-                    file1 = File(
-                        Environment.getExternalStorageDirectory().toString() + "/" + split[1]
-                    )
-                }
-                if (file1.exists()) {
-                    val fileUri: Uri? = try {
-                        FileProvider.getUriForFile(
-                            App.instance,
-                            "net.veldor.flibusta_test.provider",
-                            file1
-                        )
-                    } catch (e: IllegalArgumentException) {
-                        Log.e(
-                            "File Selector",
-                            "The selected file can't be shared: $file1"
-                        )
-                        null
-                    }
-                    Log.d("surprise", "shareFile: uri is $fileUri")
-                    // отправлю запрос на открытие файла
-                    val shareIntent = Intent(Intent.ACTION_SEND)
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-                    shareIntent.type = file.type
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    App.instance.startActivity(
-                        Intent.createChooser(
-                            shareIntent,
-                            App.instance.getString(R.string.share_with_title)
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
-                }
-            }
-        }
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.putExtra(Intent.EXTRA_STREAM, file.uri)
+        shareIntent.type = file.type
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        App.instance.startActivity(
+            Intent.createChooser(
+                shareIntent,
+                App.instance.getString(R.string.share_with_title)
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 
-    fun getFileFromDocumentFile(df: DocumentFile): File? {
-        val docId: String
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            docId = DocumentsContract.getDocumentId(df.uri)
-            val split = docId.split(":").toTypedArray()
-            val storage = split[0]
-            val path = "///storage/" + storage + "/" + split[1]
-            return File(path)
-        }
-        return null
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun shareBookToKindle(file: DocumentFile) {
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.putExtra(Intent.EXTRA_STREAM, file.uri)
+        shareIntent.type = file.type
+        Log.d("surprise", "BookActionsHelper: 63 type is ${shareIntent.type}")
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        shareIntent.`package` = "com.amazon.kindle"
+        App.instance.startActivity(shareIntent)
     }
 
     fun shareBook(file: File) {
@@ -128,6 +86,18 @@ object BookActionsHelper {
             shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
             shareIntent.type = MimeHelper.getMimeFromFileName(file.name)
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            val resInfoList: List<ResolveInfo> = App.instance.packageManager.queryIntentActivities(
+                shareIntent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+            for (resolveInfo in resInfoList) {
+                val packageName: String = resolveInfo.activityInfo.packageName
+                App.instance.grantUriPermission(
+                    packageName,
+                    fileUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
             App.instance.startActivity(
                 Intent.createChooser(
                     shareIntent,
@@ -163,5 +133,36 @@ object BookActionsHelper {
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
+    }
+
+    fun shareBookToKindle(file: File) {
+
+
+        val fileUri: Uri? = try {
+            FileProvider.getUriForFile(
+                App.instance,
+                "net.veldor.flibusta_test.provider",
+                file
+            )
+        } catch (e: IllegalArgumentException) {
+            Log.e(
+                "File Selector",
+                "The selected file can't be shared: $file"
+            )
+            null
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        shareIntent.type = FormatHandler.getFullFromShortMime(file.extension)
+        Log.d("surprise", "BookActionsHelper: 142 ${shareIntent.type}")
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        shareIntent.`package` = "com.amazon.kindle"
+        App.instance.grantUriPermission(
+            "com.amazon.kindle",
+            fileUri,
+            Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
+        App.instance.startActivity(shareIntent)
     }
 }

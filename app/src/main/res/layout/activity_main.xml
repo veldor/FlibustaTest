@@ -1,192 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rootView"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".view.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
-            android:layout_width="wrap_content"
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressView"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/always_white"
-            android:layout_marginTop="50dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/useTorText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:shadowColor="#FFF"
-                android:shadowDx="3"
-                android:shadowDy="3"
-                android:shadowRadius="3"
-                android:text="@string/tor_title"
-                android:textColor="@color/author_text_color"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/connectionTypeSwitcher"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/connectionTypeSwitcher"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toStartOf="@+id/useVpnText"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/useTorText"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/useVpnText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:shadowColor="#FFF"
-                android:shadowDx="3"
-                android:shadowDy="3"
-                android:shadowRadius="3"
-                android:text="@string/vpn_title"
-                android:textColor="@color/genre_text_color"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/connectionTypeSwitcher"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/currentState"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="@string/start_connection_test_btn"
+            android:layout_marginStart="20dp"
             android:gravity="center"
-            android:textColor="@color/always_white"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/currentStateProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="@drawable/drawable_circle_dark_blue"
-            android:indeterminate="false"
-            android:max="300"
-            android:progressDrawable="@drawable/drawable_circle_yellow"
-            android:rotation="-90"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:textColor="@color/background_color"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/progressView"
+            tools:text="Text here" />
 
         <TextView
-            android:id="@+id/app_version"
+            android:id="@+id/currentLog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:text="@string/default_app_version"
-            android:textColor="@color/always_white"
-            app:layout_constraintBottom_toTopOf="@+id/relaunchBtn"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:layout_marginBottom="30dp"
+            android:textSize="9sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Text here" />
 
         <Button
-            android:id="@+id/relaunchBtn"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:text="@string/retry_launch_title"
-            android:textColor="@color/always_white"
-            app:layout_constraintBottom_toTopOf="@+id/showTorLogBtn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/showTorLogBtn"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:text="@string/show_tor_log_title"
-            android:textColor="@color/always_white"
-            app:layout_constraintBottom_toTopOf="@+id/testStartApp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/testStartApp"
-            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/selectConnectionTypeBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:shadowColor="#000000"
-            android:shadowDx="3"
-            android:shadowDy="3"
-            android:shadowRadius="3"
-            android:text="@string/force_start"
-            android:textColor="@color/always_white"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="@string/select_connection_type_title"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/currentState" />
 
+        <Button
+            android:id="@+id/resetConnectionBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/reset_connection_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/selectConnectionTypeBtn" />
+
+        <Button
+            android:id="@+id/continueInBackgroundBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/skip_connection_wait_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/resetConnectionBtn" />
+
+        <Button
+            android:id="@+id/setBridgesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/setup_bridges_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/continueInBackgroundBtn" />
+
+        <Button
+            android:id="@+id/getTorStatusBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/get_tor_status_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/setBridgesBtn" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <fragment
-        android:id="@+id/torLogFragment"
-        android:name="net.veldor.flibusta_test.ui.different_fragments.TorLogFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:behavior_hideable="true"
-        app:behavior_peekHeight="75dp"
-        app:behavior_skipCollapsed="false"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

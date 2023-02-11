@@ -9,19 +9,19 @@ import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.DownloadScheduleErrorItemLayoutBinding
-import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
+import net.veldor.flibusta_test.model.db.entity.DownloadError
 import net.veldor.flibusta_test.model.delegate.SomeButtonPressedDelegate
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
 import net.veldor.flibusta_test.model.helper.UrlHelper
 
 class DownloadScheduleErrorAdapter(
-    arrayList: List<BooksDownloadSchedule>?,
+    arrayList: List<DownloadError>?,
     val delegate: SomeButtonPressedDelegate,
     val context: Context
 ) :
     RecyclerView.Adapter<DownloadScheduleErrorAdapter.ViewHolder>() {
 
-    private var values: List<BooksDownloadSchedule> = arrayListOf()
+    private var values: List<DownloadError> = arrayListOf()
 
 
     private var mLayoutInflater: LayoutInflater =
@@ -45,7 +45,7 @@ class DownloadScheduleErrorAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setList(it: List<BooksDownloadSchedule>?) {
+    fun setList(it: List<DownloadError>?) {
         values = it ?: listOf()
         notifyDataSetChanged()
     }
@@ -55,7 +55,7 @@ class DownloadScheduleErrorAdapter(
             binding.root
         ) {
         init {
-            if(PreferencesHandler.instance.isEInk){
+            if(PreferencesHandler.isEInk){
                 binding.bookName.setTextColor(
                     ResourcesCompat.getColor(
                         context.resources,
@@ -66,9 +66,10 @@ class DownloadScheduleErrorAdapter(
             }
         }
 
-        fun bind(item: BooksDownloadSchedule) {
+        fun bind(item: DownloadError) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
+            binding.errorReason.text = item.error
             binding.pathToFile.text = UrlHelper.getDownloadedBookPath(item)
             binding.actionBtn.setOnClickListener {
                 delegate.buttonPressed(item)

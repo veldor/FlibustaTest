@@ -1,12 +1,12 @@
 package net.veldor.flibusta_test.model.handler
 
 import android.util.Log
-import net.veldor.flibusta_test.model.components.Translator
+import net.veldor.flibusta_test.model.connection.Connector
 import net.veldor.flibusta_test.model.db.DatabaseInstance
 import net.veldor.flibusta_test.model.helper.UrlHelper
-import net.veldor.flibusta_test.model.selections.DownloadLink
 import net.veldor.flibusta_test.model.db.entity.BooksDownloadSchedule
-import net.veldor.flibusta_test.model.web.UniversalWebClient
+import net.veldor.flibusta_test.model.selection.DownloadLink
+import net.veldor.flibusta_test.model.util.Translator
 
 object DownloadLinkHandler {
     fun addDownloadLink(link: DownloadLink) {
@@ -21,19 +21,19 @@ object DownloadLinkHandler {
             newScheduleElement.sequenceDirName = link.sequenceDirName!!
             newScheduleElement.reservedSequenceName = link.reservedSequenceName
             newScheduleElement.name = UrlHelper.getBookName(link)
-            DatabaseInstance.instance.mDatabase.booksDownloadScheduleDao()
+            DatabaseInstance.mDatabase.booksDownloadScheduleDao()
                 .insert(newScheduleElement)
         }
     }
 
     fun createDownloadLinkFromHref(link: String): DownloadLink? {
         Log.d("surprise", "DownloadLinkHandler.kt 29: request $link")
-        val info = UniversalWebClient().noMirrorRawRequest(link, true)
+        val info = Connector().rawRequest(link, true)
         Log.d("surprise", "DownloadLinkHandler.kt 31: result ${info.statusCode}")
         if (info.statusCode < 400) {
             val downloadLink = DownloadLink()
             downloadLink.url = link.replaceBefore("/b/", "")
-            info.headers?.forEach { header ->
+            info.headers.forEach { header ->
                 when (header.key) {
                     "Content-Disposition" -> {
                         val bookName =
@@ -91,7 +91,7 @@ object DownloadLinkHandler {
                         downloadLink.sequenceDirName = cyrillicSequenceName.replace("-", " ")
                     }
                     "Content-Length" -> {
-                        downloadLink.size = GrammarHandler.getTextSize(header.value.toLong())
+                        downloadLink.size = GrammarHandler.getTextSize(header.value[0].code.toLong())
                     }
                 }
             }

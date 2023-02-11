@@ -1,10 +1,6 @@
 package net.veldor.flibusta_test.model.db.entity
 
-import android.util.Log
 import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
-import net.veldor.flibusta_test.model.selections.CurrentBookDownloadProgress
 
 @Entity
 class DownloadError: BooksDownloadSchedule() {

@@ -1,0 +1,103 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Splash screen theme. -->
+    <style name="Theme.App.Starting" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/textColor</item>
+        <item name="colorPrimaryDark">@color/textColor</item>
+        <item name="colorAccent">@color/textColor</item>
+        <item name="colorControlActivated">@color/selectedRadioColor</item>
+        <item name="colorControlNormal">@color/radiobuttonUnselectedColor</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColor</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorButtonNormal">@color/alwaysWhite</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/colorPrimary</item>
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
+    </style>
+
+    <style name="QuickToolsPanelButton" parent="@android:style/ButtonBar">
+    </style>
+
+    <style name="dialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNeutralButtonStyle">@style/PositiveButtonStyle</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/colorWarning</item>
+    </style>
+
+    <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/alwaysWhite</item>
+    </style>
+
+    <style name="MyEinkActionBar" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColorPrimary">@color/alwaysWhite</item>
+        <item name="colorControlNormal">@color/alwaysWhite</item>
+        <item name="android:textColorSecondary">@color/alwaysWhite</item>
+        <item name="tint">@color/alwaysWhite</item>
+        <item name="background">@color/white</item>
+        <item name="backgroundColor">@color/white</item>
+        <item name="colorButtonNormal">@color/alwaysWhite</item>
+        <item name="color">@color/alwaysWhite</item>
+        <item name="iconTint">@color/alwaysWhite</item>
+        <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
+    </style>
+
+    <style name="MyActionBar" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColorPrimary">@color/alwaysWhite</item>
+        <item name="colorControlNormal">@color/alwaysWhite</item>
+        <item name="android:textColorSecondary">@color/alwaysWhite</item>
+        <item name="tint">@color/alwaysWhite</item>
+        <item name="background">@color/white</item>
+        <item name="backgroundColor">@color/white</item>
+        <item name="colorButtonNormal">@color/alwaysWhite</item>
+        <item name="color">@color/alwaysWhite</item>
+        <item name="iconTint">@color/alwaysWhite</item>
+        <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
+    </style>
+
+    <style name="cursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+    </style>
+
+    <style name="eInkCursorColor" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textCursorDrawable">@drawable/cursor_eink</item>
+    </style>
+
+    <style name="NavigationBarTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="android:textColorPrimary">@color/book_name_color</item>
+        <item name="tint">@color/book_name_color</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+
+    <style name="EInkAppTheme" parent="Theme.AppCompat.DayNight">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorControlNormal">@color/alwaysWhite</item>
+        <item name="android:textColor">@color/alwaysWhite</item>
+        <item name="android:windowBackground">@color/white</item>
+        <item name="background">@color/white</item>
+        <item name="windowNoTitle">true</item>
+        <item name="autoCompleteTextViewStyle">@style/eInkCursorColor</item>
+    </style>
+</resources>

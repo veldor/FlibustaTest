@@ -2,7 +2,6 @@ package net.veldor.flibusta_test.model.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,10 +13,9 @@ import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.R
 import net.veldor.flibusta_test.databinding.BookmarkItemBinding
 import net.veldor.flibusta_test.model.delegate.SomeActionDelegate
-import net.veldor.flibusta_test.model.handler.BookmarkHandler.Companion.TYPE_CATEGORY
+import net.veldor.flibusta_test.model.handler.BookmarkHandler.TYPE_CATEGORY
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.selections.BookmarkItem
-import net.veldor.flibusta_test.model.selections.FileItem
+import net.veldor.flibusta_test.model.selection.BookmarkItem
 
 class BookmarksAdapter(
     arrayList: ArrayList<BookmarkItem>?,
@@ -56,7 +54,7 @@ class BookmarksAdapter(
 
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-        viewHolder.bind(filteredValues[i], i)
+        viewHolder.bind(filteredValues[i])
     }
 
     override fun getItemCount(): Int {
@@ -88,7 +86,7 @@ class BookmarksAdapter(
         ) {
 
         init {
-            if(PreferencesHandler.instance.isEInk){
+            if(PreferencesHandler.isEInk){
                 binding.name.setTextColor(ResourcesCompat.getColor(
                     context.resources,
                     R.color.invertable_black,
@@ -97,7 +95,7 @@ class BookmarksAdapter(
             }
         }
 
-        fun bind(item: BookmarkItem, position: Int) {
+        fun bind(item: BookmarkItem) {
             binding.setVariable(BR.item, item)
             binding.executePendingBindings()
             if (item.type == TYPE_CATEGORY) {

@@ -12,17 +12,17 @@ class CheckSubscriptionsWorker(context: Context, workerParams: WorkerParameters)
     override fun doWork(): Result {
         val info = createForegroundInfo()
         setForegroundAsync(info)
-        SubscribesHandler.instance.checkSubscribes(false)
-        val resultsSize = SubscribesHandler.instance.subscribeResults.size
+        SubscribesHandler.checkSubscribes(false)
+        val resultsSize = SubscribesHandler.subscribeResults.size
         if(resultsSize > 0){
-            NotificationHandler.instance.notifySubscriptionsCheck(resultsSize)
+            NotificationHandler.notifySubscriptionsCheck(resultsSize)
         }
         return Result.success()
     }
 
 
     private fun createForegroundInfo(): ForegroundInfo {
-        val notification = NotificationHandler.instance.checkSubscribesNotification
+        val notification = NotificationHandler.checkSubscribesNotification
         return ForegroundInfo(
             NotificationHandler.CHECK_SUBSCRIBES_WORKER_NOTIFICATION,
             notification

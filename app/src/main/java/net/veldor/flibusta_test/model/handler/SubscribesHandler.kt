@@ -5,11 +5,11 @@ import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import net.veldor.flibusta_test.App
-import net.veldor.flibusta_test.model.helper.StringHelper
+import net.veldor.flibusta_test.model.connection.Connector
 import net.veldor.flibusta_test.model.parser.OpdsParser
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
-import net.veldor.flibusta_test.model.selections.subscribe.*
-import net.veldor.flibusta_test.model.web.UniversalWebClient
+import net.veldor.flibusta_test.model.selection.FoundEntity
+import net.veldor.flibusta_test.model.selection.subscribe.*
+import net.veldor.tor_client.model.helper.StringHelper
 import java.io.*
 import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerConfigurationException
@@ -18,7 +18,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-class SubscribesHandler private constructor() {
+object SubscribesHandler {
     private var interrupted: Boolean = false
     val subscribeResults: ArrayList<FoundEntity> = getSerializedResults()
     val inProgress: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -44,13 +44,13 @@ class SubscribesHandler private constructor() {
             currentProgress.postValue("Полная проверка новых поступлений")
         }
         inProgress.postValue(true)
-        val lastCheckedBookId = PreferencesHandler.instance.lastCheckedForSubscription
+        val lastCheckedBookId = PreferencesHandler.lastCheckedForSubscription
         var lastBookFound = false
         var lastBookId: String? = null
-        val bookSubscribes = SubscribeBooks.instance.getSubscribeList()
-        val authorSubscribes = SubscribeAuthors.instance.getSubscribeList()
-        val sequenceSubscribes = SubscribeSequences.instance.getSubscribeList()
-        val genreSubscribes = SubscribeGenre.instance.getSubscribeList()
+        val bookSubscribes = SubscribeBooks.getSubscribeList()
+        val authorSubscribes = SubscribeAuthors.getSubscribeList()
+        val sequenceSubscribes = SubscribeSequences.getSubscribeList()
+        val genreSubscribes = SubscribeGenre.getSubscribeList()
         var textValue: String
         var nextPageLink: String? = "/opds/new/0/new"
         while (nextPageLink != null) {
@@ -59,12 +59,12 @@ class SubscribesHandler private constructor() {
                 return lastBookId
             }
             Log.d("surprise", "checkSubscribes: check next page")
-            val response = UniversalWebClient().rawRequest(nextPageLink, false)
+            val response = Connector().rawRequest(nextPageLink, false)
             if (response.statusCode == 200 && response.inputStream != null) {
                 val answerString = StringHelper.streamToString(response.inputStream)
                 if (!answerString.isNullOrEmpty()) {
                     val parser = OpdsParser(answerString)
-                    val results = parser.parse()
+                    val results = parser.parseWithAnswer()
                     nextPageLink = parser.nextPageLink
                     results.forEach { book ->
                         handledBooks++
@@ -209,7 +209,7 @@ class SubscribesHandler private constructor() {
             val ois = ObjectInputStream(bis)
             val o = ois.readObject()
             if(o is ArrayList<*>){
-                if(!o.isEmpty()){
+                if(o.isNotEmpty()){
                     if(o[0] is FoundEntity){
                         return o as ArrayList<FoundEntity>
                     }
@@ -221,13 +221,13 @@ class SubscribesHandler private constructor() {
     }
 
     private fun download(book: FoundEntity) {
-        if (PreferencesHandler.instance.autoDownloadSubscriptions) {
+        if (PreferencesHandler.autoDownloadSubscriptions) {
             book.downloaded
             val link = book.getFavoriteLink()
             if (link != null) {
                 DownloadLinkHandler.addDownloadLink(link)
-                if (PreferencesHandler.instance.downloadAutostart) {
-                    DownloadHandler.instance.startDownload()
+                if (PreferencesHandler.downloadAutostart) {
+                    DownloadHandler.startDownload()
                 }
             }
         }
@@ -304,60 +304,4 @@ class SubscribesHandler private constructor() {
         interrupted = true
     }
 
-    companion object {
-        fun addSubscribe(item: FoundEntity, target: String) {
-            if (target == "name") {
-                when (item.type) {
-                    OpdsParser.TYPE_AUTHOR, OpdsParser.TYPE_AUTHORS -> {
-                        if (item.name != null) {
-                            SubscribeAuthors.instance.addValue(item.name!!)
-                            return
-                        }
-                    }
-                    OpdsParser.TYPE_GENRE -> {
-                        if (item.name != null) {
-                            SubscribeGenre.instance.addValue(item.name!!)
-                            return
-                        }
-                    }
-                    OpdsParser.TYPE_SEQUENCE -> {
-                        val value = item.name!!.trim().lowercase()
-                        SubscribeSequences.instance.addValue(value)
-                        return
-                    }
-                }
-            }
-            when (target) {
-                "author" -> {
-                    item.authors.forEach {
-                        if (it.name != null) {
-                            SubscribeAuthors.instance.addValue(it.name!!)
-                        }
-                    }
-                    return
-                }
-                "sequence" -> {
-                    item.sequences.forEach {
-                        if (it.name != null) {
-                            val value = it.name!!.trim().lowercase()
-                                .substring(17, it.name!!.trim().length - 1)
-                            SubscribeSequences.instance.addValue(value)
-                        }
-                        return
-                    }
-                }
-                "genre" -> {
-                    item.genres.forEach {
-                        if (it.name != null) {
-                            SubscribeGenre.instance.addValue(it.name!!)
-                        }
-                    }
-                }
-            }
-        }
-
-        @kotlin.jvm.JvmStatic
-        var instance: SubscribesHandler = SubscribesHandler()
-            private set
-    }
 }

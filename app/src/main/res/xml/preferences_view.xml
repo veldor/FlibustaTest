@@ -11,7 +11,6 @@
             android:summaryOff="@string/routine_app_view_title"
             android:title="@string/is_ebook_title" />
     </PreferenceCategory>
-
         <DropDownPreference
             app:key="night theme"
             android:entries="@array/night_theme_entries"
@@ -19,40 +18,15 @@
             app:useSimpleSummaryProvider="true"
             android:entryValues="@array/night_theme_entry_values"
             android:title="@string/night_view_mode_title" />
-
     <PreferenceCategory
         android:title="@string/opds_preferences_category"
         >
-    <SwitchPreferenceCompat
-        android:key="opds light adapter"
-        app:defaultValue="false"
-        android:title="@string/compact_opds_adapter_use_title"
-        android:summaryOff="@string/standard_opds_adapter_mode_title"
-        android:summaryOn="@string/compact_opds_adapter_mode_title"
-        />
-
         <SwitchPreferenceCompat
             app:key="opds show paging"
             android:defaultValue="true"
             android:summary="@string/load_by_pages_title"
             android:summaryOff="@string/load_all_results_title"
             android:title="@string/load_by_pages_title" />
-
-        <SwitchPreferenceCompat
-            app:key="display pager button"
-            android:defaultValue="false"
-            android:dependency="opds show paging"
-            android:summary="@string/manual_load_next_results_page_title"
-            android:summaryOff="@string/autoload_next_results_page_title"
-            android:title="@string/next_page_loader_btn" />
-
-        <SwitchPreferenceCompat
-            app:key="hide pics"
-            android:defaultValue="false"
-            android:summary="@string/pictures_hidden_title"
-            android:summaryOff="@string/pictures_displayed_title"
-            android:title="@string/hide_pic_pref_title" />
-
         <SwitchPreferenceCompat
             app:key="show covers"
             android:defaultValue="true"
@@ -66,19 +40,12 @@
             android:summary="@string/book_covers_shown_by_request_title"
             android:summaryOff="@string/book_covers_shown_automatically_title"
             android:title="@string/show_covers_by_request_title" />
-
         <SwitchPreferenceCompat
             app:key="no item buttons"
             android:defaultValue="false"
             android:summary="@string/buttons_in_results_hidden_title"
             android:summaryOff="@string/buttons_in_results_displayed_title"
             android:title="@string/hide_search_result_buttons_pref" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/web_view_preferences_category_title">
-
     </PreferenceCategory>
 
 </PreferenceScreen>

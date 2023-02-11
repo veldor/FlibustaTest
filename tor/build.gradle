@@ -1,15 +1,20 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.android'
 }
 
+group = 'net.veldor.tor_client'
+version = '0.1'
+
 android {
-    compileSdk 28
-    compileSdkVersion 28
+    namespace 'net.veldor.tor_client'
+    compileSdk 33
+    compileSdkVersion 33
+
     defaultConfig {
-        minSdkVersion 16
-        targetSdk 28
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
+        minSdk 14
+        targetSdk 33
     }
 
     buildTypes {
@@ -22,12 +27,41 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'androidx.core:core-ktx:1.9.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
+    implementation "cz.msebera.android:httpclient:4.5.8"
+    implementation 'org.jsoup:jsoup:1.15.3'
+    implementation 'org.slf4j:slf4j-api:2.0.6'
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == "lint") {
+        //this is for speed up build
+        task.enabled = false
+    }
+    if (task.name.contains("Test")) {
+        //this is what you need
+        task.enabled = false
+    }
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'net.veldor.tor_client'
+                artifactId = 'tor_client'
+                version = '0.1'
+            }
+        }
+    }
 }

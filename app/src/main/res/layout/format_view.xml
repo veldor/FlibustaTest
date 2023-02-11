@@ -11,7 +11,7 @@
     android:ellipsize="end"
     android:maxLines="1"
     android:textSize="15sp"
-    tools:context=".ui.BrowserActivity"
+    tools:context=".view.SearchActivity"
     android:padding="3dp"
     android:paddingTop="10dp"
     android:paddingBottom="10dp"

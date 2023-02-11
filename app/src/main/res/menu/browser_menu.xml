@@ -21,4 +21,9 @@
         android:icon="@drawable/ic_baseline_bookmark_add_24"
         android:title="@string/show_add_bookmark_title"
         yourapp:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_login"
+        android:icon="@drawable/baseline_vpn_key_24"
+        android:title="@string/login_button_title"
+        yourapp:showAsAction="ifRoom"/>
 </menu>

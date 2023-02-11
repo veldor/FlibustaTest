@@ -1,17 +1,18 @@
 package net.veldor.flibusta_test.model.handler
 
 import android.content.Context
-import android.graphics.Color
-import android.text.Spannable
-import android.text.SpannableString
 import android.text.format.Formatter
-import android.text.style.BackgroundColorSpan
-import android.widget.TextView
+import android.util.Base64OutputStream
+import android.widget.Button
 import androidx.core.content.res.ResourcesCompat
+import androidx.documentfile.provider.DocumentFile
 import net.veldor.flibusta_test.App
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.FoundEntity
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.text.CharacterIterator
+import java.text.SimpleDateFormat
 import java.text.StringCharacterIterator
 import java.util.*
 import kotlin.math.abs
@@ -47,42 +48,10 @@ object GrammarHandler {
         return String.format("%.1f %cb", value / 1024.0, ci.current())
     }
 
-    fun getColoredString(mString: String?, colorId: Int, context: Context): Spannable {
-        val spannable: Spannable = SpannableString(mString)
-        if (PreferencesHandler.instance.isEInk) {
-            spannable.setSpan(
-                BackgroundColorSpan(
-                    ResourcesCompat.getColor(
-                        context.resources,
-                        R.color.invertable_black,
-                        context.theme
-                    )
-                ),
-                0,
-                spannable.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        } else {
-            spannable.setSpan(
-                BackgroundColorSpan(colorId),
-                0,
-                spannable.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-        }
-        return spannable
-    }
-
-    fun isValidUrl(newValue: String): Boolean {
-        return "^https?://.+\$".toRegex().matches(newValue)
-    }
-
-    @kotlin.jvm.JvmStatic
     fun clearDirName(dirName: String): String {
         return Regex("[^\\d\\w ]").replace(dirName, "")
     }
 
-    @kotlin.jvm.JvmStatic
     fun createAuthorDirName(author: FoundEntity): String {
         val dirname: String = author.name!!
         return if (dirname.length > 100) {
@@ -90,7 +59,6 @@ object GrammarHandler {
         } else dirname.trim()
     }
 
-    @kotlin.jvm.JvmStatic
     val random: Int
         get() {
             val min = 1000
@@ -99,7 +67,6 @@ object GrammarHandler {
             return r.nextInt(max - min + 1) + min
         }
 
-    @kotlin.jvm.JvmStatic
     val longRandom: Int
         get() {
             val min = 100000000
@@ -108,52 +75,131 @@ object GrammarHandler {
             return r.nextInt(max - min + 1) + min
         }
 
+    fun colorizeFormatButton(button: Button, mime: String) {
+        when (mime) {
+            "application/fb2+zip", "application/fb2" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.fb2_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/html+zip", "application/html" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.html_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/txt+zip", "application/txt" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.txt_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/rtf+zip", "application/rtf" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.rtf_color,
+                        button.context.theme
+                    )
+                )
+            }
 
-    @kotlin.jvm.JvmStatic
-    fun getAvailableDownloadFormats(item: FoundEntity, view: TextView) {
-        view.text = ""
-        if (item.downloadLinks.isEmpty()) {
-            view.text = getColoredString("Не найдены ссылки для загрузки", Color.RED, view.context)
-        }
-        item.downloadLinks.forEach {
-            if (it.mime != null) {
-                if (it.mime!!.contains("fb2")) {
-                    view.append(getColoredString(" FB2 ", Color.parseColor("#FFE91E63"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("mobi")) {
-                    view.append(getColoredString(" MOBI ", Color.parseColor("#FF9C27B0"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("epub")) {
-                    view.append(getColoredString(" EPUB ", Color.parseColor("#FF673AB7"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("pdf")) {
-                    view.append(getColoredString(" PDF ", Color.parseColor("#FF3F51B5"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("txt")) {
-                    view.append(getColoredString(" TXT ", Color.parseColor("#FF2196F3"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("html")) {
-                    view.append(getColoredString(" HTML ", Color.parseColor("#FF009688"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("doc")) {
-                    view.append(getColoredString(" DOC ", Color.parseColor("#FF4CAF50"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("djvu")) {
-                    view.append(getColoredString(" DJVU ", Color.parseColor("#FFFF9800"), view.context))
-                    view.append(" ")
-                } else if (it.mime!!.contains("rtf")) {
-                    view.append(getColoredString(" RTF ", Color.parseColor("#030303"), view.context))
-                    view.append(" ")
-                } else {
-                    view.append(getColoredString(it.mime!!, Color.parseColor("#030303"), view.context))
-                    view.append(" ")
-                }
+            "application/epub+zip", "application/epub" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.epub_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/x-mobipocket-ebook" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.mobi_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/djvu" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.djvu_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/pdf" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.pdf_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/pdf" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.pdf_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.docx_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/msword" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.doc_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/vnd.ms-htmlhelp" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.chm_color,
+                        button.context.theme
+                    )
+                )
+            }
+            "application/prc" -> {
+                button.setBackgroundColor(
+                    ResourcesCompat.getColor(
+                        button.context.resources,
+                        R.color.prc_color,
+                        button.context.theme
+                    )
+                )
             }
         }
     }
 
     fun getBookIdentifierFromLink(url: String?): String {
-        val result = url?.filter { it.isDigit() }
+        val result = url?.replace("fb2", "")?.filter { it.isDigit() }
         return result ?: ""
     }
 
@@ -171,4 +217,49 @@ object GrammarHandler {
     fun isValidBridges(newValue: String): Boolean {
         return true
     }
+
+    fun timestampToDate(timestamp: Long): String {
+        val sdf = SimpleDateFormat("dd.MM.yyyy hh:mm", Locale.ENGLISH)
+        val netDate = Date(timestamp)
+        return sdf.format(netDate)
+    }
+
+    fun toBase64(context: Context, file: DocumentFile): String {
+        return ByteArrayOutputStream().use { outputStream ->
+            Base64OutputStream(outputStream, android.util.Base64.DEFAULT).use { base64FilterStream ->
+                context.contentResolver.openInputStream(file.uri).use { inputStream ->
+                    inputStream?.copyTo(base64FilterStream)
+                }
+            }
+            return@use outputStream.toString()
+        }
+    }
+
+    fun toBase64(file: File): String {
+        return ByteArrayOutputStream().use { outputStream ->
+            Base64OutputStream(outputStream, android.util.Base64.DEFAULT).use { base64FilterStream ->
+                file.inputStream().use { inputStream ->
+                    inputStream.copyTo(base64FilterStream)
+                }
+            }
+            return@use outputStream.toString()
+        }
+    }
+
+    fun explodeFile(encodedFile: String, maxSendViaSocketSize: Int): ArrayList<String> {
+        val result: ArrayList<String> = arrayListOf()
+        var offset = 0
+        while (true){
+            if (offset + maxSendViaSocketSize < encodedFile.length){
+                result.add(encodedFile.substring(offset, offset + maxSendViaSocketSize))
+                offset += maxSendViaSocketSize
+            }
+            else{
+                result.add(encodedFile.substring(offset))
+                break
+            }
+        }
+        return result
+    }
+
 }

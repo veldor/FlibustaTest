@@ -9,14 +9,14 @@
 
         <variable
             name="book"
-            type="net.veldor.flibusta_test.model.selections.opds.FoundEntity" />
+            type="net.veldor.flibusta_test.model.selection.FoundEntity" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:background="@color/sequences_background"
+        android:background="@color/background_color"
         android:padding="5dp">
 
         <TextView
@@ -89,7 +89,7 @@
                 android:gravity="center_horizontal"
                 android:text="@{book.genreComplex}"
                 android:textAlignment="center"
-                android:textColor="@drawable/genre_text_color"
+                android:textColor="@color/genre_text_color"
                 android:textSize="14sp" />
 
             <TextView
@@ -145,7 +145,6 @@
             android:layout_width="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/transparent_bg_bordered_button"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:text="@string/download_message"
@@ -174,7 +173,7 @@
             android:id="@+id/book_read"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_readed_24dp"
+            android:background="@drawable/ic_read_24dp"
             android:contentDescription="@string/book_read_message"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"

@@ -32,4 +32,7 @@ interface DownloadedBooksDao {
 
     @Query("SELECT COUNT(*) FROM downloadedbooks")
     fun count(): Int
+
+    @Query("SELECT * FROM downloadedbooks ORDER BY id DESC LIMIT :requestedLoadSize OFFSET :requestedStartPosition")
+    fun request(requestedStartPosition: Int, requestedLoadSize: Int): List<DownloadedBooks>
 }

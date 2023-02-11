@@ -1,7 +1,8 @@
 package net.veldor.flibusta_test.model.delegate
 
 import android.view.View
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.selection.DownloadLink
+import net.veldor.flibusta_test.model.selection.FoundEntity
 
 interface FoundItemActionDelegate {
     fun buttonPressed(item: FoundEntity)
@@ -16,4 +17,5 @@ interface FoundItemActionDelegate {
     fun rightButtonPressed(item: FoundEntity)
     fun leftButtonPressed(item: FoundEntity)
     fun scrollTo(indexOf: Int)
+    fun fastDownload(link: DownloadLink)
 }

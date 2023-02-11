@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="use companion app"
+        app:title="@string/use_companion_app_title" />
+
+    <SwitchPreferenceCompat
+        app:dependency="use companion app"
+        app:key="auto send to companion app"
+        app:summary="@string/companion_app_autosend_message"
+        app:title="@string/auto_send_to_companion_app_title" />
+
+    <SwitchPreferenceCompat
+        app:key="convert fb2 on companion"
+        app:summary="@string/convert_fb2_to_epub_message"
+        app:title="@string/convert_fb2_to_epub_title" />
+
+    <Preference
+        app:dependency="use companion app"
+        app:icon="@drawable/baseline_cast_connected_24"
+        app:key="pair companion app"
+        app:title="@string/pair_app_title" />
+</PreferenceScreen>

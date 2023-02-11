@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorPrimary">#3e5f75</color>
+    <color name="colorPrimaryDark">#081b86</color>
+    <color name="colorAccent">#555</color>
+    <color name="background_color">#EDE9E9</color>
+    <color name="textColor">#000000</color>
+    <color name="colorWarning">#E91E63</color>
+    <color name="alwaysWhite">#FFFFFF</color>
+    <color name="inactive">#C8C8C8</color>
+    <color name="bottomNavigationColor">#3e5f75</color>
+    <color name="invertable_black">#000000</color>
+    <color name="dark_gray">#9F9E9E</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="fb2_color">#F44336</color>
+    <color name="mobi_color">#E91E63</color>
+    <color name="epub_color">#9C27B0</color>
+    <color name="pdf_color">#673AB7</color>
+    <color name="djvu_color">#3F51B5</color>
+    <color name="html_color">#2196F3</color>
+    <color name="doc_color">#03A9F4</color>
+    <color name="docx_color">#009688</color>
+    <color name="txt_color">#8BC34A</color>
+    <color name="rtf_color">#CDDC39</color>
+    <color name="zip_color">#FF9800</color>
+    <color name="chm_color">#FF5722</color>
+    <color name="htm_color">#FFEB3B</color>
+    <color name="prc_color">#38C1BA</color>
+
+    <color name="opds_background">#DDDCDC</color>
+    <color name="fabColor">#3e5f75</color>
+    <color name="lightTextColor">#FFFFFF</color>
+    <color name="cardview_background">#EDE9E9</color>
+    <color name="book_name_color">#881515</color>
+    <color name="author_text_color">#081b86</color>
+    <color name="genre_text_color">#0c6126</color>
+    <color name="sequences_text_color">#5403ad</color>
+    <color name="app_bar_icons_color">#FFFFFF</color>
+    <color name="backdropBorder">#242424</color>
+    <color name="dropdownBackgroundColor">#EDE9E9</color>
+    <color name="translator_text_color">#3e5f75</color>
+    <color name="einkTextColor">#000000</color>
+    <color name="invertedTextColor">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_light_color">#FFFFFF</color>
+    <color name="icon_text_color">#000000</color>
+    <color name="selected_item_background">#8A00BCD4</color>
     <color name="darkGreen">#009688</color>
     <color name="darkRed">#DD1506</color>
+    <color name="selectedRadioColor">#A3B0FA</color>
+    <color name="radiobuttonUnselectedColor">#C6C6C6</color>
 </resources>

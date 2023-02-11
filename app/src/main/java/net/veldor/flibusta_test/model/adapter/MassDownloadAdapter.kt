@@ -1,5 +1,6 @@
 package net.veldor.flibusta_test.model.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,12 +11,12 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.veldor.flibusta_test.BR
 import net.veldor.flibusta_test.R
-import net.veldor.flibusta_test.databinding.MassDownloadListViewBinding
+import net.veldor.flibusta_test.databinding.MassDownloadListItemBinding
 import net.veldor.flibusta_test.model.delegate.CheckboxDelegate
 import net.veldor.flibusta_test.model.handler.FormatHandler
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.parser.OpdsParser.Companion.TYPE_BOOK
-import net.veldor.flibusta_test.model.selections.opds.FoundEntity
+import net.veldor.flibusta_test.model.parser.OpdsParser
+import net.veldor.flibusta_test.model.selection.FoundEntity
 
 class MassDownloadAdapter(
     arrayList: ArrayList<FoundEntity>?,
@@ -32,7 +33,7 @@ class MassDownloadAdapter(
 
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val binding = MassDownloadListViewBinding.inflate(
+        val binding = MassDownloadListItemBinding.inflate(
             mLayoutInflater, viewGroup, false
         )
         return ViewHolder(binding)
@@ -53,12 +54,12 @@ class MassDownloadAdapter(
     }
 
 
-    inner class ViewHolder(private val binding: MassDownloadListViewBinding) :
+    inner class ViewHolder(private val binding: MassDownloadListItemBinding) :
         RecyclerView.ViewHolder(
             binding.root
         ) {
         init {
-            if (PreferencesHandler.instance.isEInk) {
+            if (PreferencesHandler.isEInk) {
                 binding.cardView.setCardBackgroundColor(
                     ResourcesCompat.getColor(context.resources, R.color.white, context.theme)
                 )
@@ -197,16 +198,16 @@ class MassDownloadAdapter(
 
             // скрою элементы как в основном вью
             binding.genreName.visibility =
-                if (PreferencesHandler.instance.showFoundBookGenres) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookGenres) View.VISIBLE else View.GONE
 
             binding.sequenceName.visibility =
-                if (PreferencesHandler.instance.showFoundBookSequences) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookSequences) View.VISIBLE else View.GONE
 
             binding.authorName.visibility =
-                if (PreferencesHandler.instance.showAuthors) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showAuthors) View.VISIBLE else View.GONE
 
             binding.translatorName.visibility =
-                if (PreferencesHandler.instance.showFoundBookTranslators) View.VISIBLE else View.GONE
+                if (PreferencesHandler.showFoundBookTranslators) View.VISIBLE else View.GONE
         }
     }
 
@@ -218,7 +219,7 @@ class MassDownloadAdapter(
                     return@outer
                 }
             }
-            if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.instance.strictDownloadFormat) {
+            if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.strictDownloadFormat) {
                 it.selectedLink = it.downloadLinks[0]
             }
         }
@@ -266,7 +267,7 @@ class MassDownloadAdapter(
                         return@outer
                     }
                 }
-                if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.instance.strictDownloadFormat) {
+                if (it.selectedLink == null && it.downloadLinks.isNotEmpty() && !PreferencesHandler.strictDownloadFormat) {
                     it.selectedLink = it.downloadLinks[0]
                 }
             }
@@ -284,11 +285,11 @@ class MassDownloadAdapter(
         return counter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun changeDownloadFormat(selectedFormat: String) {
-        Log.d("surprise", "changeDownloadFormat: selected $selectedFormat")
         this.selectedFormat = selectedFormat
         values.forEach {
-            if (it.type == TYPE_BOOK) {
+            if (it.type == OpdsParser.TYPE_BOOK) {
                 it.selectedLink = null
                 it.downloadLinks.forEach outer@{ link ->
                     if (FormatHandler.isSame(link.mime, selectedFormat)) {
@@ -297,7 +298,7 @@ class MassDownloadAdapter(
                     }
                 }
                 if (it.selectedLink == null) {
-                    if (PreferencesHandler.instance.strictDownloadFormat || it.downloadLinks.isEmpty() || it.downloadLinks[0].mime == null) {
+                    if (PreferencesHandler.strictDownloadFormat || it.downloadLinks.isEmpty() || it.downloadLinks[0].mime == null) {
                         it.selectedLink = null
                     } else if (it.downloadLinks.isNotEmpty()) {
                         it.selectedLink = it.downloadLinks[0]
@@ -342,7 +343,7 @@ class MassDownloadAdapter(
                     }
                 }
                 if (book.selectedLink == null) {
-                    if (PreferencesHandler.instance.strictDownloadFormat || book.downloadLinks.isEmpty()) {
+                    if (PreferencesHandler.strictDownloadFormat || book.downloadLinks.isEmpty()) {
                         book.selectedLink = null
                         if (book.name == null) {
                             book.downloadLinks.forEach outer@{ link ->

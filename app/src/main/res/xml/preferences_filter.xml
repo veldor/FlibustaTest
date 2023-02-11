@@ -10,7 +10,7 @@
     <SwitchPreferenceCompat
         app:key="show filter statistics"
         android:defaultValue="false"
-        android:summary="@string/filter_statistics_display_title"
+        android:summaryOn="@string/filter_statistics_display_title"
         android:summaryOff="@string/filter_statistics_hidden_title"
         android:title="@string/show_filter_statistics_pref" />
     <SwitchPreferenceCompat
@@ -43,4 +43,8 @@
         android:summary="@string/use_rules_filters_enabled_title"
         android:summaryOff="@string/use_rules_filters_disabled_title"
         android:title="@string/use_rules_filters_pref" />
+    <Preference
+        android:dependency="use rules filters"
+        android:key="show filter rules"
+        android:title="@string/edit_filters_title"/>
 </PreferenceScreen>

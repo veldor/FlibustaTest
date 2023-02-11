@@ -22,8 +22,8 @@ class WebViewViewModel : OpdsViewModel() {
             val downloadLink = DownloadLinkHandler.createDownloadLinkFromHref(link)
             if(downloadLink != null){
                 DownloadLinkHandler.addDownloadLink(downloadLink)
-                if (PreferencesHandler.instance.downloadAutostart) {
-                    DownloadHandler.instance.startDownload()
+                if (PreferencesHandler.downloadAutostart) {
+                    DownloadHandler.startDownload()
                 }
                 taskAppendedDelegate?.taskAppended(downloadLink)
             }

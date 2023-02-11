@@ -2,14 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:summaryOff="@string/download_setup_shown"
-        android:summaryOn="@string/download_setup_skipped"
-        android:title="@string/skip_download_setup_pref"
-        app:key="skip download setup" />
-
-    <SwitchPreferenceCompat
+<!--    <SwitchPreferenceCompat
         android:defaultValue="false"
         android:summaryOff="@string/remember_favorite_format_disabled_title"
         android:summaryOn="@string/remember_favorite_format_enabled_title"
@@ -22,7 +15,7 @@
         android:summary="@string/books_download_in_favorite_mime_title"
         android:title="@string/title_favorite_format_preference"
         app:key="favorite format"
-        app:useSimpleSummaryProvider="true" />
+        app:useSimpleSummaryProvider="true" />-->
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
@@ -40,8 +33,8 @@
             <PreferenceCategory android:title="@string/dir_structure_category">
                 <SwitchPreferenceCompat
                     android:defaultValue="false"
-                    android:summaryOff="@string/author_dirs_create_enabled"
-                    android:summaryOn="@string/author_dirs_create_disabled"
+                    android:summaryOff="@string/author_dirs_create_disabled"
+                    android:summaryOn="@string/author_dirs_create_enabled"
                     android:title="@string/author_dirs_pref"
                     app:key="create author dir" />
 
@@ -104,13 +97,6 @@
             app:key="show download progress" />
 
         <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:summaryOff="@string/re_download_disabled_title"
-            android:summaryOn="@string/re_download_enabled_title"
-            android:title="@string/re_download_title"
-            app:key="re download" />
-
-        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:summaryOff="@string/no_unzip_title"
             android:summaryOn="@string/unzip_title"
@@ -122,5 +108,10 @@
             android:summaryOn="@string/send_to_kindle_enabled_title"
             android:title="@string/send_to_kindle_title"
             app:key="send to kindle" />
+        <SwitchPreferenceCompat
+            app:dependency="send to kindle"
+            android:summary="@string/convert_bf2_for_kindle_message"
+            android:title="@string/convert_bf2_for_kindle_title"
+            app:key="convert fb2 for kindle" />
     </PreferenceCategory>
 </PreferenceScreen>

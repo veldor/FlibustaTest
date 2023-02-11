@@ -5,4 +5,19 @@
         <item>Светлая тема</item>
         <item>Ночная тема</item>
     </string-array>
+
+    <string-array name="night_theme_entry_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="connection_options_entries">
+        <item>Tor</item>
+        <item>Vpn</item>
+    </string-array>
+
+    <string-array name="connection_options_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

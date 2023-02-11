@@ -1,59 +1,50 @@
 package net.veldor.flibusta_test
 
-import android.widget.Toast
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.multidex.MultiDexApplication
-import net.veldor.flibusta_test.model.handler.LogHandler
-import net.veldor.flibusta_test.model.handler.OpdsResultsHandler
+import com.adobe.dp.fb2.convert.Converter
 import net.veldor.flibusta_test.model.handler.PreferencesHandler
-import net.veldor.flibusta_test.model.handler.SubscribesHandler
-import net.veldor.flibusta_test.model.utils.CacheUtils
-import net.veldor.flibusta_test.model.web.TOR_BROWSER_USER_AGENT
+import net.veldor.tor_client.model.control.AndroidOnionProxyManager
 
 
 class App : MultiDexApplication() {
 
+    val torManager: AndroidOnionProxyManager by lazy {
+        AndroidOnionProxyManager(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
-        // got instance
         instance = this
-
-        if(PreferencesHandler.instance.forbidden){
-            Toast.makeText(this, "Не сегодня", Toast.LENGTH_SHORT).show()
-            System.exit(0)
-        }
-
-        if(PreferencesHandler.instance.savingLogs){
-            LogHandler.getInstance()!!.initLog()
-        }
-
-        // set night mode
-        when (PreferencesHandler.instance.nightMode) {
-            PreferencesHandler.NIGHT_THEME_SYSTEM -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            )
-            PreferencesHandler.NIGHT_THEME_DAY -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO
-            )
-            PreferencesHandler.NIGHT_THEME_NIGHT -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            )
-        }
+        // store TorManager instance
+        setupNightMode()
     }
 
-    override fun onTerminate() {
-        super.onTerminate()
-        CacheUtils.requestClearCache()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        OpdsResultsHandler.instance.clear()
+    private fun setupNightMode() {
+        when (PreferencesHandler.nightMode) {
+            PreferencesHandler.NIGHT_THEME_DAY -> {
+                Log.d("surprise", "App: 24 it's day")
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
+            PreferencesHandler.NIGHT_THEME_NIGHT -> {
+                Log.d("surprise", "App: 31 good night")
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+            }
+            else -> {
+                Log.d("surprise", "App: 37 use system color theme")
+                AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                )
+            }
+        }
     }
 
     companion object {
-        //todo switch to false on release
-        const val isTestVersion = true
         lateinit var instance: App
             private set
     }
