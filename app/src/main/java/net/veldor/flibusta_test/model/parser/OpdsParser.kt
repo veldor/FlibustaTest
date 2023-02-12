@@ -629,6 +629,9 @@ class OpdsParser(private val text: String) {
             if(entitiesCount == 0){
                 OpdsStatement.setNoValuesFound()
             }
+            else{
+                OpdsStatement.setValuesFound()
+            }
         } catch (e: Exception) {
             Log.d("surprise", "parse: parse error")
             e.printStackTrace()

@@ -2132,6 +2132,12 @@ class OpdsFragment : DirectorySelectFragment(),
         }
     }
 
+    override fun resultsFound() {
+        activity?.runOnUiThread {
+            binding.massLoadFab.visibility = View.VISIBLE
+        }
+    }
+
 
     private fun updateDownloadBadge() {
         val currentProgress = DownloadHandler.liveBookDownloadProgress.value

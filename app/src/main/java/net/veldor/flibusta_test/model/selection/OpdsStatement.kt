@@ -169,4 +169,9 @@ object OpdsStatement {
         delegate?.hasNoResults()
     }
 
+    fun setValuesFound() {
+        noResults = false
+        delegate?.resultsFound()
+    }
+
 }

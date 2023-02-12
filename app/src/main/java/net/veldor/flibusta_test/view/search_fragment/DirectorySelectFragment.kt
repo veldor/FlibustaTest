@@ -4,8 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -21,19 +23,27 @@ import java.io.File
 
 abstract class DirectorySelectFragment : Fragment() {
 
+    private val intentLauncher = registerForActivityResult(
+    ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            mPreparedFunction()
+        } else {
+            showAccessCanceledDialog()
+        }
+    }
+
     private val readStoragePermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                if (ContextCompat.checkSelfPermission(
-                        requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    mPreparedFunction()
-                    return@registerForActivityResult
-                }
-            } else {
-                showAccessCanceledDialog()
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { isGranted ->
+            Log.d("surprise", "DirectorySelectFragment: 26 here grant result $isGranted")
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                mPreparedFunction()
+                return@registerForActivityResult
             }
+            showAccessCanceledDialog()
         }
 
     private lateinit var mPreparedFunction: () -> Unit
@@ -139,9 +149,12 @@ abstract class DirectorySelectFragment : Fragment() {
     }
 
     private fun isHaveRights(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+        return Environment.isExternalStorageManager()
     }
 
 
@@ -211,7 +224,20 @@ abstract class DirectorySelectFragment : Fragment() {
             .setPositiveButton(R.string.grant_access_message) { _, _ ->
                 mPreparedFunction = onPrepared
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    readStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                        readStoragePermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                            )
+                        )
+                    }
+                    else{
+                        val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val uri: Uri = Uri.fromParts("package", App.instance.packageName, null)
+                        intent.data = uri
+                        intentLauncher.launch(intent)
+                    }
                 }
             }
             .setNegativeButton(R.string.deny_storage_access_title) { _, _ ->

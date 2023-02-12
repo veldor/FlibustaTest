@@ -11,4 +11,5 @@ interface OpdsObserverDelegate {
     fun drawBadges()
     fun hasConnectionError(request: RequestItem, response: WebResponse)
     fun hasNoResults()
+    fun resultsFound()
 }
