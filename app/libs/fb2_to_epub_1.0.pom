@@ -1,0 +1,7 @@
+<project>
+  <modelVersion>1.0.0</modelVersion>
+  <groupId>net.veldor</groupId>
+  <artifactId>fb2_to_epub</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+</project>

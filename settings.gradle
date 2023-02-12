@@ -7,6 +7,9 @@ pluginManagement {
         maven {
             url 'https://github.com/psiegman/mvn-repo/raw/master/releases'
         }
+        flatDir {
+            dirs("libs")
+        }
     }
 }
 dependencyResolutionManagement {

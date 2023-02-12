@@ -51,7 +51,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation project(path: ':tor')
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation files('/Users/veldor/Downloads/fb2epub-0.3.0.jar')
+    implementation(
+            fileTree("libs/") {
+                // You can add as many include or exclude calls as you want
+                include("*.jar")
+                include("another-library.aar") // Some Android libraries are in AAR format
+                exclude("bad-library.jar")
+            }
+    )
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
